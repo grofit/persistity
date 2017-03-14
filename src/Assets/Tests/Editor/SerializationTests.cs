@@ -158,10 +158,10 @@ namespace Tests.Editor
             Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(xmlOutput) + " bytes");
             Console.WriteLine(xmlOutput);
 
-            //var deserializer = new BinaryDeserializer();
-            //var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
+            var deserializer = new XmlDeserializer();
+            var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
 
-//            AssertionOnDummyData(a, result);
+            AssertionOnDummyData(a, result);
         }
     }
 }

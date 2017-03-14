@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml.Linq;
 using Persistity.Mappings;
 using UnityEngine;
@@ -83,10 +84,11 @@ namespace Persistity.Serialization
         {
             for (var i = 0; i < arrayCount; i++)
             {
+                var collectionElement = element.Elements("CollectionElement").ElementAt(i);
                 if (collectionMapping.InternalMappings.Count > 0)
                 {
                     var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
-                    Deserialize(collectionMapping.InternalMappings, elementInstance, element);
+                    Deserialize(collectionMapping.InternalMappings, elementInstance, collectionElement);
 
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = elementInstance; }
@@ -95,7 +97,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var value = DeserializePrimitive(collectionMapping.CollectionType, element);
+                    var value = DeserializePrimitive(collectionMapping.CollectionType, collectionElement);
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = value; }
                     else
@@ -108,24 +110,25 @@ namespace Persistity.Serialization
         {
             foreach (var mapping in mappings)
             {
+                var currentElement = element.Element(mapping.LocalName);
                 if (mapping is PropertyMapping)
-                { DeserializeProperty((mapping as PropertyMapping), instance, element); }
+                { DeserializeProperty((mapping as PropertyMapping), instance, currentElement); }
                 else if (mapping is NestedMapping)
                 {
                     var nestedMapping = (mapping as NestedMapping);
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
-                    DeserializeNestedObject(nestedMapping, childInstance, element);
+                    DeserializeNestedObject(nestedMapping, childInstance, currentElement);
                     nestedMapping.SetValue(instance, childInstance);
                 }
                 else
                 {
                     var collectionMapping = (mapping as CollectionPropertyMapping);
-                    var arrayCount = int.Parse(element.Attribute("Count").Value);
+                    var arrayCount = int.Parse(currentElement.Attribute("Count").Value);
 
                     if (collectionMapping.IsArray)
                     {
                         var arrayInstance = (IList) Activator.CreateInstance(collectionMapping.Type, arrayCount);
-                        DeserializeCollection(collectionMapping, arrayInstance, arrayCount, element);
+                        DeserializeCollection(collectionMapping, arrayInstance, arrayCount, currentElement);
                         collectionMapping.SetValue(instance, arrayInstance);
                     }
                     else
@@ -133,7 +136,7 @@ namespace Persistity.Serialization
                         var listType = typeof(List<>);
                         var constructedListType = listType.MakeGenericType(collectionMapping.CollectionType);
                         var listInstance = (IList)Activator.CreateInstance(constructedListType);
-                        DeserializeCollection(collectionMapping, listInstance, arrayCount, element);
+                        DeserializeCollection(collectionMapping, listInstance, arrayCount, currentElement);
                         collectionMapping.SetValue(instance, listInstance);
                     }
                 }
