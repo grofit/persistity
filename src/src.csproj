@@ -81,6 +81,7 @@
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
     <Compile Include="Assets\Persistity\Json\JSON.cs" />
+    <Compile Include="Assets\Persistity\Serialization\XmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\BinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\BinarySerializer.cs" />
     <Compile Include="Assets\Persistity\Mappings\CollectionPropertyMapping.cs" />
@@ -89,6 +90,7 @@
     <Compile Include="Assets\Persistity\Serialization\IDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ISerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\JsonDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\XmlSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\JsonSerializer.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\NestedMapping.cs" />

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Text;
 using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Mappings;
@@ -120,8 +121,9 @@ namespace Tests.Editor
 
             var serializer = new JsonSerializer();
             var jsonOutput = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(jsonOutput) + " bytes");
             Console.WriteLine(jsonOutput);
-
+            
             var deserializer = new JsonDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, jsonOutput);
 
@@ -136,12 +138,30 @@ namespace Tests.Editor
 
             var serializer = new BinarySerializer();
             var binaryOutput = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + binaryOutput.Length + " bytes");
             Console.WriteLine(BitConverter.ToString(binaryOutput));
 
             var deserializer = new BinaryDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, binaryOutput);
 
             AssertionOnDummyData(a, result);
+        }
+
+        [Test]
+        public void should_correctly_serialize_with_xml()
+        {
+            var a = GenerateDummyData();
+            var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
+
+            var serializer = new XmlSerializer();
+            var xmlOutput = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(xmlOutput) + " bytes");
+            Console.WriteLine(xmlOutput);
+
+            //var deserializer = new BinaryDeserializer();
+            //var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
+
+//            AssertionOnDummyData(a, result);
         }
     }
 }
