@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Persistity.Serialization
 {
-    public class JsonDeserializer
+    public class JsonDeserializer : IDeserializer<string>
     {
         private object DeserializePrimitive(JSONNode value, Type type)
         {

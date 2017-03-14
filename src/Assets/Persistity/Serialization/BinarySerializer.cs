@@ -6,7 +6,7 @@ using UnityEngine;
 
 namespace Persistity.Serialization
 {
-    public class BinarySerializer
+    public class BinarySerializer : ISerializer<byte[]>
     {
         private void SerializePrimitive(object value, Type type, BinaryWriter writer)
         {
@@ -53,7 +53,7 @@ namespace Persistity.Serialization
             }
         }
 
-        public byte[] SerializeData<T>(TypeMapping typeMapping, T data)
+        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             using (var memoryStream = new MemoryStream())
             using (var binaryWriter = new BinaryWriter(memoryStream))

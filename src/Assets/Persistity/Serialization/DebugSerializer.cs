@@ -4,9 +4,9 @@ using Persistity.Mappings;
 
 namespace Persistity.Serialization
 {
-    public static class DebugSerializer
+    public class DebugSerializer : ISerializer<string>
     {
-        public static string SerializeData<T>(this TypeMapping typeMapping, T data)
+        public string SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             var output = new StringBuilder();
 
@@ -15,13 +15,13 @@ namespace Persistity.Serialization
             return output.ToString();
         }
 
-        private static string SerializeProperty<T>(this PropertyMapping propertyMapping, T data)
+        private string SerializeProperty<T>(PropertyMapping propertyMapping, T data)
         {
             var output = propertyMapping.GetValue(data);
             return string.Format("{0} : {1}", propertyMapping.ScopedName, output);
         }
 
-        private static string SerializeNestedObject<T>(this NestedMapping nestedMapping, T data)
+        private string SerializeNestedObject<T>(NestedMapping nestedMapping, T data)
         {
             var output = new StringBuilder();
             var currentData = nestedMapping.GetValue(data);
@@ -30,7 +30,7 @@ namespace Persistity.Serialization
             return output.ToString();
         }
 
-        private static string Serialize<T>(IEnumerable<Mapping> mappings, T data)
+        private string Serialize<T>(IEnumerable<Mapping> mappings, T data)
         {
             var output = new StringBuilder();
 
@@ -56,7 +56,7 @@ namespace Persistity.Serialization
             return output.ToString();
         }
 
-        private static string SerializeCollection<T>(this CollectionPropertyMapping collectionMapping, T data)
+        private string SerializeCollection<T>(CollectionPropertyMapping collectionMapping, T data)
         {
             var output = new StringBuilder();
             var collectionValue = collectionMapping.GetValue(data);

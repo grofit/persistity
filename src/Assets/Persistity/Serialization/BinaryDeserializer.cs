@@ -7,7 +7,7 @@ using UnityEngine;
 
 namespace Persistity.Serialization
 {
-    public class BinaryDeserializer
+    public class BinaryDeserializer : IDeserializer<byte[]>
     {
         private object DeserializePrimitive(Type type, BinaryReader reader)
         {

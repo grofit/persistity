@@ -72,9 +72,10 @@ namespace Assets.Tests.Editor.Persistence
             var a = GenerateDummyData();
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
-            var output = typeStuff.SerializeData(a);
+            var serializer = new DebugSerializer();
+
+            var output = serializer.SerializeData(typeStuff, a);
             Console.WriteLine(output);
-            return;
         }
 
         [Test]
@@ -85,10 +86,10 @@ namespace Assets.Tests.Editor.Persistence
 
             var serializer = new JsonSerializer();
             var jsonOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine(jsonOutput.ToString());
+            Console.WriteLine(jsonOutput);
 
             var deserializer = new JsonDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, jsonOutput.ToString());
+            var result = deserializer.DeserializeData<A>(typeStuff, jsonOutput);
 
             AssertionOnDummyData(result);
         }
