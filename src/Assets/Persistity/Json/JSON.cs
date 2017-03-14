@@ -751,8 +751,7 @@ namespace Persistity.Json {
         {
             get
             {
-                var values = JSON.Parse(this);
-                return new Vector2(values["x"].AsFloat, values["y"].AsFloat);
+                return new Vector2(this["x"].AsFloat, this["y"].AsFloat);
             }
             set
             {
@@ -767,8 +766,7 @@ namespace Persistity.Json {
         {
             get
             {
-                var values = JSON.Parse(this);
-                return new Vector3(values["x"].AsFloat, values["y"].AsFloat, values["z"].AsFloat);
+                return new Vector3(this["x"].AsFloat, this["y"].AsFloat, this["z"].AsFloat);
             }
             set
             {
@@ -784,8 +782,7 @@ namespace Persistity.Json {
         {
             get
             {
-                var values = JSON.Parse(this);
-                return new Vector4(values["x"].AsFloat, values["y"].AsFloat, values["z"].AsFloat, values["w"].AsFloat);
+                return new Vector4(this["x"].AsFloat, this["y"].AsFloat, this["z"].AsFloat, this["w"].AsFloat);
             }
             set
             {

@@ -134,7 +134,8 @@
     <Compile Include="Assets\Tests\Editor\Models\A.cs" />
     <Compile Include="Assets\Tests\Editor\Models\B.cs" />
     <Compile Include="Assets\Tests\Editor\Models\C.cs" />
-    <Compile Include="Assets\Tests\Editor\PesistenceSanityTest.cs" />
+    <Compile Include="Assets\Tests\Editor\Models\D.cs" />
+    <Compile Include="Assets\Tests\Editor\SerializationTests.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Editor\AssertionComponentEditor.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Editor\AssertionExplorerWindow.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Editor\AssertionListRenderer.cs" />

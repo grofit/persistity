@@ -14,14 +14,26 @@ namespace Persistity.Serialization
             if (type == typeof(byte)) node = new JSONData((byte)value);
             else if (type == typeof(short)) node = new JSONData((short)value);
             else if (type == typeof(int)) node = new JSONData((int)value);
-            else if (type == typeof(long)) node = new JSONData((long)value);
             else if (type == typeof(bool)) node = new JSONData((bool)value);
             else if (type == typeof(float)) node = new JSONData((float)value);
             else if (type == typeof(double)) node = new JSONData((double)value);
             else if (type == typeof(Vector2)) node = new JSONClass { AsVector2 = (Vector2)value };
             else if (type == typeof(Vector3)) node = new JSONClass { AsVector3 = (Vector3)value };
             else if (type == typeof(Vector4)) node = new JSONClass { AsVector4 = (Vector4)value };
-            else if (type == typeof(Quaternion)) node = new JSONClass { AsQuaternion = (Quaternion)value };
+            else if (type == typeof(Quaternion))
+            {
+                var typedValue = (Quaternion) value;
+                node = new JSONClass();
+                node.Add("x", new JSONData(typedValue.x));
+                node.Add("y", new JSONData(typedValue.y));
+                node.Add("z", new JSONData(typedValue.z));
+                node.Add("w", new JSONData(typedValue.w));
+            }
+            else if (type == typeof(DateTime))
+            {
+                var typedValue = (DateTime) value;
+                node = new JSONData(typedValue.ToBinary().ToString());
+            }
             else node = new JSONData(value.ToString());
             return node;
         }

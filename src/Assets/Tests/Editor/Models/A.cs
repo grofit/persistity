@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using Persistity.Attributes;
+using Tests.Editor.Models;
 
 namespace Assets.Tests.Editor
 {
@@ -9,6 +10,8 @@ namespace Assets.Tests.Editor
         [PersistData]
         public string TestValue { get; set; }
 
+        public int NonPersisted { get; set; }
+
         [PersistData]
         public B NestedValue { get; set; }
 
@@ -17,6 +20,9 @@ namespace Assets.Tests.Editor
         
         [PersistData]
         public IList<string> Stuff { get; set; }
+
+        [PersistData]
+        public D AllTypes { get; set; }
 
         public A()
         {

@@ -47,6 +47,10 @@ namespace Persistity.Serialization
                 writer.Write(quaternion.z);
                 writer.Write(quaternion.w);
             }
+            else if (type == typeof(DateTime))
+            {
+                writer.Write(((DateTime)value).ToBinary());
+            }
             else
             {
                 writer.Write(value.ToString());

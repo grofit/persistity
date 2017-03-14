@@ -11,13 +11,22 @@ namespace Persistity.Serialization
     {
         private object DeserializePrimitive(JSONNode value, Type type)
         {
+            if (type == typeof(byte)) return (byte)value.AsInt;
+            if (type == typeof(short)) return (short)value.AsInt;
             if (type == typeof(int)) return value.AsInt;
-            if (type == typeof(Vector2)) return value.AsVector2;
-            if (type == typeof(Vector3)) return value.AsVector3;
+            if (type == typeof(long)) return long.Parse(value.Value);
+            if (type == typeof(Guid)) return new Guid(value.Value);
             if (type == typeof(bool)) return value.AsBool;
             if (type == typeof(float)) return value.AsFloat;
             if (type == typeof(double)) return value.AsDouble;
-
+            if (type == typeof(Vector2)) return value.AsVector2;
+            if (type == typeof(Vector3)) return value.AsVector3;
+            if (type == typeof(Vector4)) return value.AsVector4;
+            if (type == typeof(DateTime)) return DateTime.FromBinary(long.Parse(value.Value));
+            if (type == typeof(Quaternion))
+            {
+                return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat);
+            }
             return value.Value;
         }
 

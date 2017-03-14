@@ -5,6 +5,7 @@ using System.Linq;
 using System.Reflection;
 using Persistity.Attributes;
 using Persistity.Extensions;
+using UnityEngine;
 
 namespace Persistity.Mappings
 {
@@ -112,7 +113,14 @@ namespace Persistity.Mappings
 
         private bool isPrimitiveType(Type type)
         {
-            return type.IsPrimitive || type == typeof(string) || type == typeof(DateTime) || type == typeof(Guid);
+            return type.IsPrimitive || 
+                type == typeof(string) ||
+                type == typeof(DateTime) ||
+                type == typeof(Vector2) ||
+                type == typeof(Vector3) ||
+                type == typeof(Vector4) ||
+                type == typeof(Quaternion) ||
+                type == typeof(Guid);
         }
     }
 }

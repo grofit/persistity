@@ -14,6 +14,7 @@ namespace Persistity.Serialization
             if (type == typeof(byte)) { return reader.ReadByte(); }
             if (type == typeof(short)) { return reader.ReadInt16(); }
             if (type == typeof(int)) { return reader.ReadInt32(); }
+            if (type == typeof(long)) { return reader.ReadInt64(); }
             if (type == typeof(bool)) { return reader.ReadBoolean(); }
             if (type == typeof(float)) { return reader.ReadSingle(); }
             if (type == typeof(double)) { return reader.ReadDouble(); }
@@ -46,6 +47,15 @@ namespace Persistity.Serialization
                 var z = reader.ReadSingle();
                 var w = reader.ReadSingle();
                 return new Quaternion(x, y, z, w);
+            }
+            if (type == typeof(Guid))
+            {
+                return new Guid(reader.ReadString());
+            }
+            if (type == typeof(DateTime))
+            {
+                var binaryTime = reader.ReadInt64();
+                return DateTime.FromBinary(binaryTime);
             }
             
             return reader.ReadString();
