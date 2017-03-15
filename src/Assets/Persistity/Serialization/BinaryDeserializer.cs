@@ -81,7 +81,7 @@ namespace Persistity.Serialization
         private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, BinaryReader reader)
         { Deserialize(nestedMapping.InternalMappings, instance, reader); }
 
-        private void DeserializeCollection(CollectionPropertyMapping collectionMapping, IList collectionInstance, int arrayCount, BinaryReader reader)
+        private void DeserializeCollection(CollectionMapping collectionMapping, IList collectionInstance, int arrayCount, BinaryReader reader)
         {
             for (var i = 0; i < arrayCount; i++)
             {
@@ -121,7 +121,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var collectionMapping = (mapping as CollectionPropertyMapping);
+                    var collectionMapping = (mapping as CollectionMapping);
                     var arrayCount = reader.ReadInt32();
 
                     if (collectionMapping.IsArray)

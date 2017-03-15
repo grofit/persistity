@@ -80,7 +80,7 @@ namespace Persistity.Serialization
         private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, XElement element)
         { Deserialize(nestedMapping.InternalMappings, instance, element); }
 
-        private void DeserializeCollection(CollectionPropertyMapping collectionMapping, IList collectionInstance, int arrayCount, XElement element)
+        private void DeserializeCollection(CollectionMapping collectionMapping, IList collectionInstance, int arrayCount, XElement element)
         {
             for (var i = 0; i < arrayCount; i++)
             {
@@ -122,7 +122,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var collectionMapping = (mapping as CollectionPropertyMapping);
+                    var collectionMapping = (mapping as CollectionMapping);
                     var arrayCount = int.Parse(currentElement.Attribute("Count").Value);
 
                     if (collectionMapping.IsArray)

@@ -73,7 +73,7 @@ namespace Persistity.Serialization
             Serialize(nestedMapping.InternalMappings, currentData, element);
         }
         
-        private void SerializeCollection<T>(CollectionPropertyMapping collectionMapping, T data, XElement element)
+        private void SerializeCollection<T>(CollectionMapping collectionMapping, T data, XElement element)
         {
             var collectionValue = collectionMapping.GetValue(data);
             element.Add(new XAttribute("Count", collectionValue.Count));
@@ -102,7 +102,7 @@ namespace Persistity.Serialization
                 else if (mapping is NestedMapping)
                 { SerializeNestedObject((mapping as NestedMapping), data, newElement); }
                 else
-                { SerializeCollection((mapping as CollectionPropertyMapping), data, newElement); }
+                { SerializeCollection((mapping as CollectionMapping), data, newElement); }
             }
         }
     }

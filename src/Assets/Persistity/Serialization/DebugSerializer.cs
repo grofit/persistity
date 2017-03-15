@@ -46,17 +46,21 @@ namespace Persistity.Serialization
                     var result = SerializeNestedObject((mapping as NestedMapping), data);
                     output.Append(result);
                 }
+                else if (mapping is DictionaryMapping)
+                {
+                    var result = SerializeDictionary((mapping as DictionaryMapping), data);
+                    output.Append(result);
+                }
                 else
                 {
-                    var result = SerializeCollection((mapping as CollectionPropertyMapping), data);
+                    var result = SerializeCollection((mapping as CollectionMapping), data);
                     output.Append(result);
                 }
             }
-
             return output.ToString();
         }
 
-        private string SerializeCollection<T>(CollectionPropertyMapping collectionMapping, T data)
+        private string SerializeCollection<T>(CollectionMapping collectionMapping, T data)
         {
             var output = new StringBuilder();
             var collectionValue = collectionMapping.GetValue(data);
@@ -73,6 +77,39 @@ namespace Persistity.Serialization
                 else
                 {
                     output.AppendFormat("{0} : {1} \n", collectionMapping.ScopedName + ".value", currentData);
+                }
+            }
+
+            return output.ToString();
+        }
+
+        private string SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data)
+        {
+            var output = new StringBuilder();
+            var dictionaryValue = dictionaryMapping.GetValue(data);
+            output.AppendFormat("{0} : {1} \n", dictionaryMapping.ScopedName, dictionaryValue.Count);
+
+            foreach (var currentKey in dictionaryValue.Keys)
+            {
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                {
+                    var result = Serialize(dictionaryMapping.KeyMappings, currentKey);
+                    output.Append(result);
+                }
+                else
+                {
+                    output.AppendFormat("{0} : {1} \n", dictionaryMapping.ScopedName + ".key", currentKey);
+                }
+
+                var currentValue = dictionaryValue[currentKey];
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                {
+                    var result = Serialize(dictionaryMapping.ValueMappings, currentValue);
+                    output.Append(result);
+                }
+                else
+                {
+                    output.AppendFormat("{0} : {1} \n", dictionaryMapping.ScopedName + ".value", currentValue);
                 }
             }
 

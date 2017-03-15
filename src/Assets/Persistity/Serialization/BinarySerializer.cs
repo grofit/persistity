@@ -82,7 +82,7 @@ namespace Persistity.Serialization
             Serialize(nestedMapping.InternalMappings, currentData, writer);
         }
         
-        private void SerializeCollection<T>(CollectionPropertyMapping collectionMapping, T data, BinaryWriter writer)
+        private void SerializeCollection<T>(CollectionMapping collectionMapping, T data, BinaryWriter writer)
         {
             var collectionValue = collectionMapping.GetValue(data);
             writer.Write(collectionValue.Count);
@@ -106,7 +106,7 @@ namespace Persistity.Serialization
                 else if (mapping is NestedMapping)
                 { SerializeNestedObject((mapping as NestedMapping), data, writer); }
                 else
-                { SerializeCollection((mapping as CollectionPropertyMapping), data, writer); }
+                { SerializeCollection((mapping as CollectionMapping), data, writer); }
             }
         }
     }

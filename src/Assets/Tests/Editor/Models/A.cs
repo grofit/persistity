@@ -24,9 +24,17 @@ namespace Assets.Tests.Editor
         [PersistData]
         public D AllTypes { get; set; }
 
+        [PersistData]
+        public IDictionary<string, string> SimpleDictionary { get; set; }
+
+        [PersistData]
+        public IDictionary<E, C> ComplexDictionary { get; set; }
+
         public A()
         {
             Stuff = new List<string>();
+            SimpleDictionary = new Dictionary<string, string>();
+            ComplexDictionary = new Dictionary<E, C>();
         }
     }
 }

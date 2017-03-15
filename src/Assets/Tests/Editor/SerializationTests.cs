@@ -62,6 +62,12 @@ namespace Tests.Editor
                 QuaternionValue = new Quaternion(1.0f, 1.0f, 1.0f, 1.0f)
             };
 
+            a.SimpleDictionary.Add("key1", "some-value");
+            a.SimpleDictionary.Add("key2", "some-other-value");
+
+            a.ComplexDictionary.Add(new E{ IntValue = 10}, new C{ FloatValue = 32.2f });
+            a.ComplexDictionary.Add(new E{ IntValue = 20}, new C{ FloatValue = 60.5f });
+
             return a;
         }
 
@@ -99,6 +105,14 @@ namespace Tests.Editor
             Assert.That(result.AllTypes.Vector3Value, Is.EqualTo(expected.AllTypes.Vector3Value));
             Assert.That(result.AllTypes.Vector4Value, Is.EqualTo(expected.AllTypes.Vector4Value));
             Assert.That(result.AllTypes.QuaternionValue, Is.EqualTo(expected.AllTypes.QuaternionValue));
+            Assert.That(result.SimpleDictionary, Is.Not.Null);
+            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(2));
+            Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
+            Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
+            Assert.That(result.ComplexDictionary, Is.Not.Null);
+            Assert.That(result.ComplexDictionary.Count, Is.EqualTo(2));
+            Assert.That(result.ComplexDictionary.Keys, Is.EqualTo(expected.ComplexDictionary.Keys));
+            Assert.That(result.ComplexDictionary.Values, Is.EqualTo(expected.ComplexDictionary.Values));
         }
 
         [Test]

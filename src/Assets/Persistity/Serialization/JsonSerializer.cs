@@ -56,7 +56,7 @@ namespace Persistity.Serialization
             return Serialize(nestedMapping.InternalMappings, currentData);
         }
         
-        private JSONNode SerializeCollection<T>(CollectionPropertyMapping collectionMapping, T data)
+        private JSONNode SerializeCollection<T>(CollectionMapping collectionMapping, T data)
         {
             var collectionValue = collectionMapping.GetValue(data);
             var jsonArray = new JSONArray();
@@ -98,7 +98,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var result = SerializeCollection((mapping as CollectionPropertyMapping), data);
+                    var result = SerializeCollection((mapping as CollectionMapping), data);
                     jsonNode.Add(mapping.LocalName, result);
                 }
             }

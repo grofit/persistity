@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 namespace Persistity.Mappings
 {
-    public class CollectionPropertyMapping : Mapping
+    public class CollectionMapping : Mapping
     {
         public Type CollectionType { get; set; }
         public Func<object, IList> GetValue { get; set; }
@@ -12,7 +12,7 @@ namespace Persistity.Mappings
         public List<Mapping> InternalMappings { get; private set; }
         public bool IsArray { get; set; }
 
-        public CollectionPropertyMapping()
+        public CollectionMapping()
         { InternalMappings = new List<Mapping>(); }
     }
 }

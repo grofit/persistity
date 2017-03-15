@@ -47,7 +47,7 @@ namespace Persistity.Serialization
         private void DeserializeNestedObject<T>(NestedMapping nestedMapping, JSONNode data, T instance)
         { Deserialize(nestedMapping.InternalMappings, data, instance); }
 
-        private void DeserializeCollection(CollectionPropertyMapping collectionMapping, JSONArray data, IList instance)
+        private void DeserializeCollection(CollectionMapping collectionMapping, JSONArray data, IList instance)
         {
             for(var i=0;i<data.Count;i++)
             {
@@ -91,7 +91,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var collectionMapping = (mapping as CollectionPropertyMapping);
+                    var collectionMapping = (mapping as CollectionMapping);
                     var jsonData = jsonNode[mapping.LocalName].AsArray;
                     var arrayCount = jsonData.Count;
 
