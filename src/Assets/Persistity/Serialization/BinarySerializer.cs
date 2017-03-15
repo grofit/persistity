@@ -97,6 +97,27 @@ namespace Persistity.Serialization
             }
         }
 
+        private void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, BinaryWriter writer)
+        {
+            var dictionaryValue = dictionaryMapping.GetValue(data);
+            writer.Write(dictionaryValue.Count);
+
+            foreach (var key in dictionaryValue.Keys)
+            {
+                var currentValue = dictionaryValue[key];
+
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                { Serialize(dictionaryMapping.KeyMappings, key, writer); }
+                else
+                { SerializePrimitive(key, dictionaryMapping.KeyType, writer); }
+
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                { Serialize(dictionaryMapping.ValueMappings, currentValue, writer); }
+                else
+                { SerializePrimitive(currentValue, dictionaryMapping.ValueType, writer); }
+            }
+        }
+
         private void Serialize<T>(IEnumerable<Mapping> mappings, T data, BinaryWriter writer)
         {
             foreach (var mapping in mappings)
@@ -105,6 +126,8 @@ namespace Persistity.Serialization
                 { SerializeProperty((mapping as PropertyMapping), data, writer); }
                 else if (mapping is NestedMapping)
                 { SerializeNestedObject((mapping as NestedMapping), data, writer); }
+                else if(mapping is DictionaryMapping)
+                { SerializeDictionary(mapping as DictionaryMapping, data, writer);}
                 else
                 { SerializeCollection((mapping as CollectionMapping), data, writer); }
             }

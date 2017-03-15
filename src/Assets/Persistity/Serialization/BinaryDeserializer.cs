@@ -106,6 +106,31 @@ namespace Persistity.Serialization
             }
         }
 
+        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary dictionaryInstance, int dictionaryCount, BinaryReader reader)
+        {
+            for (var i = 0; i < dictionaryCount; i++)
+            {
+                object keyInstance, valueInstance;
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                {
+                    keyInstance = Activator.CreateInstance(dictionaryMapping.KeyType);
+                    Deserialize(dictionaryMapping.KeyMappings, keyInstance, reader);
+                }
+                else
+                { keyInstance = DeserializePrimitive(dictionaryMapping.KeyType, reader); }
+
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                {
+                    valueInstance = Activator.CreateInstance(dictionaryMapping.ValueType);
+                    Deserialize(dictionaryMapping.ValueMappings, valueInstance, reader);
+                }
+                else
+                { valueInstance = DeserializePrimitive(dictionaryMapping.ValueType, reader); }
+
+                dictionaryInstance.Add(keyInstance, valueInstance);
+            }
+        }
+
         private void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, BinaryReader reader)
         {
             foreach (var mapping in mappings)
@@ -118,6 +143,16 @@ namespace Persistity.Serialization
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
                     DeserializeNestedObject(nestedMapping, childInstance, reader);
                     nestedMapping.SetValue(instance, childInstance);
+                }
+                else if (mapping is DictionaryMapping)
+                {
+                    var dictionaryMapping = (mapping as DictionaryMapping);
+                    var dictionarytype = typeof(Dictionary<,>);
+                    var dictionaryCount = reader.ReadInt32();
+                    var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
+                    var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+                    DeserializeDictionary(dictionaryMapping, dictionary, dictionaryCount, reader);
+                    dictionaryMapping.SetValue(instance, dictionary);
                 }
                 else
                 {
