@@ -90,6 +90,33 @@ namespace Persistity.Serialization
             }
         }
 
+        private void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, XElement element)
+        {
+            var dictionaryValue = dictionaryMapping.GetValue(data);
+            element.Add(new XAttribute("Count", dictionaryValue.Count));
+
+            foreach (var key in dictionaryValue.Keys)
+            {
+                var currentValue = dictionaryValue[key];
+
+                var keyElement = new XElement("Key");
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                { Serialize(dictionaryMapping.KeyMappings, key, keyElement); }
+                else
+                { SerializePrimitive(key, dictionaryMapping.KeyType, keyElement); }
+
+                var valueElement = new XElement("Value");
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                { Serialize(dictionaryMapping.ValueMappings, currentValue, valueElement); }
+                else
+                { SerializePrimitive(currentValue, dictionaryMapping.ValueType, valueElement); }
+
+                var keyValuePairElement = new XElement("KeyValuePair");
+                keyValuePairElement.Add(keyElement, valueElement);
+                element.Add(keyValuePairElement);
+            }
+        }
+
         private void Serialize<T>(IEnumerable<Mapping> mappings, T data, XElement element)
         {
             foreach (var mapping in mappings)
@@ -101,6 +128,8 @@ namespace Persistity.Serialization
                 { SerializeProperty((mapping as PropertyMapping), data, newElement); }
                 else if (mapping is NestedMapping)
                 { SerializeNestedObject((mapping as NestedMapping), data, newElement); }
+                else if (mapping is DictionaryMapping)
+                { SerializeDictionary((mapping as DictionaryMapping), data, newElement); }
                 else
                 { SerializeCollection((mapping as CollectionMapping), data, newElement); }
             }

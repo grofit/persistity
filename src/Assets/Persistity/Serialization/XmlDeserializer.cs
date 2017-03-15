@@ -106,11 +106,41 @@ namespace Persistity.Serialization
             }
         }
 
+        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary dictionaryInstance, int dictionaryCount, XElement element)
+        {
+            for (var i = 0; i < dictionaryCount; i++)
+            {
+                object keyInstance, valueInstance;
+                var keyValuePairElement = element.Elements("KeyValuePair").ElementAt(i);
+                var keyElement = keyValuePairElement.Element("Key");
+                var valueElement = keyValuePairElement.Element("Value");
+
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                {
+                    keyInstance = Activator.CreateInstance(dictionaryMapping.KeyType);
+                    Deserialize(dictionaryMapping.KeyMappings, keyInstance, keyElement);
+                }
+                else
+                { keyInstance = DeserializePrimitive(dictionaryMapping.KeyType, keyElement); }
+
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                {
+                    valueInstance = Activator.CreateInstance(dictionaryMapping.ValueType);
+                    Deserialize(dictionaryMapping.ValueMappings, valueInstance, valueElement);
+                }
+                else
+                { valueInstance = DeserializePrimitive(dictionaryMapping.ValueType, valueElement); }
+
+                dictionaryInstance.Add(keyInstance, valueInstance);
+            }
+        }
+
         private void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, XElement element)
         {
             foreach (var mapping in mappings)
             {
                 var currentElement = element.Element(mapping.LocalName);
+
                 if (mapping is PropertyMapping)
                 { DeserializeProperty((mapping as PropertyMapping), instance, currentElement); }
                 else if (mapping is NestedMapping)
@@ -119,6 +149,16 @@ namespace Persistity.Serialization
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
                     DeserializeNestedObject(nestedMapping, childInstance, currentElement);
                     nestedMapping.SetValue(instance, childInstance);
+                }
+                else if (mapping is DictionaryMapping)
+                {
+                    var dictionaryMapping = (mapping as DictionaryMapping);
+                    var dictionarytype = typeof(Dictionary<,>);
+                    var dictionaryCount = int.Parse(currentElement.Attribute("Count").Value);
+                    var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
+                    var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+                    DeserializeDictionary(dictionaryMapping, dictionary, dictionaryCount, currentElement);
+                    dictionaryMapping.SetValue(instance, dictionary);
                 }
                 else
                 {
