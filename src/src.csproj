@@ -82,22 +82,37 @@
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
     <Compile Include="Assets\Persistity\Json\JSON.cs" />
     <Compile Include="Assets\Persistity\Mappings\DictionaryMapping.cs" />
-    <Compile Include="Assets\Persistity\Serialization\XmlDeserializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\BinaryDeserializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\BinarySerializer.cs" />
+    <Compile Include="Assets\Persistity\Registries\IMappingRegistry.cs" />
+    <Compile Include="Assets\Persistity\Registries\MappingRegistry.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\IBinaryDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\IBinarySerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\IJsonDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\IJsonSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\IXmlDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\IXmlSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\XmlDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinarySerializer.cs" />
     <Compile Include="Assets\Persistity\Mappings\CollectionMapping.cs" />
-    <Compile Include="Assets\Persistity\Serialization\DebugSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Debug\DebugSerializer.cs" />
     <Compile Include="Assets\Persistity\Extensions\IListExtensions.cs" />
     <Compile Include="Assets\Persistity\Serialization\IDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ISerializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\JsonDeserializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\XmlSerializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\JsonSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\JsonDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\XmlSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\JsonSerializer.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\NestedMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Binary\IJsonTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Binary\JsonTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Json\IJsonTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Json\JsonTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Xml\IXmlTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Xml\XmlTransformer.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionComponent.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionException.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Assertions.cs" />
@@ -159,6 +174,7 @@
     <None Include="Assets\UnityTestTools\LICENSE.txt" />
     <None Include="Assets\UnityTestTools\changelog.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>

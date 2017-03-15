@@ -6,9 +6,9 @@ using System.Xml.Linq;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Xml
 {
-    public class XmlDeserializer : IDeserializer<string>
+    public class XmlDeserializer : IXmlDeserializer
     {
         private object DeserializePrimitive(Type type, XElement element)
         {

@@ -5,9 +5,9 @@ using System.IO;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Binary
 {
-    public class BinaryDeserializer : IDeserializer<byte[]>
+    public class BinaryDeserializer : IBinaryDeserializer
     {
         private object DeserializePrimitive(Type type, BinaryReader reader)
         {

@@ -2,7 +2,7 @@ using System.Collections.Generic;
 using System.Text;
 using Persistity.Mappings;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Debug
 {
     public class DebugSerializer : ISerializer<string>
     {

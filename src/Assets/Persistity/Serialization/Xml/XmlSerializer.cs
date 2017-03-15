@@ -4,9 +4,9 @@ using System.Xml.Linq;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Xml
 {
-    public class XmlSerializer : ISerializer<string>
+    public class XmlSerializer : IXmlSerializer
     {
         private void SerializePrimitive(object value, Type type, XElement element)
         {

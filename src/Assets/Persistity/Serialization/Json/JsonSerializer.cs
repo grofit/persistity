@@ -4,9 +4,9 @@ using Persistity.Json;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Json
 {
-    public class JsonSerializer : ISerializer<string>
+    public class JsonSerializer : IJsonSerializer
     {
         private JSONNode SerializePrimitive(object value, Type type)
         {

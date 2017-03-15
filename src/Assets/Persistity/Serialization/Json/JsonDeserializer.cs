@@ -5,11 +5,11 @@ using Persistity.Json;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Json
 {
-    public class JsonDeserializer : IDeserializer<string>
+    public class JsonDeserializer : IJsonDeserializer
     {
-        private object DeserializePrimitive(JSONNode value, Type type)
+        private object DeserializePrimitive(Type type, JSONNode value)
         {
             if (type == typeof(byte)) return (byte)value.AsInt;
             if (type == typeof(short)) return (short)value.AsInt;
@@ -34,27 +34,27 @@ namespace Persistity.Serialization
         {
             var instance = new T();
             var jsonData = JSON.Parse(data);
-            Deserialize(typeMapping.InternalMappings, jsonData, instance);
+            Deserialize(typeMapping.InternalMappings, instance, jsonData);
             return instance;
         }
 
-        private void DeserializeProperty<T>(PropertyMapping propertyMapping, JSONNode data, T instance)
+        private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, JSONNode data)
         {
-            var underlyingValue = DeserializePrimitive(data, propertyMapping.Type);
+            var underlyingValue = DeserializePrimitive(propertyMapping.Type, data);
             propertyMapping.SetValue(instance, underlyingValue);
         }
 
-        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, JSONNode data, T instance)
-        { Deserialize(nestedMapping.InternalMappings, data, instance); }
+        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, JSONNode data)
+        { Deserialize(nestedMapping.InternalMappings, instance, data); }
 
-        private void DeserializeCollection(CollectionMapping collectionMapping, JSONArray data, IList instance)
+        private void DeserializeCollection(CollectionMapping collectionMapping, IList instance, JSONArray data)
         {
             for(var i=0;i<data.Count;i++)
             {
                 if (collectionMapping.InternalMappings.Count > 0)
                 {
                     var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
-                    Deserialize(collectionMapping.InternalMappings, data[i], elementInstance);
+                    Deserialize(collectionMapping.InternalMappings, elementInstance, data[i]);
 
                     if (instance.IsFixedSize)
                     { instance[i] = elementInstance; }
@@ -63,7 +63,7 @@ namespace Persistity.Serialization
                 }
                 else
                 {
-                    var value = DeserializePrimitive(data[i], collectionMapping.CollectionType);
+                    var value = DeserializePrimitive(collectionMapping.CollectionType, data[i]);
                     if (instance.IsFixedSize)
                     { instance[i] = value; }
                     else
@@ -72,7 +72,7 @@ namespace Persistity.Serialization
             }
         }
 
-        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, JSONArray data, IDictionary instance)
+        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary instance, JSONArray data)
         {
             for (var i = 0; i < data.Count; i++)
             {
@@ -84,38 +84,38 @@ namespace Persistity.Serialization
                 if (dictionaryMapping.KeyMappings.Count > 0)
                 {
                     currentKey = Activator.CreateInstance(dictionaryMapping.KeyType);
-                    Deserialize(dictionaryMapping.KeyMappings, jsonKey, currentKey);
+                    Deserialize(dictionaryMapping.KeyMappings, currentKey, jsonKey);
                 }
                 else
-                { currentKey = DeserializePrimitive(jsonKey, dictionaryMapping.KeyType); }
+                { currentKey = DeserializePrimitive(dictionaryMapping.KeyType, jsonKey); }
 
                 if (dictionaryMapping.ValueMappings.Count > 0)
                 {
                     currentValue = Activator.CreateInstance(dictionaryMapping.ValueType);
-                    Deserialize(dictionaryMapping.ValueMappings, jsonValue, currentValue);
+                    Deserialize(dictionaryMapping.ValueMappings, currentValue, jsonValue);
                 }
                 else
-                { currentValue = DeserializePrimitive(jsonValue, dictionaryMapping.ValueType); }
+                { currentValue = DeserializePrimitive(dictionaryMapping.ValueType, jsonValue); }
 
                 instance.Add(currentKey, currentValue);
             }
         }
 
-        private void Deserialize<T>(IEnumerable<Mapping> mappings, JSONNode jsonNode, T instance)
+        private void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, JSONNode jsonNode)
         {
             foreach (var mapping in mappings)
             {
                 if (mapping is PropertyMapping)
                 {
                     var jsonData = jsonNode[mapping.LocalName];
-                    DeserializeProperty((mapping as PropertyMapping), jsonData, instance);                   
+                    DeserializeProperty((mapping as PropertyMapping), instance, jsonData);                   
                 }
                 else if (mapping is NestedMapping)
                 {
                     var nestedMapping = (mapping as NestedMapping);
                     var jsonData = jsonNode[mapping.LocalName];
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
-                    DeserializeNestedObject(nestedMapping, jsonData, childInstance);
+                    DeserializeNestedObject(nestedMapping, childInstance, jsonData);
                     nestedMapping.SetValue(instance, childInstance);
                 }
                 else if (mapping is DictionaryMapping)
@@ -125,7 +125,7 @@ namespace Persistity.Serialization
                     var dictionarytype = typeof(Dictionary<,>);
                     var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
                     var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
-                    DeserializeDictionary(dictionaryMapping, jsonData, dictionary);
+                    DeserializeDictionary(dictionaryMapping, dictionary, jsonData);
                     dictionaryMapping.SetValue(instance, dictionary);
                 }
                 else
@@ -137,7 +137,7 @@ namespace Persistity.Serialization
                     if (collectionMapping.IsArray)
                     {
                         var arrayInstance = (IList) Activator.CreateInstance(collectionMapping.Type, arrayCount);
-                        DeserializeCollection(collectionMapping, jsonData, arrayInstance);
+                        DeserializeCollection(collectionMapping, arrayInstance, jsonData);
                         collectionMapping.SetValue(instance, arrayInstance);
                     }
                     else
@@ -145,7 +145,7 @@ namespace Persistity.Serialization
                         var listType = typeof(List<>);
                         var constructedListType = listType.MakeGenericType(collectionMapping.CollectionType);
                         var listInstance = (IList)Activator.CreateInstance(constructedListType);
-                        DeserializeCollection(collectionMapping, jsonData, listInstance);
+                        DeserializeCollection(collectionMapping, listInstance, jsonData);
                         collectionMapping.SetValue(instance, listInstance);
                     }
                 }

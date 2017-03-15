@@ -4,9 +4,9 @@ using System.IO;
 using Persistity.Mappings;
 using UnityEngine;
 
-namespace Persistity.Serialization
+namespace Persistity.Serialization.Binary
 {
-    public class BinarySerializer : ISerializer<byte[]>
+    public class BinarySerializer : IBinarySerializer
     {
         private void SerializePrimitive(object value, Type type, BinaryWriter writer)
         {

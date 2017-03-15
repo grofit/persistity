@@ -5,6 +5,10 @@ using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Mappings;
 using Persistity.Serialization;
+using Persistity.Serialization.Binary;
+using Persistity.Serialization.Debug;
+using Persistity.Serialization.Json;
+using Persistity.Serialization.Xml;
 using Tests.Editor.Models;
 using UnityEngine;
 
