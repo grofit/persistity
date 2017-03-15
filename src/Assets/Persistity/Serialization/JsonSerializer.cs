@@ -80,6 +80,34 @@ namespace Persistity.Serialization
             return jsonArray;
         }
 
+        private JSONNode SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data)
+        {
+            var jsonArray = new JSONArray();
+            var dictionaryValue = dictionaryMapping.GetValue(data);
+
+            foreach (var currentKey in dictionaryValue.Keys)
+            {
+                JSONNode jsonKey, jsonValue;
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                { jsonKey = Serialize(dictionaryMapping.KeyMappings, currentKey); }
+                else
+                { jsonKey = SerializePrimitive(currentKey, dictionaryMapping.KeyType); }
+
+                var currentValue = dictionaryValue[currentKey];
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                { jsonValue = Serialize(dictionaryMapping.ValueMappings, currentValue); }
+                else
+                { jsonValue = SerializePrimitive(currentValue, dictionaryMapping.ValueType); }
+
+                var jsonKeyValue = new JSONClass();
+                jsonKeyValue.Add("key", jsonKey);
+                jsonKeyValue.Add("value", jsonValue);
+                jsonArray.Add(jsonKeyValue);
+            }
+
+            return jsonArray;
+        }
+
         private JSONNode Serialize<T>(IEnumerable<Mapping> mappings, T data)
         {
             var jsonNode = new JSONClass();
@@ -94,6 +122,11 @@ namespace Persistity.Serialization
                 else if (mapping is NestedMapping)
                 {
                     var result = SerializeNestedObject((mapping as NestedMapping), data);
+                    jsonNode.Add(mapping.LocalName, result);
+                }
+                else if (mapping is DictionaryMapping)
+                {
+                    var result = SerializeDictionary((mapping as DictionaryMapping), data);
                     jsonNode.Add(mapping.LocalName, result);
                 }
                 else

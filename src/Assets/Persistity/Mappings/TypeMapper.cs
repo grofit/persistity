@@ -93,7 +93,7 @@ namespace Persistity.Mappings
                 LocalName = propertyInfo.Name,
                 ScopedName = scope,
                 Type = propertyInfo.PropertyType,
-                GetValue = x => propertyInfo.GetValue(x, null),
+                GetValue = x => { return propertyInfo.GetValue(x, null); },
                 SetValue = (x, v) => propertyInfo.SetValue(x, v, null)
             };
         }

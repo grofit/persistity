@@ -72,6 +72,35 @@ namespace Persistity.Serialization
             }
         }
 
+        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, JSONArray data, IDictionary instance)
+        {
+            for (var i = 0; i < data.Count; i++)
+            {
+                var currentElement = data[i];
+                var jsonKey = currentElement["key"];
+                var jsonValue = currentElement["value"];
+                object currentKey, currentValue;
+
+                if (dictionaryMapping.KeyMappings.Count > 0)
+                {
+                    currentKey = Activator.CreateInstance(dictionaryMapping.KeyType);
+                    Deserialize(dictionaryMapping.KeyMappings, jsonKey, currentKey);
+                }
+                else
+                { currentKey = DeserializePrimitive(jsonKey, dictionaryMapping.KeyType); }
+
+                if (dictionaryMapping.ValueMappings.Count > 0)
+                {
+                    currentValue = Activator.CreateInstance(dictionaryMapping.ValueType);
+                    Deserialize(dictionaryMapping.ValueMappings, jsonValue, currentValue);
+                }
+                else
+                { currentValue = DeserializePrimitive(jsonValue, dictionaryMapping.ValueType); }
+
+                instance.Add(currentKey, currentValue);
+            }
+        }
+
         private void Deserialize<T>(IEnumerable<Mapping> mappings, JSONNode jsonNode, T instance)
         {
             foreach (var mapping in mappings)
@@ -88,6 +117,16 @@ namespace Persistity.Serialization
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
                     DeserializeNestedObject(nestedMapping, jsonData, childInstance);
                     nestedMapping.SetValue(instance, childInstance);
+                }
+                else if (mapping is DictionaryMapping)
+                {
+                    var dictionaryMapping = (mapping as DictionaryMapping);
+                    var jsonData = jsonNode[mapping.LocalName].AsArray;
+                    var dictionarytype = typeof(Dictionary<,>);
+                    var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
+                    var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+                    DeserializeDictionary(dictionaryMapping, jsonData, dictionary);
+                    dictionaryMapping.SetValue(instance, dictionary);
                 }
                 else
                 {

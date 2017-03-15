@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Text;
 using Assets.Tests.Editor;
 using NUnit.Framework;
@@ -66,7 +67,7 @@ namespace Tests.Editor
             a.SimpleDictionary.Add("key2", "some-other-value");
 
             a.ComplexDictionary.Add(new E{ IntValue = 10}, new C{ FloatValue = 32.2f });
-            a.ComplexDictionary.Add(new E{ IntValue = 20}, new C{ FloatValue = 60.5f });
+            //a.ComplexDictionary.Add(new E{ IntValue = 20}, null);
 
             return a;
         }
@@ -110,9 +111,13 @@ namespace Tests.Editor
             Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
             Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
             Assert.That(result.ComplexDictionary, Is.Not.Null);
-            Assert.That(result.ComplexDictionary.Count, Is.EqualTo(2));
-            Assert.That(result.ComplexDictionary.Keys, Is.EqualTo(expected.ComplexDictionary.Keys));
-            Assert.That(result.ComplexDictionary.Values, Is.EqualTo(expected.ComplexDictionary.Values));
+            Assert.That(result.ComplexDictionary.Count, Is.EqualTo(expected.ComplexDictionary.Count));
+
+            foreach (var keyValuePair in result.ComplexDictionary)
+            {
+                Assert.That(expected.ComplexDictionary.Keys.Any(x => x.IntValue == keyValuePair.Key.IntValue));
+                Assert.That(expected.ComplexDictionary.Values.Any(x => x.FloatValue == keyValuePair.Value.FloatValue));
+            }
         }
 
         [Test]
