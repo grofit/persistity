@@ -79,6 +79,10 @@
   <ItemGroup>
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\Files\WriteFile.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\IReceiveData.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\ISendData.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\Files\ReadFile.cs" />
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
     <Compile Include="Assets\Persistity\Json\JSON.cs" />
     <Compile Include="Assets\Persistity\Mappings\DictionaryMapping.cs" />
