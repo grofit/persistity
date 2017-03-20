@@ -14,7 +14,6 @@ namespace Persistity.Serialization.Json
 
         private object DeserializePrimitive(Type type, JSONNode value)
         {
-            if(IsNullNode(value)) { return null; } 
             if (type == typeof(byte)) { return (byte)value.AsInt; }
             if (type == typeof(short)) { return (short)value.AsInt; }
             if (type == typeof(int)) { return value.AsInt; }
@@ -66,7 +65,10 @@ namespace Persistity.Serialization.Json
                 var currentElementNode = data[i];
                 if (IsNullNode(currentElementNode))
                 {
-                    instance[i] = null;
+                    if (instance.IsFixedSize)
+                    { instance[i] = null; }
+                    else
+                    { instance.Insert(i, null); }
                 }
                 else if (collectionMapping.InternalMappings.Count > 0)
                 {

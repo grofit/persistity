@@ -19,7 +19,7 @@ namespace Tests.Editor.Helpers
 
             a.NestedValue = new B
             {
-                IntValue = 10,
+                IntValue = 0,
                 StringValue = "Hello",
                 NestedArray = new[] { new C { FloatValue = 2.43f } }
             };
@@ -122,7 +122,7 @@ namespace Tests.Editor.Helpers
             Assert.That(result.AllTypes.Vector4Value, Is.EqualTo(expected.AllTypes.Vector4Value));
             Assert.That(result.AllTypes.QuaternionValue, Is.EqualTo(expected.AllTypes.QuaternionValue));
             Assert.That(result.SimpleDictionary, Is.Not.Null);
-            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(2));
+            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
             Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
             Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
             Assert.That(result.ComplexDictionary, Is.Not.Null);
@@ -148,7 +148,7 @@ namespace Tests.Editor.Helpers
             Assert.That(result.NestedArray[1], Is.Null);
             Assert.That(result.AllTypes, Is.Null);
             Assert.That(result.SimpleDictionary, Is.Not.Null);
-            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(2));
+            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
             Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
             Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
             Assert.That(result.ComplexDictionary, Is.Null);

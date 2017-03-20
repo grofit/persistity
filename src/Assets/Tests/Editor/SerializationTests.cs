@@ -93,6 +93,23 @@ namespace Tests.Editor
         }
 
         [Test]
+        public void should_correctly_serialize_nulled_data_with_binary()
+        {
+            var a = SerializationTestHelper.GenerateNulledModel();
+            var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
+
+            var serializer = new BinarySerializer();
+            var binaryOutput = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + binaryOutput.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(binaryOutput));
+
+            var deserializer = new BinaryDeserializer();
+            var result = deserializer.DeserializeData<A>(typeStuff, binaryOutput);
+
+            SerializationTestHelper.AssertNulledData(a, result);
+        }
+
+        [Test]
         public void should_correctly_serialize_populated_data_with_xml()
         {
             var a = SerializationTestHelper.GeneratePopulatedModel();
