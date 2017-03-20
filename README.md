@@ -16,7 +16,7 @@ So currently there are 3 transformers which will let you convert any objets with
 - Binary
 - Xml
 
-You can easily add your own serializers, which are derived from `ISerializer` and `IDeserializer` then wrapped into a single useable form via `ITrasformer`.
+You can easily add your own serializers, which are derived from `ISerializer` and `IDeserializer` then wrapped into a single useable form via `ITransformer`.
 
 ## Usage
 There is a lot more to come here as ideally it would be consumed via DI so the setup becomes next to nothing, but without DI you would need to new up some stuff.
