@@ -17,12 +17,16 @@ namespace Persistity.Serialization.Debug
 
         private string SerializeProperty<T>(PropertyMapping propertyMapping, T data)
         {
+            if (data == null) { return string.Format("{0} : {1} \n", propertyMapping.ScopedName, null); }
+
             var output = propertyMapping.GetValue(data);
             return string.Format("{0} : {1}", propertyMapping.ScopedName, output);
         }
 
         private string SerializeNestedObject<T>(NestedMapping nestedMapping, T data)
         {
+            if (data == null) { return string.Format("{0} : {1} \n", nestedMapping.ScopedName, null); }
+
             var output = new StringBuilder();
             var currentData = nestedMapping.GetValue(data);
             var result = Serialize(nestedMapping.InternalMappings, currentData);
@@ -33,7 +37,7 @@ namespace Persistity.Serialization.Debug
         private string Serialize<T>(IEnumerable<Mapping> mappings, T data)
         {
             var output = new StringBuilder();
-
+            
             foreach (var mapping in mappings)
             {
                 if (mapping is PropertyMapping)
@@ -62,8 +66,12 @@ namespace Persistity.Serialization.Debug
 
         private string SerializeCollection<T>(CollectionMapping collectionMapping, T data)
         {
+            if (data == null) { return string.Format("{0} : {1} \n", collectionMapping.ScopedName, null); }
+
             var output = new StringBuilder();
             var collectionValue = collectionMapping.GetValue(data);
+            if (collectionValue == null) { return string.Format("{0} : {1} \n", collectionMapping.ScopedName, null); }
+
             output.AppendFormat("{0} : {1} \n", collectionMapping.ScopedName, collectionValue.Count);
 
             for (var i = 0; i < collectionValue.Count; i++)
@@ -87,8 +95,11 @@ namespace Persistity.Serialization.Debug
         {
             var output = new StringBuilder();
             var dictionaryValue = dictionaryMapping.GetValue(data);
-            output.AppendFormat("{0} : {1} \n", dictionaryMapping.ScopedName, dictionaryValue.Count);
 
+            if (dictionaryValue == null) { return string.Format("{0} : {1} \n", dictionaryMapping.ScopedName, null); }
+
+            output.AppendFormat("{0} : {1} \n", dictionaryMapping.ScopedName, dictionaryValue.Count);
+            
             foreach (var currentKey in dictionaryValue.Keys)
             {
                 if (dictionaryMapping.KeyMappings.Count > 0)

@@ -9,24 +9,30 @@ namespace Persistity.Serialization.Json
 {
     public class JsonDeserializer : IJsonDeserializer
     {
+        private bool IsNullNode(JSONNode node)
+        { return node == null; }
+
         private object DeserializePrimitive(Type type, JSONNode value)
         {
-            if (type == typeof(byte)) return (byte)value.AsInt;
-            if (type == typeof(short)) return (short)value.AsInt;
-            if (type == typeof(int)) return value.AsInt;
-            if (type == typeof(long)) return long.Parse(value.Value);
-            if (type == typeof(Guid)) return new Guid(value.Value);
-            if (type == typeof(bool)) return value.AsBool;
-            if (type == typeof(float)) return value.AsFloat;
-            if (type == typeof(double)) return value.AsDouble;
-            if (type == typeof(Vector2)) return value.AsVector2;
-            if (type == typeof(Vector3)) return value.AsVector3;
-            if (type == typeof(Vector4)) return value.AsVector4;
-            if (type == typeof(DateTime)) return DateTime.FromBinary(long.Parse(value.Value));
+            if(IsNullNode(value)) { return null; } 
+            if (type == typeof(byte)) { return (byte)value.AsInt; }
+            if (type == typeof(short)) { return (short)value.AsInt; }
+            if (type == typeof(int)) { return value.AsInt; }
+            if (type == typeof(long)) { return long.Parse(value.Value); }
+            if (type == typeof(Guid)) { return new Guid(value.Value); }
+            if (type == typeof(bool)) { return value.AsBool; }
+            if (type == typeof(float)) { return value.AsFloat; }
+            if (type == typeof(double)) { return value.AsDouble; }
+            if (type == typeof(DateTime)) { return DateTime.FromBinary(long.Parse(value.Value)); }
+            if (type == typeof(Vector2))
+            { return new Vector2(value["x"].AsFloat, value["y"].AsFloat); }
+            if (type == typeof(Vector3))
+            { return new Vector3(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat); }
+            if (type == typeof(Vector4))
+            { return new Vector4(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
             if (type == typeof(Quaternion))
-            {
-                return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat);
-            }
+            { return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
+
             return value.Value;
         }
 
@@ -40,6 +46,12 @@ namespace Persistity.Serialization.Json
 
         private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, JSONNode data)
         {
+            if (IsNullNode(data))
+            {
+                propertyMapping.SetValue(instance, null);
+                return;
+            }
+
             var underlyingValue = DeserializePrimitive(propertyMapping.Type, data);
             propertyMapping.SetValue(instance, underlyingValue);
         }
@@ -51,10 +63,15 @@ namespace Persistity.Serialization.Json
         {
             for(var i=0;i<data.Count;i++)
             {
-                if (collectionMapping.InternalMappings.Count > 0)
+                var currentElementNode = data[i];
+                if (IsNullNode(currentElementNode))
+                {
+                    instance[i] = null;
+                }
+                else if (collectionMapping.InternalMappings.Count > 0)
                 {
                     var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
-                    Deserialize(collectionMapping.InternalMappings, elementInstance, data[i]);
+                    Deserialize(collectionMapping.InternalMappings, elementInstance, currentElementNode);
 
                     if (instance.IsFixedSize)
                     { instance[i] = elementInstance; }
@@ -63,7 +80,7 @@ namespace Persistity.Serialization.Json
                 }
                 else
                 {
-                    var value = DeserializePrimitive(collectionMapping.CollectionType, data[i]);
+                    var value = DeserializePrimitive(collectionMapping.CollectionType, currentElementNode);
                     if (instance.IsFixedSize)
                     { instance[i] = value; }
                     else
@@ -79,6 +96,7 @@ namespace Persistity.Serialization.Json
                 var currentElement = data[i];
                 var jsonKey = currentElement["key"];
                 var jsonValue = currentElement["value"];
+                
                 object currentKey, currentValue;
 
                 if (dictionaryMapping.KeyMappings.Count > 0)
@@ -89,7 +107,9 @@ namespace Persistity.Serialization.Json
                 else
                 { currentKey = DeserializePrimitive(dictionaryMapping.KeyType, jsonKey); }
 
-                if (dictionaryMapping.ValueMappings.Count > 0)
+                if (IsNullNode(jsonValue))
+                { currentValue = null; }
+                else if (dictionaryMapping.ValueMappings.Count > 0)
                 {
                     currentValue = Activator.CreateInstance(dictionaryMapping.ValueType);
                     Deserialize(dictionaryMapping.ValueMappings, currentValue, jsonValue);
@@ -114,24 +134,42 @@ namespace Persistity.Serialization.Json
                 {
                     var nestedMapping = (mapping as NestedMapping);
                     var jsonData = jsonNode[mapping.LocalName];
-                    var childInstance = Activator.CreateInstance(nestedMapping.Type);
-                    DeserializeNestedObject(nestedMapping, childInstance, jsonData);
-                    nestedMapping.SetValue(instance, childInstance);
+
+                    if (IsNullNode(jsonData))
+                    { nestedMapping.SetValue(instance, null); }
+                    else
+                    {
+                        var childInstance = Activator.CreateInstance(nestedMapping.Type);
+                        DeserializeNestedObject(nestedMapping, childInstance, jsonData);
+                        nestedMapping.SetValue(instance, childInstance);
+                    }
                 }
                 else if (mapping is DictionaryMapping)
                 {
                     var dictionaryMapping = (mapping as DictionaryMapping);
                     var jsonData = jsonNode[mapping.LocalName].AsArray;
-                    var dictionarytype = typeof(Dictionary<,>);
-                    var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
-                    var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
-                    DeserializeDictionary(dictionaryMapping, dictionary, jsonData);
-                    dictionaryMapping.SetValue(instance, dictionary);
+                    if (IsNullNode(jsonData))
+                    { dictionaryMapping.SetValue(instance, null); }
+                    else
+                    { 
+                        var dictionarytype = typeof(Dictionary<,>);
+                        var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
+                        var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+                        DeserializeDictionary(dictionaryMapping, dictionary, jsonData);
+                        dictionaryMapping.SetValue(instance, dictionary);
+                    }
                 }
                 else
                 {
                     var collectionMapping = (mapping as CollectionMapping);
                     var jsonData = jsonNode[mapping.LocalName].AsArray;
+
+                    if (IsNullNode(jsonData))
+                    {
+                        collectionMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var arrayCount = jsonData.Count;
 
                     if (collectionMapping.IsArray)
