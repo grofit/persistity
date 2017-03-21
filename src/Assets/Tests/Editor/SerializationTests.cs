@@ -125,5 +125,22 @@ namespace Tests.Editor
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
+
+        [Test]
+        public void should_correctly_serialize_nulled_data_with_xml()
+        {
+            var a = SerializationTestHelper.GenerateNulledModel();
+            var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
+
+            var serializer = new XmlSerializer();
+            var xmlOutput = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(xmlOutput) + " bytes");
+            Console.WriteLine(xmlOutput);
+
+            var deserializer = new XmlDeserializer();
+            var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
+
+            SerializationTestHelper.AssertNulledData(a, result);
+        }
     }
 }

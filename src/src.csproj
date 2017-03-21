@@ -85,6 +85,7 @@
     <Compile Include="Assets\Persistity\Endpoints\ISendData.cs" />
     <Compile Include="Assets\Persistity\Extensions\IListExtensions.cs" />
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
+    <Compile Include="Assets\Persistity\Extensions\TypeExtensions.cs" />
     <Compile Include="Assets\Persistity\Json\JSON.cs" />
     <Compile Include="Assets\Persistity\Mappings\CollectionMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\DictionaryMapping.cs" />

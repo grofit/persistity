@@ -9,11 +9,14 @@ namespace Persistity.Serialization.Binary
 {
     public class BinarySerializer : IBinarySerializer
     {
+        public readonly static char[] NullDataSig = {(char) 141, (char) 141};
+        public readonly static char[] NullObjectSig = {(char) 141, (char)229, (char)141};
+
         private void WriteNullData(BinaryWriter writer)
-        { writer.Write("NUL"); }
+        { writer.Write(NullDataSig); }
 
         private void WriteNullObject(BinaryWriter writer)
-        { writer.Write("NULO"); }
+        { writer.Write(NullObjectSig); }
 
         private void SerializePrimitive(object value, Type type, BinaryWriter writer)
         {

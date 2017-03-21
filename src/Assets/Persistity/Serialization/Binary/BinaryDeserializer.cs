@@ -13,38 +13,32 @@ namespace Persistity.Serialization.Binary
         {
             var currentPosition = reader.BaseStream.Position;
 
-            try
+            foreach (var nullChar in BinarySerializer.NullDataSig)
             {
-                var data = reader.ReadString();
-                if (data == "NUL")
+                var readChar = reader.ReadChar();
+                if (nullChar != readChar)
                 {
-                    return true;
+                    reader.BaseStream.Position = currentPosition;
+                    return false;
                 }
             }
-            catch (Exception ex)
-            {}
-
-            reader.BaseStream.Position = currentPosition;
-            return false;
+            return true;
         }
 
         private bool IsObjectNull(BinaryReader reader)
         {
             var currentPosition = reader.BaseStream.Position;
 
-            try
+            foreach (var nullChar in BinarySerializer.NullObjectSig)
             {
-                var data = reader.ReadString();
-                if (data == "NULO")
+                var readChar = reader.ReadChar();
+                if (nullChar != readChar)
                 {
-                    return true;
+                    reader.BaseStream.Position = currentPosition;
+                    return false;
                 }
             }
-            catch (Exception ex)
-            { }
-
-            reader.BaseStream.Position = currentPosition;
-            return false;
+            return true;
         }
 
         private object DeserializePrimitive(Type type, BinaryReader reader)
@@ -112,14 +106,12 @@ namespace Persistity.Serialization.Binary
 
         private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, BinaryReader reader)
         {
-            if (!IsDataNull(reader))
+            if (IsDataNull(reader))
+            { propertyMapping.SetValue(instance, null); }
+            else
             {
                 var underlyingValue = DeserializePrimitive(propertyMapping.Type, reader);
                 propertyMapping.SetValue(instance, underlyingValue);
-            }
-            else
-            {
-                propertyMapping.SetValue(instance, null); 
             }
         }
 
