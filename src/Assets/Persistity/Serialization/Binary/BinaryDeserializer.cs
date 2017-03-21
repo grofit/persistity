@@ -144,7 +144,6 @@ namespace Persistity.Serialization.Binary
                     object value = null;
                     if(!IsDataNull(reader))
                     { value = DeserializePrimitive(collectionMapping.CollectionType, reader); }
-                    
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = value; }
                     else

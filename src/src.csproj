@@ -79,10 +79,14 @@
   <ItemGroup>
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
+    <Compile Include="Assets\Persistity\Encryption\AesEncryptor.cs" />
+    <Compile Include="Assets\Persistity\Encryption\IEncryptor.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\ReadFile.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\WriteFile.cs" />
     <Compile Include="Assets\Persistity\Endpoints\IReceiveData.cs" />
     <Compile Include="Assets\Persistity\Endpoints\ISendData.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\Unity\ReadPlayerPrefs.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\Unity\WritePlayerPrefs.cs" />
     <Compile Include="Assets\Persistity\Extensions\IListExtensions.cs" />
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
     <Compile Include="Assets\Persistity\Extensions\TypeExtensions.cs" />
@@ -94,6 +98,11 @@
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
+    <Compile Include="Assets\Persistity\Processors\Encoding\UrlDecodeProcessor.cs" />
+    <Compile Include="Assets\Persistity\Processors\Encoding\UrlEncodeProcessor.cs" />
+    <Compile Include="Assets\Persistity\Processors\Encryption\DecryptDataProcessor.cs" />
+    <Compile Include="Assets\Persistity\Processors\Encryption\EncryptDataProcessor.cs" />
+    <Compile Include="Assets\Persistity\Processors\IProcessor.cs" />
     <Compile Include="Assets\Persistity\Registries\IMappingRegistry.cs" />
     <Compile Include="Assets\Persistity\Registries\MappingRegistry.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinaryDeserializer.cs" />
@@ -112,8 +121,8 @@
     <Compile Include="Assets\Persistity\Serialization\Xml\IXmlSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlSerializer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Binary\IJsonTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Binary\JsonTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Binary\IBinaryTransformer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\Binary\BinaryTransformer.cs" />
     <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
     <Compile Include="Assets\Persistity\Transformers\Json\IJsonTransformer.cs" />
     <Compile Include="Assets\Persistity\Transformers\Json\JsonTransformer.cs" />

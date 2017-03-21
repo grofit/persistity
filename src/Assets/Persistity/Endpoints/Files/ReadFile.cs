@@ -5,11 +5,11 @@ namespace Persistity.Endpoints.Files
 {
     public class ReadFile : IReceiveData<string>, IReceiveData<byte[]>
     {
-        public string Filename { get; set; }
+        public string FilePath { get; set; }
 
-        public ReadFile(string filename)
+        public ReadFile(string filePath)
         {
-            Filename = filename;
+            FilePath = filePath;
         }
 
         public void Execute(Action<string> onSuccess, Action<Exception> onError)
@@ -17,7 +17,7 @@ namespace Persistity.Endpoints.Files
             string data;
             try
             {
-                data = File.ReadAllText(Filename);
+                data = File.ReadAllText(FilePath);
             }
             catch (Exception ex)
             {
@@ -32,7 +32,7 @@ namespace Persistity.Endpoints.Files
             byte[] data;
             try
             {
-                data = File.ReadAllBytes(Filename);
+                data = File.ReadAllBytes(FilePath);
             }
             catch (Exception ex)
             {

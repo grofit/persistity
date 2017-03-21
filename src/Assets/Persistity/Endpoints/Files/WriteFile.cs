@@ -5,17 +5,17 @@ namespace Persistity.Endpoints.Files
 {
     public class WriteFile : ISendData<string>, ISendData<byte[]>
     {
-        public string Filename { get; set; }
+        public string FilePath { get; set; }
 
-        public WriteFile(string filename)
+        public WriteFile(string filePath)
         {
-            Filename = filename;
+            FilePath = filePath;
         }
 
         public void Execute(string data, Action onSuccess, Action<Exception> onError)
         {
             try
-            { File.WriteAllText(Filename, data); }
+            { File.WriteAllText(FilePath, data); }
             catch (Exception ex)
             {
                 onError(ex);
@@ -27,7 +27,7 @@ namespace Persistity.Endpoints.Files
         public void Execute(byte[] data, Action onSuccess, Action<Exception> onError)
         {
             try
-            { File.WriteAllBytes(Filename, data); }
+            { File.WriteAllBytes(FilePath, data); }
             catch (Exception ex)
             {
                 onError(ex);

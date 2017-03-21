@@ -2,7 +2,7 @@
 
 namespace Persistity.Attributes
 {
-    [AttributeUsage(AttributeTargets.Property | AttributeTargets.Field)]
+    [AttributeUsage(AttributeTargets.Property)]
     public class PersistDataAttribute : Attribute
     {}
 }
