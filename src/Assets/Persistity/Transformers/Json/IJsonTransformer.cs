@@ -1,5 +1,5 @@
 ﻿namespace Persistity.Transformers.Json
 {
-    public interface IJsonTransformer : ITransformer<string>
+    public interface IJsonTransformer : ITransformer
     { }
 }

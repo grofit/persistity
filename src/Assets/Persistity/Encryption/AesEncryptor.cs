@@ -40,8 +40,6 @@ namespace Persistity.Encryption
                             var cipherTextBytes = saltStringBytes;
                             cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
                             cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                            memoryStream.Close();
-                            cryptoStream.Close();
                             return cipherTextBytes;
                         }
                     }
@@ -70,8 +68,6 @@ namespace Persistity.Encryption
                         {
                             var plainTextBytes = new byte[cipherTextBytes.Length];
                             var readCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                            memoryStream.Close();
-                            cryptoStream.Close();
                             return plainTextBytes.Take(readCount).ToArray();
                         }
                     }

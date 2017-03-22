@@ -4,15 +4,16 @@ using Persistity.Mappings;
 
 namespace Persistity.Serialization.Debug
 {
-    public class DebugSerializer : ISerializer<string>
+    public class DebugSerializer : ISerializer
     {
-        public string SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             var output = new StringBuilder();
 
             var result = Serialize(typeMapping.InternalMappings, data);
             output.AppendLine(result);
-            return output.ToString();
+            var outputString = output.ToString();
+            return Encoding.UTF8.GetBytes(outputString);
         }
 
         private string SerializeProperty<T>(PropertyMapping propertyMapping, T data)

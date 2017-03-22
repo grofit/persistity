@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml.Linq;
 using Persistity.Extensions;
 using Persistity.Mappings;
@@ -10,6 +11,8 @@ namespace Persistity.Serialization.Xml
 {
     public class XmlSerializer : IXmlSerializer
     {
+        public Encoding Encoder = Encoding.Default;
+
         private readonly Type[] CatchmentTypes =
         {
             typeof(string), typeof(bool), typeof(byte), typeof(short), typeof(int),
@@ -71,11 +74,12 @@ namespace Persistity.Serialization.Xml
             throw new NoKnownTypeException(type);
         }
 
-        public string SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             var element = new XElement("Container");
             Serialize(typeMapping.InternalMappings, data, element);
-            return element.ToString();
+            var xmlString = element.ToString();
+            return Encoder.GetBytes(xmlString);
         }
 
         private void SerializeProperty<T>(PropertyMapping propertyMapping, T data, XElement element)

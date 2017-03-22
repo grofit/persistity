@@ -47,12 +47,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new JsonSerializer();
-            var jsonOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(jsonOutput) + " bytes");
-            Console.WriteLine(jsonOutput);
-            
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(output);
+
             var deserializer = new JsonDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, jsonOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -64,12 +64,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new JsonSerializer();
-            var jsonOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(jsonOutput) + " bytes");
-            Console.WriteLine(jsonOutput);
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(output);
 
             var deserializer = new JsonDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, jsonOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -81,12 +81,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new BinarySerializer();
-            var binaryOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + binaryOutput.Length + " bytes");
-            Console.WriteLine(BitConverter.ToString(binaryOutput));
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output));
 
             var deserializer = new BinaryDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, binaryOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -98,12 +98,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new BinarySerializer();
-            var binaryOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + binaryOutput.Length + " bytes");
-            Console.WriteLine(BitConverter.ToString(binaryOutput));
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output));
 
             var deserializer = new BinaryDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, binaryOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -115,12 +115,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new XmlSerializer();
-            var xmlOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(xmlOutput) + " bytes");
-            Console.WriteLine(xmlOutput);
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(output);
 
             var deserializer = new XmlDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -132,12 +132,12 @@ namespace Tests.Editor
             var typeStuff = _typeMapper.GetTypeMappingsFor(typeof(A));
 
             var serializer = new XmlSerializer();
-            var xmlOutput = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + Encoding.ASCII.GetByteCount(xmlOutput) + " bytes");
-            Console.WriteLine(xmlOutput);
+            var output = serializer.SerializeData(typeStuff, a);
+            Console.WriteLine("FileSize: " + output.Length + " bytes");
+            Console.WriteLine(output);
 
             var deserializer = new XmlDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, xmlOutput);
+            var result = deserializer.DeserializeData<A>(typeStuff, output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }

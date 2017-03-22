@@ -1,5 +1,5 @@
 namespace Persistity.Serialization.Json
 {
-    public interface IJsonSerializer : ISerializer<string>
+    public interface IJsonSerializer : ISerializer
     { }
 }

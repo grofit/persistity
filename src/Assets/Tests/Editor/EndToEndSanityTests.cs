@@ -1,10 +1,10 @@
 ﻿using System;
-using System.Text;
 using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Encryption;
 using Persistity.Endpoints.Files;
 using Persistity.Mappings;
+using Persistity.Pipelines.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Registries;
 using Persistity.Serialization.Binary;
@@ -30,6 +30,7 @@ namespace Tests.Editor
         public void should_correctly_binary_transform_and_save_to_file()
         {
             var filename = "example_save.bin";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new TypeMapper());
             var serializer = new BinarySerializer();
@@ -39,16 +40,35 @@ namespace Tests.Editor
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
-
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-            
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
+        }
+
+        [Test]
+        public void should_correctly_binary_transform_and_save_to_file_with_builder()
+        {
+            var filename = "example_save.bin";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
+
+            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var serializer = new BinarySerializer();
+            var deserializer = new BinaryDeserializer();
+            var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
+            var writeFileEndpoint = new WriteFile(filename);
+
+            var saveToBinaryFilePipeline = new PipelineBuilder()
+                .TransformWith(transformer)
+                .SendTo(writeFileEndpoint)
+                .Build();
+
+            var dummyData = SerializationTestHelper.GeneratePopulatedModel();
+            saveToBinaryFilePipeline.Execute(dummyData, HandleSuccess, HandleError);
         }
 
         [Test]
         public void should_correctly_binary_transform_encrypt_save_then_reload()
         {
             var filename = "encrypted_save.bin";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new TypeMapper());
             var serializer = new BinarySerializer();
@@ -63,8 +83,6 @@ namespace Tests.Editor
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
             var encryptedOutput = encryptionProcessor.Process(output);
-
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             writeFileEndpoint.Execute(encryptedOutput, () =>
             {
@@ -81,6 +99,7 @@ namespace Tests.Editor
         public void should_correctly_json_transform_and_save_as_binary_to_file()
         {
             var filename = "example_json_save.bin";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new TypeMapper());
             var serializer = new JsonSerializer();
@@ -90,17 +109,14 @@ namespace Tests.Editor
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
-            var binaryOutput = Encoding.Unicode.GetBytes(output);
-
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            writeFileEndpoint.Execute(binaryOutput, HandleSuccess, HandleError);
+            writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
 
         [Test]
         public void should_correctly_json_transform_and_save_to_file()
         {
             var filename = "example_save.json";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new TypeMapper());
             var serializer = new JsonSerializer();
@@ -110,8 +126,6 @@ namespace Tests.Editor
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
-
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
@@ -120,6 +134,7 @@ namespace Tests.Editor
         public void should_correctly_xml_transform_and_save_to_file()
         {
             var filename = "example_save.xml";
+            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new TypeMapper());
             var serializer = new XmlSerializer();
@@ -129,8 +144,6 @@ namespace Tests.Editor
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
-
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }

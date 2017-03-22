@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Persistity.Mappings;
 using UnityEngine;
@@ -10,6 +11,8 @@ namespace Persistity.Serialization.Xml
 {
     public class XmlDeserializer : IXmlDeserializer
     {
+        public Encoding Encoder = Encoding.Default;
+
         private bool IsElementNull(XElement element)
         { return element.Attribute("IsNull") != null; }
 
@@ -65,9 +68,10 @@ namespace Persistity.Serialization.Xml
             return element.Value;
         }
 
-        public T DeserializeData<T>(TypeMapping typeMapping, string data) where T : new()
+        public T DeserializeData<T>(TypeMapping typeMapping, byte[] data) where T : new()
         {
-            var xDoc = XDocument.Parse(data);
+            var xmlString = Encoder.GetString(data);
+            var xDoc = XDocument.Parse(xmlString);
             var containerElement = xDoc.Element("Container");
             var instance = new T();
             Deserialize(typeMapping.InternalMappings, instance, containerElement);

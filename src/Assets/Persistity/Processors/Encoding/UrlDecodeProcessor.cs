@@ -2,7 +2,7 @@
 
 namespace Persistity.Processors.Encoding
 {
-    public class UrlDecodeProcessor : IProcessor<byte[]>
+    public class UrlDecodeProcessor : IProcessor
     {
         public byte[] Process(byte[] data)
         {

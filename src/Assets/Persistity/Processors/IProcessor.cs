@@ -1,7 +1,7 @@
 ﻿namespace Persistity.Processors
 {
-    public interface IProcessor<T>
+    public interface IProcessor
     {
-        T Process(T data);
+        byte[] Process(byte[] data);
     }
 }

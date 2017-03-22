@@ -98,6 +98,13 @@
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\Builders\PipelineBuilder.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\Builders\ReceivePipelineBuilder.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\Builders\SendPipelineBuilder.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\IReceiveDataPipeline.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\ISendDataPipeline.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\ReceiveDataPipeline.cs" />
+    <Compile Include="Assets\Persistity\Pipelines\SendDataPipeline.cs" />
     <Compile Include="Assets\Persistity\Processors\Encoding\UrlDecodeProcessor.cs" />
     <Compile Include="Assets\Persistity\Processors\Encoding\UrlEncodeProcessor.cs" />
     <Compile Include="Assets\Persistity\Processors\Encryption\DecryptDataProcessor.cs" />

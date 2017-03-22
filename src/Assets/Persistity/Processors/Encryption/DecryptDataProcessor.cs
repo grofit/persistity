@@ -2,7 +2,7 @@
 
 namespace Persistity.Processors.Encryption
 {
-    public class DecryptDataProcessor : IProcessor<byte[]>
+    public class DecryptDataProcessor : IProcessor
     {
         public IEncryptor Encryptor { get; private set; }
 

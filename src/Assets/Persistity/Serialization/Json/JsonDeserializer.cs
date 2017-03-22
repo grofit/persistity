@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Text;
 using Persistity.Json;
 using Persistity.Mappings;
 using UnityEngine;
@@ -9,6 +10,8 @@ namespace Persistity.Serialization.Json
 {
     public class JsonDeserializer : IJsonDeserializer
     {
+        public Encoding Encoder = Encoding.Default;
+
         private bool IsNullNode(JSONNode node)
         { return node == null; }
 
@@ -35,10 +38,11 @@ namespace Persistity.Serialization.Json
             return value.Value;
         }
 
-        public T DeserializeData<T>(TypeMapping typeMapping, string data) where T : new()
+        public T DeserializeData<T>(TypeMapping typeMapping, byte[] data) where T : new()
         {
+            var jsonString = Encoder.GetString(data);
             var instance = new T();
-            var jsonData = JSON.Parse(data);
+            var jsonData = JSON.Parse(jsonString);
             Deserialize(typeMapping.InternalMappings, instance, jsonData);
             return instance;
         }

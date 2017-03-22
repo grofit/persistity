@@ -1,5 +1,5 @@
 ﻿namespace Persistity.Transformers.Binary
 {
-    public interface IBinaryTransformer : ITransformer<byte[]>
+    public interface IBinaryTransformer : ITransformer
     { }
 }

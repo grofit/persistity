@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using Persistity.Json;
 using Persistity.Mappings;
 using Persistity.Serialization.Exceptions;
@@ -9,6 +10,8 @@ namespace Persistity.Serialization.Json
 {
     public class JsonSerializer : IJsonSerializer
     {
+        public Encoding Encoder = Encoding.Default;
+
         private JSONNull GetNullNode()
         { return new JSONNull(); }
 
@@ -66,10 +69,11 @@ namespace Persistity.Serialization.Json
             return node;
         }
 
-        public string SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             var jsonNode = Serialize(typeMapping.InternalMappings, data);
-            return jsonNode.ToString();
+            var jsonString = jsonNode.ToString();
+            return Encoder.GetBytes(jsonString);
         }
 
         private JSONNode SerializeProperty<T>(PropertyMapping propertyMapping, T data)

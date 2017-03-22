@@ -4,26 +4,13 @@ using UnityEngine;
 
 namespace Persistity.Endpoints.Unity
 {
-    public class ReadPlayerPrefs : IReceiveData<string>, IReceiveData<byte[]>
+    public class ReadPlayerPrefs : IReceiveData
     {
         public string KeyName { get; set; }
 
         public ReadPlayerPrefs(string keyName)
         {
             KeyName = keyName;
-        }
-
-        public void Execute(Action<string> onSuccess, Action<Exception> onError)
-        {
-            try
-            {
-                var data = PlayerPrefs.GetString(KeyName);
-                onSuccess(data);
-            }
-            catch (Exception ex)
-            {
-                onError(ex);
-            }
         }
 
         public void Execute(Action<byte[]> onSuccess, Action<Exception> onError)

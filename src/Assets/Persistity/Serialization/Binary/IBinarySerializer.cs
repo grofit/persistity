@@ -1,5 +1,5 @@
 namespace Persistity.Serialization.Binary
 {
-    public interface IBinarySerializer : ISerializer<byte[]>
+    public interface IBinarySerializer : ISerializer
     { }
 }

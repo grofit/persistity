@@ -3,7 +3,7 @@ using encoder = System.Text.Encoding;
 
 namespace Persistity.Processors.Encoding
 {
-    public class UrlEncodeProcessor : IProcessor<byte[]>
+    public class UrlEncodeProcessor : IProcessor
     {
         public byte[] Process(byte[] data)
         {
