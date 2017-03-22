@@ -3,7 +3,7 @@ using System.IO;
 
 namespace Persistity.Endpoints.Files
 {
-    public class WriteFile : ISendData
+    public class WriteFile : ISendDataEndpoint
     {
         public string FilePath { get; set; }
 
@@ -12,7 +12,7 @@ namespace Persistity.Endpoints.Files
             FilePath = filePath;
         }
 
-        public void Execute(byte[] data, Action onSuccess, Action<Exception> onError)
+        public void Execute(byte[] data, Action<object> onSuccess, Action<Exception> onError)
         {
             try
             { File.WriteAllBytes(FilePath, data); }
@@ -22,7 +22,7 @@ namespace Persistity.Endpoints.Files
                 return;
             }
 
-            onSuccess();
+            onSuccess(null);
         }
     }
 }

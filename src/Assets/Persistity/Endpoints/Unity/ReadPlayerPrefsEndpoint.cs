@@ -4,11 +4,11 @@ using UnityEngine;
 
 namespace Persistity.Endpoints.Unity
 {
-    public class ReadPlayerPrefs : IReceiveData
+    public class ReadPlayerPrefsEndpoint : IReceiveDataEndpoint
     {
         public string KeyName { get; set; }
 
-        public ReadPlayerPrefs(string keyName)
+        public ReadPlayerPrefsEndpoint(string keyName)
         {
             KeyName = keyName;
         }

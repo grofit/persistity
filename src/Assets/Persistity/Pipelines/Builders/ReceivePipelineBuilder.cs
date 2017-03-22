@@ -8,13 +8,13 @@ namespace Persistity.Pipelines.Builders
 {
     public class ReceivePipelineBuilder
     {
-        private IReceiveData _receiveDataStep;
+        private IReceiveDataEndpoint _receiveDataEndpointStep;
         private ITransformer _transformStep;
         private IList<IProcessor> _processors;
 
-        public ReceivePipelineBuilder(IReceiveData receiveDataStep)
+        public ReceivePipelineBuilder(IReceiveDataEndpoint receiveDataEndpointStep)
         {
-            _receiveDataStep = receiveDataStep;
+            _receiveDataEndpointStep = receiveDataEndpointStep;
             _processors = new List<IProcessor>();
         }
 
@@ -39,7 +39,7 @@ namespace Persistity.Pipelines.Builders
 
         public IReceiveDataPipeline Build()
         {
-            return new ReceiveDataPipeline(_transformStep, _receiveDataStep, _processors);
+            return new ReceiveDataPipeline(_transformStep, _receiveDataEndpointStep, _processors);
         }
     }
 }

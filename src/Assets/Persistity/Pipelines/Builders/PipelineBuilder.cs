@@ -8,7 +8,7 @@ namespace Persistity.Pipelines.Builders
         public SendPipelineBuilder TransformWith(ITransformer transformer)
         { return new SendPipelineBuilder(transformer); }
 
-        public ReceivePipelineBuilder RecieveFrom(IReceiveData recieveData)
-        { return new ReceivePipelineBuilder(recieveData); }
+        public ReceivePipelineBuilder RecieveFrom(IReceiveDataEndpoint recieveDataEndpoint)
+        { return new ReceivePipelineBuilder(recieveDataEndpoint); }
     }
 }

@@ -2,7 +2,6 @@ using Persistity.Attributes;
 
 namespace Tests.Editor.Models
 {
-    [Persist]
     public class E
     {
         [PersistData]

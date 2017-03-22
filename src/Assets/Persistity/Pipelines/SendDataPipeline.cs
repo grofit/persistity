@@ -11,16 +11,23 @@ namespace Persistity.Pipelines
     {
         public ITransformer Transformer { get; private set; }
         public IEnumerable<IProcessor> Processors { get; private set; }
-        public ISendData SendToEndpoint { get; private set; }
+        public ISendDataEndpoint SendToEndpoint { get; private set; }
 
-        public SendDataPipeline(ITransformer transformer, ISendData sendToEndpoint, IEnumerable<IProcessor> processors = null)
+        public SendDataPipeline(ITransformer transformer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null)
         {
             Transformer = transformer;
             Processors = processors;
             SendToEndpoint = sendToEndpoint;
         }
 
-        public void Execute<T>(T data, Action onSuccess, Action<Exception> onError) where T : new()
+        public SendDataPipeline(ITransformer transformer, ISendDataEndpoint sendToEndpoint, params IProcessor[] processors)
+        {
+            Transformer = transformer;
+            Processors = processors;
+            SendToEndpoint = sendToEndpoint;
+        }
+
+        public void Execute<T>(T data, Action<object> onSuccess, Action<Exception> onError) where T : new()
         {
             var output = Transformer.Transform(data);
 

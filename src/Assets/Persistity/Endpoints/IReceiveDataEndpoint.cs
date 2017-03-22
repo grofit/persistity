@@ -2,7 +2,7 @@
 
 namespace Persistity.Endpoints
 {
-    public interface IReceiveData
+    public interface IReceiveDataEndpoint
     {
         void Execute(Action<byte[]> onSuccess, Action<Exception> onError);
     }

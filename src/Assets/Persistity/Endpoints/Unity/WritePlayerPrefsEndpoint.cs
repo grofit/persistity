@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Persistity.Endpoints.Unity
 {
-    public class WritePlayerPrefs : ISendData
+    public class WritePlayerPrefs : ISendDataEndpoint
     {
         public string KeyName { get; set; }
 
@@ -13,7 +13,7 @@ namespace Persistity.Endpoints.Unity
             KeyName = keyName;
         }
 
-        public void Execute(byte[] data, Action onSuccess, Action<Exception> onError)
+        public void Execute(byte[] data, Action<object> onSuccess, Action<Exception> onError)
         {
             var stringData = Encoding.Default.GetString(data);
 
@@ -24,7 +24,7 @@ namespace Persistity.Endpoints.Unity
                 onError(ex);
                 return;
             }
-            onSuccess();
+            onSuccess(null);
         }
     }
 }

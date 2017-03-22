@@ -3,11 +3,11 @@ using System.IO;
 
 namespace Persistity.Endpoints.Files
 {
-    public class ReadFile : IReceiveData
+    public class ReadFileEndpoint : IReceiveDataEndpoint
     {
         public string FilePath { get; set; }
 
-        public ReadFile(string filePath)
+        public ReadFileEndpoint(string filePath)
         {
             FilePath = filePath;
         }

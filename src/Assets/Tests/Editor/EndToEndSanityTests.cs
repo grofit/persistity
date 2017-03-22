@@ -23,7 +23,7 @@ namespace Tests.Editor
         private void HandleError(Exception exception)
         { Assert.Fail(exception.Message); }
 
-        private void HandleSuccess()
+        private void HandleSuccess(object data)
         { Console.WriteLine("File Written"); }
 
         [Test]
@@ -44,7 +44,7 @@ namespace Tests.Editor
         }
 
         [Test]
-        public void should_correctly_binary_transform_and_save_to_file_with_builder()
+        public void should_correctly_transform_encrypt_and_save_to_file_with_builder()
         {
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
@@ -54,9 +54,12 @@ namespace Tests.Editor
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
             var writeFileEndpoint = new WriteFile(filename);
+            var encryptor = new AesEncryptor("some-password");
+            var encryptionProcessor = new EncryptDataProcessor(encryptor);
 
             var saveToBinaryFilePipeline = new PipelineBuilder()
                 .TransformWith(transformer)
+                .WithProcessor(encryptionProcessor)
                 .SendTo(writeFileEndpoint)
                 .Build();
 
@@ -78,13 +81,13 @@ namespace Tests.Editor
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
             var decryptionProcessor = new DecryptDataProcessor(encryptor);
             var writeFileEndpoint = new WriteFile(filename);
-            var readFileEndpoint = new ReadFile(filename);
+            var readFileEndpoint = new ReadFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
             var encryptedOutput = encryptionProcessor.Process(output);
 
-            writeFileEndpoint.Execute(encryptedOutput, () =>
+            writeFileEndpoint.Execute(encryptedOutput, (x) =>
             {
                 readFileEndpoint.Execute((data) =>
                 {

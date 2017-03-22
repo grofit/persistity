@@ -9,7 +9,7 @@ namespace Persistity.Pipelines.Builders
     public class SendPipelineBuilder
     {
         private ITransformer _transformStep;
-        private ISendData _sendDataStep;
+        private ISendDataEndpoint _sendDataEndpointStep;
         private IList<IProcessor> _processors;
 
         public SendPipelineBuilder(ITransformer transformStep)
@@ -30,15 +30,15 @@ namespace Persistity.Pipelines.Builders
             return this;
         }
 
-        public SendPipelineBuilder SendTo(ISendData sendData)
+        public SendPipelineBuilder SendTo(ISendDataEndpoint sendDataEndpoint)
         {
-            _sendDataStep = sendData;
+            _sendDataEndpointStep = sendDataEndpoint;
             return this;
         }
 
         public ISendDataPipeline Build()
         {
-            return new SendDataPipeline(_transformStep, _sendDataStep, _processors);
+            return new SendDataPipeline(_transformStep, _sendDataEndpointStep, _processors);
         }
     }
 }
