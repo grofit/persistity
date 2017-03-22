@@ -1,13 +1,27 @@
 using System;
 using System.Collections.Generic;
+using System.Text;
 using System.Xml.Linq;
+using Persistity.Extensions;
 using Persistity.Mappings;
+using Persistity.Serialization.Exceptions;
 using UnityEngine;
 
 namespace Persistity.Serialization.Xml
 {
     public class XmlSerializer : IXmlSerializer
     {
+        public Encoding Encoder = Encoding.Default;
+
+        private readonly Type[] CatchmentTypes =
+        {
+            typeof(string), typeof(bool), typeof(byte), typeof(short), typeof(int),
+            typeof(long), typeof(Guid), typeof(float), typeof(double), typeof(decimal)
+        };
+
+        private void MarkAsNull(XElement element)
+        { element.Add(new XAttribute("IsNull", true)); }
+
         private void SerializePrimitive(object value, Type type, XElement element)
         {
             if (type == typeof(Vector2))
@@ -43,7 +57,7 @@ namespace Persistity.Serialization.Xml
                 element.Add(new XElement("w", typedObject.w));
                 return;
             }
-            else if (type == typeof(DateTime))
+            if (type == typeof(DateTime))
             {
                 var typedValue = (DateTime) value;
                 var stringValue = typedValue.ToBinary().ToString();
@@ -51,31 +65,74 @@ namespace Persistity.Serialization.Xml
                 return;
             }
 
-            element.Value = value.ToString();
+            if (type.IsTypeOf(CatchmentTypes))
+            {
+                element.Value = value.ToString();
+                return;
+            }
+
+            throw new NoKnownTypeException(type);
         }
 
-        public string SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
         {
             var element = new XElement("Container");
             Serialize(typeMapping.InternalMappings, data, element);
-            return element.ToString();
+            var xmlString = element.ToString();
+            return Encoder.GetBytes(xmlString);
         }
 
         private void SerializeProperty<T>(PropertyMapping propertyMapping, T data, XElement element)
         {
+            if (data == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
             var underlyingValue = propertyMapping.GetValue(data);
+
+            if (underlyingValue == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
             SerializePrimitive(underlyingValue, propertyMapping.Type, element);
         }
 
         private void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, XElement element)
         {
+            if (data == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
             var currentData = nestedMapping.GetValue(data);
+
+            if (currentData == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
             Serialize(nestedMapping.InternalMappings, currentData, element);
         }
         
         private void SerializeCollection<T>(CollectionMapping collectionMapping, T data, XElement element)
         {
+            if (data == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
             var collectionValue = collectionMapping.GetValue(data);
+
+            if (collectionValue == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
             element.Add(new XAttribute("Count", collectionValue.Count));
             for (var i = 0; i < collectionValue.Count; i++)
             {
@@ -83,7 +140,9 @@ namespace Persistity.Serialization.Xml
                 var newElement = new XElement("CollectionElement");
                 element.Add(newElement);
 
-                if (collectionMapping.InternalMappings.Count > 0)
+                if (currentData == null)
+                { MarkAsNull(newElement); }
+                else if (collectionMapping.InternalMappings.Count > 0)
                 { Serialize(collectionMapping.InternalMappings, currentData, newElement); }
                 else
                 { SerializePrimitive(currentData, collectionMapping.CollectionType, newElement); }
@@ -92,7 +151,20 @@ namespace Persistity.Serialization.Xml
 
         private void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, XElement element)
         {
+            if (data == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
             var dictionaryValue = dictionaryMapping.GetValue(data);
+
+            if (dictionaryValue == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
             element.Add(new XAttribute("Count", dictionaryValue.Count));
 
             foreach (var key in dictionaryValue.Keys)
@@ -106,7 +178,9 @@ namespace Persistity.Serialization.Xml
                 { SerializePrimitive(key, dictionaryMapping.KeyType, keyElement); }
 
                 var valueElement = new XElement("Value");
-                if (dictionaryMapping.ValueMappings.Count > 0)
+                if(currentValue == null)
+                { MarkAsNull(valueElement); }
+                else if (dictionaryMapping.ValueMappings.Count > 0)
                 { Serialize(dictionaryMapping.ValueMappings, currentValue, valueElement); }
                 else
                 { SerializePrimitive(currentValue, dictionaryMapping.ValueType, valueElement); }

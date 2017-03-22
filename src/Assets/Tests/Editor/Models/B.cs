@@ -3,7 +3,6 @@ using Tests.Editor.Models;
 
 namespace Assets.Tests.Editor
 {
-    [Persist]
     public class B
     {
         [PersistData]

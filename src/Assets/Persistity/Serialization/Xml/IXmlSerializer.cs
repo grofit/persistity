@@ -1,4 +1,4 @@
 namespace Persistity.Serialization.Xml
 {
-    public interface IXmlSerializer : ISerializer<string> { }
+    public interface IXmlSerializer : ISerializer { }
 }

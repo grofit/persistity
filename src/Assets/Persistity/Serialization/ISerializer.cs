@@ -2,8 +2,8 @@ using Persistity.Mappings;
 
 namespace Persistity.Serialization
 {
-    public interface ISerializer<TOutput>
+    public interface ISerializer
     {
-        TOutput SerializeData<TInput>(TypeMapping typeMapping, TInput data) where TInput : new();
+        byte[] SerializeData<TInput>(TypeMapping typeMapping, TInput data) where TInput : new();
     }
 }

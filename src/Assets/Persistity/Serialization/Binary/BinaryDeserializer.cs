@@ -9,6 +9,38 @@ namespace Persistity.Serialization.Binary
 {
     public class BinaryDeserializer : IBinaryDeserializer
     {
+        private bool IsDataNull(BinaryReader reader)
+        {
+            var currentPosition = reader.BaseStream.Position;
+
+            foreach (var nullChar in BinarySerializer.NullDataSig)
+            {
+                var readChar = reader.ReadChar();
+                if (nullChar != readChar)
+                {
+                    reader.BaseStream.Position = currentPosition;
+                    return false;
+                }
+            }
+            return true;
+        }
+
+        private bool IsObjectNull(BinaryReader reader)
+        {
+            var currentPosition = reader.BaseStream.Position;
+
+            foreach (var nullChar in BinarySerializer.NullObjectSig)
+            {
+                var readChar = reader.ReadChar();
+                if (nullChar != readChar)
+                {
+                    reader.BaseStream.Position = currentPosition;
+                    return false;
+                }
+            }
+            return true;
+        }
+
         private object DeserializePrimitive(Type type, BinaryReader reader)
         {
             if (type == typeof(byte)) { return reader.ReadByte(); }
@@ -74,8 +106,13 @@ namespace Persistity.Serialization.Binary
 
         private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, BinaryReader reader)
         {
-            var underlyingValue = DeserializePrimitive(propertyMapping.Type, reader);
-            propertyMapping.SetValue(instance, underlyingValue);
+            if (IsDataNull(reader))
+            { propertyMapping.SetValue(instance, null); }
+            else
+            {
+                var underlyingValue = DeserializePrimitive(propertyMapping.Type, reader);
+                propertyMapping.SetValue(instance, underlyingValue);
+            }
         }
 
         private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, BinaryReader reader)
@@ -85,7 +122,14 @@ namespace Persistity.Serialization.Binary
         {
             for (var i = 0; i < arrayCount; i++)
             {
-                if (collectionMapping.InternalMappings.Count > 0)
+                if (IsObjectNull(reader))
+                {
+                    if (collectionInstance.IsFixedSize)
+                    { collectionInstance[i] = null; }
+                    else
+                    { collectionInstance.Insert(i, null); }
+                }
+                else if (collectionMapping.InternalMappings.Count > 0)
                 {
                     var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
                     Deserialize(collectionMapping.InternalMappings, elementInstance, reader);
@@ -97,7 +141,9 @@ namespace Persistity.Serialization.Binary
                 }
                 else
                 {
-                    var value = DeserializePrimitive(collectionMapping.CollectionType, reader);
+                    object value = null;
+                    if(!IsDataNull(reader))
+                    { value = DeserializePrimitive(collectionMapping.CollectionType, reader); }
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = value; }
                     else
@@ -119,7 +165,9 @@ namespace Persistity.Serialization.Binary
                 else
                 { keyInstance = DeserializePrimitive(dictionaryMapping.KeyType, reader); }
 
-                if (dictionaryMapping.ValueMappings.Count > 0)
+                if (IsDataNull(reader))
+                { valueInstance = null; }
+                else if (dictionaryMapping.ValueMappings.Count > 0)
                 {
                     valueInstance = Activator.CreateInstance(dictionaryMapping.ValueType);
                     Deserialize(dictionaryMapping.ValueMappings, valueInstance, reader);
@@ -140,6 +188,12 @@ namespace Persistity.Serialization.Binary
                 else if (mapping is NestedMapping)
                 {
                     var nestedMapping = (mapping as NestedMapping);
+                    if (IsObjectNull(reader))
+                    {
+                        nestedMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
                     DeserializeNestedObject(nestedMapping, childInstance, reader);
                     nestedMapping.SetValue(instance, childInstance);
@@ -147,6 +201,12 @@ namespace Persistity.Serialization.Binary
                 else if (mapping is DictionaryMapping)
                 {
                     var dictionaryMapping = (mapping as DictionaryMapping);
+                    if (IsObjectNull(reader))
+                    {
+                        dictionaryMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var dictionarytype = typeof(Dictionary<,>);
                     var dictionaryCount = reader.ReadInt32();
                     var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
@@ -157,6 +217,12 @@ namespace Persistity.Serialization.Binary
                 else
                 {
                     var collectionMapping = (mapping as CollectionMapping);
+                    if (IsObjectNull(reader))
+                    {
+                        collectionMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var arrayCount = reader.ReadInt32();
 
                     if (collectionMapping.IsArray)

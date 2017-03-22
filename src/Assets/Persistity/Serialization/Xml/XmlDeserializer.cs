@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 using System.Xml.Linq;
 using Persistity.Mappings;
 using UnityEngine;
@@ -10,6 +11,11 @@ namespace Persistity.Serialization.Xml
 {
     public class XmlDeserializer : IXmlDeserializer
     {
+        public Encoding Encoder = Encoding.Default;
+
+        private bool IsElementNull(XElement element)
+        { return element.Attribute("IsNull") != null; }
+
         private object DeserializePrimitive(Type type, XElement element)
         {
             if (type == typeof(byte)) { return byte.Parse(element.Value); }
@@ -62,9 +68,10 @@ namespace Persistity.Serialization.Xml
             return element.Value;
         }
 
-        public T DeserializeData<T>(TypeMapping typeMapping, string data) where T : new()
+        public T DeserializeData<T>(TypeMapping typeMapping, byte[] data) where T : new()
         {
-            var xDoc = XDocument.Parse(data);
+            var xmlString = Encoder.GetString(data);
+            var xDoc = XDocument.Parse(xmlString);
             var containerElement = xDoc.Element("Container");
             var instance = new T();
             Deserialize(typeMapping.InternalMappings, instance, containerElement);
@@ -73,8 +80,13 @@ namespace Persistity.Serialization.Xml
 
         private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, XElement element)
         {
-            var underlyingValue = DeserializePrimitive(propertyMapping.Type, element);
-            propertyMapping.SetValue(instance, underlyingValue);
+            if (IsElementNull(element))
+            { propertyMapping.SetValue(instance, null); }
+            else
+            {
+                var underlyingValue = DeserializePrimitive(propertyMapping.Type, element);
+                propertyMapping.SetValue(instance, underlyingValue);
+            }
         }
 
         private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, XElement element)
@@ -85,7 +97,14 @@ namespace Persistity.Serialization.Xml
             for (var i = 0; i < arrayCount; i++)
             {
                 var collectionElement = element.Elements("CollectionElement").ElementAt(i);
-                if (collectionMapping.InternalMappings.Count > 0)
+                if (IsElementNull(collectionElement))
+                {
+                    if (collectionInstance.IsFixedSize)
+                    { collectionInstance[i] = null; }
+                    else
+                    { collectionInstance.Insert(i, null); }
+                }
+                else if (collectionMapping.InternalMappings.Count > 0)
                 {
                     var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
                     Deserialize(collectionMapping.InternalMappings, elementInstance, collectionElement);
@@ -123,7 +142,9 @@ namespace Persistity.Serialization.Xml
                 else
                 { keyInstance = DeserializePrimitive(dictionaryMapping.KeyType, keyElement); }
 
-                if (dictionaryMapping.ValueMappings.Count > 0)
+                if (IsElementNull(valueElement))
+                { valueInstance = null; }
+                else if (dictionaryMapping.ValueMappings.Count > 0)
                 {
                     valueInstance = Activator.CreateInstance(dictionaryMapping.ValueType);
                     Deserialize(dictionaryMapping.ValueMappings, valueInstance, valueElement);
@@ -146,6 +167,12 @@ namespace Persistity.Serialization.Xml
                 else if (mapping is NestedMapping)
                 {
                     var nestedMapping = (mapping as NestedMapping);
+                    if (IsElementNull(currentElement))
+                    {
+                        nestedMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var childInstance = Activator.CreateInstance(nestedMapping.Type);
                     DeserializeNestedObject(nestedMapping, childInstance, currentElement);
                     nestedMapping.SetValue(instance, childInstance);
@@ -153,6 +180,12 @@ namespace Persistity.Serialization.Xml
                 else if (mapping is DictionaryMapping)
                 {
                     var dictionaryMapping = (mapping as DictionaryMapping);
+                    if (IsElementNull(currentElement))
+                    {
+                        dictionaryMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var dictionarytype = typeof(Dictionary<,>);
                     var dictionaryCount = int.Parse(currentElement.Attribute("Count").Value);
                     var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
@@ -163,6 +196,12 @@ namespace Persistity.Serialization.Xml
                 else
                 {
                     var collectionMapping = (mapping as CollectionMapping);
+                    if (IsElementNull(currentElement))
+                    {
+                        collectionMapping.SetValue(instance, null);
+                        continue;
+                    }
+
                     var arrayCount = int.Parse(currentElement.Attribute("Count").Value);
 
                     if (collectionMapping.IsArray)
