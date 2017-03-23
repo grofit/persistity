@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using System.Xml.Linq;
 using Persistity.Exceptions;
@@ -12,6 +13,13 @@ namespace Persistity.Serialization.Xml
     public class XmlSerializer : IXmlSerializer
     {
         public Encoding Encoder = Encoding.Default;
+
+        public IEnumerable<ITypeHandler<XElement, XElement>> TypeHandlers { get; set; }
+
+        public XmlSerializer(IEnumerable<ITypeHandler<XElement, XElement>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<XElement, XElement>>();
+        }
 
         private readonly Type[] CatchmentTypes =
         {
@@ -71,7 +79,9 @@ namespace Persistity.Serialization.Xml
                 return;
             }
 
-            throw new NoKnownTypeException(type);
+            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if(matchingHandler == null) { throw new NoKnownTypeException(type); }
+            matchingHandler.HandleTypeIn(element, value);
         }
 
         public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()

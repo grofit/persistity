@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Encryption;

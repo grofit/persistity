@@ -10,15 +10,22 @@ namespace Persistity.Mappings.Mappers
 {
     public abstract class TypeMapper : ITypeMapper
     {
+        private readonly IEnumerable<Type> _knownPrimitives;
+
+        protected TypeMapper(IEnumerable<Type> knownPrimitives = null)
+        {
+            _knownPrimitives = knownPrimitives ?? new List<Type>();
+        }
+
         public bool IsGenericList(Type type)
         { return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IList<>); }
 
         public bool IsGenericDictionary(Type type)
         { return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>); }
 
-        public virtual bool isPrimitiveType(Type type)
+        public virtual bool IsPrimitiveType(Type type)
         {
-            return type.IsPrimitive ||
+            var isDefaultPrimitive = type.IsPrimitive ||
                    type == typeof(string) ||
                    type == typeof(DateTime) ||
                    type == typeof(Vector2) ||
@@ -26,6 +33,8 @@ namespace Persistity.Mappings.Mappers
                    type == typeof(Vector4) ||
                    type == typeof(Quaternion) ||
                    type == typeof(Guid);
+
+            return isDefaultPrimitive || _knownPrimitives.Any(x => type == x);
         }
 
         public virtual TypeMapping GetTypeMappingsFor(Type type)
@@ -55,7 +64,7 @@ namespace Persistity.Mappings.Mappers
         {
             var currentScope = scope + "." + propertyInfo.Name;
 
-            if (isPrimitiveType(propertyInfo.PropertyType))
+            if (IsPrimitiveType(propertyInfo.PropertyType))
             { return CreatePropertyMappingFor(propertyInfo, currentScope); }
 
             if (propertyInfo.PropertyType.IsArray || IsGenericList(propertyInfo.PropertyType))

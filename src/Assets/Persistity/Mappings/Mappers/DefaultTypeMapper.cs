@@ -10,6 +10,10 @@ namespace Persistity.Mappings.Mappers
 {
     public class DefaultTypeMapper : TypeMapper
     {
+        public DefaultTypeMapper(IEnumerable<Type> knownPrimitives = null) : base(knownPrimitives)
+        {
+        }
+
         public override IEnumerable<PropertyInfo> GetPropertiesFor(Type type)
         {
             return base.GetPropertiesFor(type)
