@@ -1,4 +1,4 @@
 ﻿namespace Persistity.Serialization.Binary
 {
-    public interface IBinaryDeserializer : IDeserializer<byte[]> { }
+    public interface IBinaryDeserializer : IDeserializer { }
 }

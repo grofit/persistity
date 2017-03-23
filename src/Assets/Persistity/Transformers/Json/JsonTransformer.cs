@@ -16,13 +16,13 @@ namespace Persistity.Transformers.Json
             MappingRegistry = mappingRegistry;
         }
 
-        public string Transform<T>(T data) where T : new()
+        public byte[] Transform<T>(T data) where T : new()
         {
             var typeMapping = MappingRegistry.GetMappingFor<T>();
             return Serializer.SerializeData(typeMapping, data);
         }
 
-        public T Transform<T>(string data) where T : new()
+        public T Transform<T>(byte[] data) where T : new()
         {
             var typeMapping = MappingRegistry.GetMappingFor<T>();
             return Deserializer.DeserializeData<T>(typeMapping, data);

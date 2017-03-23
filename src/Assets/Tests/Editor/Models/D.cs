@@ -4,7 +4,6 @@ using UnityEngine;
 
 namespace Tests.Editor.Models
 {
-    [Persist]
     public class D
     {
         [PersistData] public byte ByteValue { get; set; }

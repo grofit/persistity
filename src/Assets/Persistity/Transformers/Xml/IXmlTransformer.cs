@@ -1,6 +1,6 @@
 ﻿namespace Persistity.Transformers.Xml
 {
-    public interface IXmlTransformer : ITransformer<string>
+    public interface IXmlTransformer : ITransformer
     {
         
     }
