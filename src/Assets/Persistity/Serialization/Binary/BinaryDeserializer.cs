@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using Persistity.Mappings;
 using UnityEngine;
 
@@ -9,7 +10,14 @@ namespace Persistity.Serialization.Binary
 {
     public class BinaryDeserializer : IBinaryDeserializer
     {
-        private bool IsDataNull(BinaryReader reader)
+        public IEnumerable<ITypeHandler<BinaryWriter, BinaryReader>> TypeHandlers { get; set; }
+
+        public BinaryDeserializer(IEnumerable<ITypeHandler<BinaryWriter, BinaryReader>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<BinaryWriter, BinaryReader>>();
+        }
+
+        public bool IsDataNull(BinaryReader reader)
         {
             var currentPosition = reader.BaseStream.Position;
 
@@ -25,7 +33,7 @@ namespace Persistity.Serialization.Binary
             return true;
         }
 
-        private bool IsObjectNull(BinaryReader reader)
+        public bool IsObjectNull(BinaryReader reader)
         {
             var currentPosition = reader.BaseStream.Position;
 
@@ -41,7 +49,7 @@ namespace Persistity.Serialization.Binary
             return true;
         }
 
-        private object DeserializePrimitive(Type type, BinaryReader reader)
+        public object DeserializePrimitive(Type type, BinaryReader reader)
         {
             if (type == typeof(byte)) { return reader.ReadByte(); }
             if (type == typeof(short)) { return reader.ReadInt16(); }
@@ -89,7 +97,11 @@ namespace Persistity.Serialization.Binary
                 var binaryTime = reader.ReadInt64();
                 return DateTime.FromBinary(binaryTime);
             }
-            
+
+            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if (matchingHandler != null)
+            { return matchingHandler.HandleTypeOut(reader); }
+
             return reader.ReadString();
         }
 
@@ -104,7 +116,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, BinaryReader reader)
+        public void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, BinaryReader reader)
         {
             if (IsDataNull(reader))
             { propertyMapping.SetValue(instance, null); }
@@ -115,10 +127,10 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, BinaryReader reader)
+        public void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, BinaryReader reader)
         { Deserialize(nestedMapping.InternalMappings, instance, reader); }
 
-        private void DeserializeCollection(CollectionMapping collectionMapping, IList collectionInstance, int arrayCount, BinaryReader reader)
+        public void DeserializeCollection(CollectionMapping collectionMapping, IList collectionInstance, int arrayCount, BinaryReader reader)
         {
             for (var i = 0; i < arrayCount; i++)
             {
@@ -152,7 +164,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary dictionaryInstance, int dictionaryCount, BinaryReader reader)
+        public void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary dictionaryInstance, int dictionaryCount, BinaryReader reader)
         {
             for (var i = 0; i < dictionaryCount; i++)
             {
@@ -179,7 +191,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, BinaryReader reader)
+        public void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, BinaryReader reader)
         {
             foreach (var mapping in mappings)
             {

@@ -1,9 +1,10 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using Persistity.Exceptions;
 using Persistity.Json;
 using Persistity.Mappings;
-using Persistity.Serialization.Exceptions;
 using UnityEngine;
 
 namespace Persistity.Serialization.Json
@@ -11,6 +12,12 @@ namespace Persistity.Serialization.Json
     public class JsonSerializer : IJsonSerializer
     {
         public Encoding Encoder = Encoding.Default;
+        public IEnumerable<ITypeHandler<JSONNode, JSONNode>> TypeHandlers { get; set; }
+
+        public JsonSerializer(IEnumerable<ITypeHandler<JSONNode, JSONNode>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<JSONNode, JSONNode>>();
+        }
 
         private JSONNull GetNullNode()
         { return new JSONNull(); }
@@ -64,8 +71,15 @@ namespace Persistity.Serialization.Json
                 var typedValue = (DateTime) value;
                 node = new JSONString(typedValue.ToBinary().ToString());
             }
-            else if(type == typeof(string)) { node = new JSONString(value.ToString()); }
-            else { throw new NoKnownTypeException(type); }
+            else if (type == typeof(string))
+            { node = new JSONString(value.ToString()); }
+            else
+            {
+                var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+                if(matchingHandler == null) { throw new NoKnownTypeException(type); }
+                matchingHandler.HandleTypeIn(node, value);
+            }
+
             return node;
         }
 

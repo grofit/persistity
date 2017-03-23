@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
 using Persistity.Json;
 using Persistity.Mappings;
@@ -11,6 +12,13 @@ namespace Persistity.Serialization.Json
     public class JsonDeserializer : IJsonDeserializer
     {
         public Encoding Encoder = Encoding.Default;
+
+        public IEnumerable<ITypeHandler<JSONNode, JSONNode>> TypeHandlers { get; set; }
+
+        public JsonDeserializer(IEnumerable<ITypeHandler<JSONNode, JSONNode>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<JSONNode, JSONNode>>();
+        }
 
         private bool IsNullNode(JSONNode node)
         { return node == null; }
@@ -34,6 +42,10 @@ namespace Persistity.Serialization.Json
             { return new Vector4(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
             if (type == typeof(Quaternion))
             { return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
+
+            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if (matchingHandler != null)
+            { return matchingHandler.HandleTypeOut(value); }
 
             return value.Value;
         }

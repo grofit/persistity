@@ -1,24 +1,32 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
+using Persistity.Exceptions;
 using Persistity.Mappings;
-using Persistity.Serialization.Exceptions;
 using UnityEngine;
 
 namespace Persistity.Serialization.Binary
 {
     public class BinarySerializer : IBinarySerializer
     {
-        public readonly static char[] NullDataSig = {(char) 141, (char) 141};
-        public readonly static char[] NullObjectSig = {(char) 141, (char)229, (char)141};
+        public static readonly char[] NullDataSig = {(char) 141, (char) 141};
+        public static readonly char[] NullObjectSig = {(char) 141, (char)229, (char)141};
 
-        private void WriteNullData(BinaryWriter writer)
+        public IEnumerable<ITypeHandler<BinaryWriter, BinaryReader>> TypeHandlers { get; set; }
+
+        public BinarySerializer(IEnumerable<ITypeHandler<BinaryWriter, BinaryReader>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<BinaryWriter, BinaryReader>>();
+        }
+
+        public void WriteNullData(BinaryWriter writer)
         { writer.Write(NullDataSig); }
 
-        private void WriteNullObject(BinaryWriter writer)
+        public void WriteNullObject(BinaryWriter writer)
         { writer.Write(NullObjectSig); }
 
-        private void SerializePrimitive(object value, Type type, BinaryWriter writer)
+        public void SerializePrimitive(object value, Type type, BinaryWriter writer)
         {
             if (type == typeof(byte)) { writer.Write((byte)value); }
             else if (type == typeof(short)) { writer.Write((short)value); }
@@ -59,8 +67,13 @@ namespace Persistity.Serialization.Binary
             }
             else if (type == typeof(DateTime)) { writer.Write(((DateTime)value).ToBinary()); }
             else if (type == typeof(Guid)) { writer.Write(((Guid)value).ToString()); }
-            else if(type == typeof(string)) { writer.Write(value.ToString()); }
-            else { throw new NoKnownTypeException(type); }
+            else if (type == typeof(string)) { writer.Write(value.ToString()); }
+            else
+            {
+                var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+                if(matchingHandler == null) { throw new NoKnownTypeException(type); }
+                matchingHandler.HandleTypeIn(writer, value);
+            }
         }
 
         public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
@@ -76,7 +89,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void SerializeProperty<T>(PropertyMapping propertyMapping, T data, BinaryWriter writer)
+        public void SerializeProperty<T>(PropertyMapping propertyMapping, T data, BinaryWriter writer)
         {
             if (data == null)
             {
@@ -95,7 +108,7 @@ namespace Persistity.Serialization.Binary
             SerializePrimitive(underlyingValue, propertyMapping.Type, writer);
         }
 
-        private void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, BinaryWriter writer)
+        public void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, BinaryWriter writer)
         {
             if (data == null)
             {
@@ -114,7 +127,7 @@ namespace Persistity.Serialization.Binary
             Serialize(nestedMapping.InternalMappings, currentData, writer);
         }
         
-        private void SerializeCollection<T>(CollectionMapping collectionMapping, T data, BinaryWriter writer)
+        public void SerializeCollection<T>(CollectionMapping collectionMapping, T data, BinaryWriter writer)
         {
             if (data == null)
             {
@@ -143,7 +156,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, BinaryWriter writer)
+        public void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, BinaryWriter writer)
         {
             if (data == null)
             {
@@ -179,7 +192,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        private void Serialize<T>(IEnumerable<Mapping> mappings, T data, BinaryWriter writer)
+        public void Serialize<T>(IEnumerable<Mapping> mappings, T data, BinaryWriter writer)
         {
             foreach (var mapping in mappings)
             {

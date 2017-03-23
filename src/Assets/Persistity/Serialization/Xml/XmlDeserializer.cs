@@ -13,6 +13,13 @@ namespace Persistity.Serialization.Xml
     {
         public Encoding Encoder = Encoding.Default;
 
+        public IEnumerable<ITypeHandler<XElement, XElement>> TypeHandlers { get; set; }
+
+        public XmlDeserializer(IEnumerable<ITypeHandler<XElement, XElement>> typeHandlers = null)
+        {
+            TypeHandlers = typeHandlers ?? new List<ITypeHandler<XElement, XElement>>();
+        }
+
         private bool IsElementNull(XElement element)
         { return element.Attribute("IsNull") != null; }
 
@@ -64,7 +71,11 @@ namespace Persistity.Serialization.Xml
                 var binaryTime = long.Parse(element.Value);
                 return DateTime.FromBinary(binaryTime);
             }
-            
+
+            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if (matchingHandler != null)
+            { return matchingHandler.HandleTypeOut(element); }
+
             return element.Value;
         }
 

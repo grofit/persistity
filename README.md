@@ -2,8 +2,6 @@
 
 A pipeline based data persistance framework for unity (a bit like ETL).
 
-[![Join the chat at https://gitter.im/grofit/ecsrx](https://badges.gitter.im/grofit/ecsrx.svg)](https://gitter.im/grofit/ecsrx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-
 ## What is it?
 
 It provides a framework for extracting data from your models into any format you want and doing stuff with it.
@@ -38,7 +36,7 @@ So for example lets cover a quick use case for saving your game state data to a 
 
 ```csharp
 // This would normally be setup once in your app or via DI etc
-var mappingRegistry = new MappingRegistry(new TypeMapper());
+var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
 var serializer = new BinarySerializer();
 var deserializer = new BinaryDeserializer();
 var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
@@ -81,7 +79,7 @@ So in the previous example we covered sending data to the file system, but lets 
 
 ```csharp
 // This would normally be setup once in your app or via DI etc
-var mappingRegistry = new MappingRegistry(new TypeMapper());
+var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
 var serializer = new BinarySerializer();
 var deserializer = new BinaryDeserializer();
 var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);

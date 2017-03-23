@@ -1,15 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
 using Persistity.Mappings;
+using Persistity.Mappings.Mappers;
 
 namespace Persistity.Registries
 {
     public class MappingRegistry : IMappingRegistry
     {
-        public TypeMapper TypeMapper { get; private set; }
+        public ITypeMapper TypeMapper { get; private set; }
         public IDictionary<Type, TypeMapping> TypeMappings { get; private set; }
 
-        public MappingRegistry(TypeMapper typeMapper)
+        public MappingRegistry(ITypeMapper typeMapper)
         {
             TypeMapper = typeMapper;
             TypeMappings = new Dictionary<Type, TypeMapping>();

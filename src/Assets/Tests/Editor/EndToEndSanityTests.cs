@@ -1,9 +1,11 @@
 ﻿using System;
+using System.Collections;
 using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Encryption;
 using Persistity.Endpoints.Files;
 using Persistity.Mappings;
+using Persistity.Mappings.Mappers;
 using Persistity.Pipelines.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Registries;
@@ -32,7 +34,7 @@ namespace Tests.Editor
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new BinarySerializer();
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
@@ -49,7 +51,7 @@ namespace Tests.Editor
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new BinarySerializer();
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
@@ -73,7 +75,7 @@ namespace Tests.Editor
             var filename = "encrypted_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new BinarySerializer();
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
@@ -104,7 +106,7 @@ namespace Tests.Editor
             var filename = "example_json_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new JsonSerializer();
             var deserializer = new JsonDeserializer();
             var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
@@ -121,7 +123,7 @@ namespace Tests.Editor
             var filename = "example_save.json";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new JsonSerializer();
             var deserializer = new JsonDeserializer();
             var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
@@ -139,7 +141,7 @@ namespace Tests.Editor
             var filename = "example_save.xml";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
-            var mappingRegistry = new MappingRegistry(new TypeMapper());
+            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
             var serializer = new XmlSerializer();
             var deserializer = new XmlDeserializer();
             var transformer = new XmlTransformer(serializer, deserializer, mappingRegistry);
