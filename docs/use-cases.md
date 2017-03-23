@@ -14,4 +14,8 @@ If you have a game with an inventory, you probably have a database of items (be 
 
 If you have a game where users can take pictures or create their own levels and that data needs to be put somewhere, you can create a pipeline for this to take the level and store it somewhere for later.
 
+## Editor Data Saving/Loading
+
+Much like ScriptableObjects you can create your own notion of data that can be pushed and pulled from remote sources allowing you to create editor plugins that can provide config data at design time.
+
 Almost all scenarios which revolve around data needing to go somewhere and come out of somewhere can be covered through a pipeline.

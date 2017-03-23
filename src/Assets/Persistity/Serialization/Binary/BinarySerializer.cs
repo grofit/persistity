@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using Persistity.Exceptions;
 using Persistity.Mappings;
-using Persistity.Serialization.Exceptions;
 using UnityEngine;
 
 namespace Persistity.Serialization.Binary

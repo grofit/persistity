@@ -1,9 +1,9 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using Persistity.Exceptions;
 using Persistity.Json;
 using Persistity.Mappings;
-using Persistity.Serialization.Exceptions;
 using UnityEngine;
 
 namespace Persistity.Serialization.Json
