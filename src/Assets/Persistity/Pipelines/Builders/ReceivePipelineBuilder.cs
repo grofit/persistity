@@ -18,13 +18,13 @@ namespace Persistity.Pipelines.Builders
             _processors = new List<IProcessor>();
         }
 
-        public ReceivePipelineBuilder WithProcessor(IProcessor processor)
+        public ReceivePipelineBuilder ProcessWith(IProcessor processor)
         {
             _processors.Add(processor);
             return this;
         }
 
-        public ReceivePipelineBuilder WithProcessors(params IProcessor[] processors)
+        public ReceivePipelineBuilder ProcessWith(params IProcessor[] processors)
         {
             _processors.AddRange(processors);
             return this;

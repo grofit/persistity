@@ -59,7 +59,7 @@ namespace Tests.Editor
 
             var saveToBinaryFilePipeline = new PipelineBuilder()
                 .TransformWith(transformer)
-                .WithProcessor(encryptionProcessor)
+                .ProcessWith(encryptionProcessor)
                 .SendTo(writeFileEndpoint)
                 .Build();
 

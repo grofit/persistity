@@ -2,6 +2,8 @@
 
 A pipeline based data persistance framework for unity (a bit like ETL).
 
+[![Join the chat at https://gitter.im/grofit/ecsrx](https://badges.gitter.im/grofit/ecsrx.svg)](https://gitter.im/grofit/ecsrx?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 ## What is it?
 
 It provides a framework for extracting data from your models into any format you want and doing stuff with it.
@@ -63,7 +65,7 @@ var encryptionProcessor = new EncryptDataProcessor(encryptor);
 // Same as before but we now add the processor into the mix
 var saveToBinaryFilePipeline = new PipelineBuilder()
     .TransformWith(transformer)
-    .WithProcessor(encryptionProcessor)
+    .ProcessWith(encryptionProcessor)
     .SendTo(writeFileEndpoint)
     .Build();
 
@@ -90,7 +92,7 @@ var readFileEndpoint = new ReadFileEndpoint("savegame.sav");
 // Create the pipeline which wraps the underlying steps
 var loadBinaryFilePipeline = new PipelineBuilder()
     .RecieveFrom(readFileEndpoint)
-    .WithProcessor(decryptionProcessor)
+    .ProcessWith(decryptionProcessor)
     .TransformWith(transformer)
     .Build();
 
