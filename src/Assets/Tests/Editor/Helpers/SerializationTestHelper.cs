@@ -54,7 +54,8 @@ namespace Tests.Editor.Helpers
                 Vector2Value = Vector2.one,
                 Vector3Value = Vector3.one,
                 Vector4Value = Vector4.one,
-                QuaternionValue = new Quaternion(1.0f, 1.0f, 1.0f, 1.0f)
+                QuaternionValue = new Quaternion(1.0f, 1.0f, 1.0f, 1.0f),
+                SomeType = SomeTypes.Known
             };
 
             a.SimpleDictionary.Add("key1", "some-value");
@@ -121,6 +122,7 @@ namespace Tests.Editor.Helpers
             Assert.That(result.AllTypes.Vector3Value, Is.EqualTo(expected.AllTypes.Vector3Value));
             Assert.That(result.AllTypes.Vector4Value, Is.EqualTo(expected.AllTypes.Vector4Value));
             Assert.That(result.AllTypes.QuaternionValue, Is.EqualTo(expected.AllTypes.QuaternionValue));
+            Assert.That(result.AllTypes.SomeType, Is.EqualTo(expected.AllTypes.SomeType));
             Assert.That(result.SimpleDictionary, Is.Not.Null);
             Assert.That(result.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
             Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));

@@ -19,6 +19,11 @@ namespace Persistity.Registries
         public TypeMapping GetMappingFor<T>() where T : new()
         {
             var type = typeof(T);
+            return GetMappingFor(type);
+        }
+
+        public TypeMapping GetMappingFor(Type type)
+        {
             if(TypeMappings.ContainsKey(type))
             { return TypeMappings[type]; }
 

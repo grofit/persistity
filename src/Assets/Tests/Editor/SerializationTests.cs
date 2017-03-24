@@ -26,7 +26,7 @@ namespace Tests.Editor
             var serializer = new DebugSerializer();
 
             var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
         }
 
         [Test]
@@ -38,7 +38,7 @@ namespace Tests.Editor
             var serializer = new DebugSerializer();
 
             var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
         }
 
         [Test]
@@ -50,7 +50,7 @@ namespace Tests.Editor
             var serializer = new JsonSerializer();
             var output = serializer.SerializeData(typeStuff, a);
             Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
 
             var deserializer = new JsonDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, output);
@@ -67,7 +67,7 @@ namespace Tests.Editor
             var serializer = new JsonSerializer();
             var output = serializer.SerializeData(typeStuff, a);
             Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
 
             var deserializer = new JsonDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, output);
@@ -118,7 +118,7 @@ namespace Tests.Editor
             var serializer = new XmlSerializer();
             var output = serializer.SerializeData(typeStuff, a);
             Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
 
             var deserializer = new XmlDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, output);
@@ -135,7 +135,7 @@ namespace Tests.Editor
             var serializer = new XmlSerializer();
             var output = serializer.SerializeData(typeStuff, a);
             Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(output);
+            Console.WriteLine(Encoding.Default.GetString(output));
 
             var deserializer = new XmlDeserializer();
             var result = deserializer.DeserializeData<A>(typeStuff, output);

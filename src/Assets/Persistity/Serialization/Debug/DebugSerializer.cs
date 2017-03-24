@@ -7,6 +7,9 @@ namespace Persistity.Serialization.Debug
     public class DebugSerializer : ISerializer
     {
         public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        { return SerializeData(typeMapping, (object)data); }
+
+        public byte[] SerializeData(TypeMapping typeMapping, object data)
         {
             var output = new StringBuilder();
 

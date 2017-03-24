@@ -16,5 +16,6 @@ namespace Tests.Editor.Models
         [PersistData] public Vector3 Vector3Value { get; set; }
         [PersistData] public Vector4 Vector4Value { get; set; }
         [PersistData] public Quaternion QuaternionValue { get; set; }
+        [PersistData] public SomeTypes SomeType { get; set; }
     }
 }
