@@ -12,9 +12,6 @@ using Persistity.Registries;
 using Persistity.Serialization.Binary;
 using Persistity.Serialization.Json;
 using Persistity.Serialization.Xml;
-using Persistity.Transformers.Binary;
-using Persistity.Transformers.Json;
-using Persistity.Transformers.Xml;
 using Tests.Editor.Helpers;
 
 namespace Tests.Editor
@@ -35,13 +32,11 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer();
-            var deserializer = new BinaryDeserializer();
-            var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var serializer = new BinarySerializer(mappingRegistry);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = transformer.Transform(dummyData);
+            var output = serializer.Serialize(dummyData);
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
 
@@ -52,15 +47,13 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer();
-            var deserializer = new BinaryDeserializer();
-            var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var serializer = new BinarySerializer(mappingRegistry);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
             var encryptor = new AesEncryptor("some-password");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
 
             var saveToBinaryFilePipeline = new PipelineBuilder()
-                .TransformWith(transformer)
+                .SerializeWith(serializer)
                 .ProcessWith(encryptionProcessor)
                 .SendTo(writeFileEndpoint)
                 .Build();
@@ -76,17 +69,16 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer();
-            var deserializer = new BinaryDeserializer();
-            var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
+            var serializer = new BinarySerializer(mappingRegistry);
+            var deserializer = new BinaryDeserializer(mappingRegistry);
             var encryptor = new AesEncryptor("dummy-password-123");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
             var decryptionProcessor = new DecryptDataProcessor(encryptor);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
             var readFileEndpoint = new ReadFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = transformer.Transform(dummyData);
+            var output = serializer.Serialize(dummyData);
             var encryptedOutput = encryptionProcessor.Process(output);
 
             writeFileEndpoint.Execute(encryptedOutput, (x) =>
@@ -94,7 +86,7 @@ namespace Tests.Editor
                 readFileEndpoint.Execute((data) =>
                 {
                     var decryptedData = decryptionProcessor.Process(data);
-                    var outputModel = transformer.Transform<A>(decryptedData);
+                    var outputModel = (A)deserializer.Deserialize(decryptedData);
                     SerializationTestHelper.AssertPopulatedData(dummyData, outputModel);
                 }, HandleError);
             }, HandleError);
@@ -107,13 +99,11 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new JsonSerializer();
-            var deserializer = new JsonDeserializer();
-            var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var serializer = new JsonSerializer(mappingRegistry);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = transformer.Transform(dummyData);
+            var output = serializer.Serialize(dummyData);
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
 
@@ -124,13 +114,11 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new JsonSerializer();
-            var deserializer = new JsonDeserializer();
-            var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var serializer = new JsonSerializer(mappingRegistry);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = transformer.Transform(dummyData);
+            var output = serializer.Serialize(dummyData);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
@@ -142,13 +130,11 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
 
             var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new XmlSerializer();
-            var deserializer = new XmlDeserializer();
-            var transformer = new XmlTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var serializer = new XmlSerializer(mappingRegistry);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = transformer.Transform(dummyData);
+            var output = serializer.Serialize(dummyData);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }

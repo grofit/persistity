@@ -1,6 +1,6 @@
 # Processors
 
-So processors offer a way to do stuff on the data before it goes to it destination, be it outbound to some endpoint, or inbound to some model.
+So processors offer a way to do *stuff* on the data before it goes to it destination, be it outbound to some endpoint, or inbound to some model.
 
 This can range from things like encrypting the data, gzipping it, url encoding it etc, and you can run as many of them as you want in the pipeline in whatever order you want.
 
@@ -16,4 +16,4 @@ This allows you to url encode the data for web requests. Until you have a http e
 
 ## Creating Processors
 
-To create a processor just implement `IProcessor` for your scenario, such as a `GzipDeflateProcessor` and `GzipInflateProcessor` etc. There is only a single method which takes the byte array and then spits the converted version back out.
+To create a processor just implement `IProcessor` for your scenario, such as a `GzipDeflateProcessor` and `GzipInflateProcessor` etc. There is only a single method which takes the `DataObject` representing the underlying data, and then returns back a new `DataObject` containing the processed data.
