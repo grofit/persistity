@@ -1,22 +1,23 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Persistity.Exceptions;
 using Persistity.Json;
 using Persistity.Mappings;
+using Persistity.Registries;
 using UnityEngine;
 
 namespace Persistity.Serialization.Json
 {
     public class JsonSerializer : IJsonSerializer
     {
-        public Encoding Encoder = Encoding.Default;
-        public IEnumerable<ITypeHandler<JSONNode, JSONNode>> TypeHandlers { get; set; }
+        public IMappingRegistry MappingRegistry { get; private set; }
+        public JsonConfiguration Configuration { get; private set; }
 
-        public JsonSerializer(IEnumerable<ITypeHandler<JSONNode, JSONNode>> typeHandlers = null)
+        public JsonSerializer(IMappingRegistry mappingRegistry, JsonConfiguration configuration = null)
         {
-            TypeHandlers = typeHandlers ?? new List<ITypeHandler<JSONNode, JSONNode>>();
+            MappingRegistry = mappingRegistry;
+            Configuration = configuration ?? JsonConfiguration.Default;
         }
 
         private JSONNull GetNullNode()
@@ -25,6 +26,7 @@ namespace Persistity.Serialization.Json
         private JSONNode SerializePrimitive(object value, Type type)
         {
             JSONNode node = null;
+
             if (type == typeof(byte)) { node = new JSONNumber((byte)value); }
             else if (type == typeof(short)) { node = new JSONNumber((short)value); }
             else if (type == typeof(int)) { node = new JSONNumber((int)value); }
@@ -71,11 +73,11 @@ namespace Persistity.Serialization.Json
                 var typedValue = (DateTime) value;
                 node = new JSONString(typedValue.ToBinary().ToString());
             }
-            else if (type == typeof(string))
+            else if (type == typeof(string) || type.IsEnum)
             { node = new JSONString(value.ToString()); }
             else
             {
-                var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+                var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
                 if(matchingHandler == null) { throw new NoKnownTypeException(type); }
                 matchingHandler.HandleTypeIn(node, value);
             }
@@ -83,11 +85,16 @@ namespace Persistity.Serialization.Json
             return node;
         }
 
-        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public DataObject Serialize(object data)
         {
+            var dataType = data.GetType();
+            var typeMapping = MappingRegistry.GetMappingFor(dataType);
+
             var jsonNode = Serialize(typeMapping.InternalMappings, data);
+            jsonNode.Add("Type", typeMapping.Type.AssemblyQualifiedName);
+
             var jsonString = jsonNode.ToString();
-            return Encoder.GetBytes(jsonString);
+            return new DataObject(jsonString);
         }
 
         private JSONNode SerializeProperty<T>(PropertyMapping propertyMapping, T data)

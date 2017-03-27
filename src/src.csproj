@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.5.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -77,6 +79,7 @@
   <ItemGroup>
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
+    <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
     <Compile Include="Assets\Persistity\Encryption\AesEncryptor.cs" />
     <Compile Include="Assets\Persistity\Encryption\IEncryptor.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\ReadFileEndpoint.cs" />
@@ -96,6 +99,7 @@
     <Compile Include="Assets\Persistity\Mappings\Mappers\DefaultTypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mappers\EverythingTypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mappers\ITypeMapper.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Mappers\MappingConfiguration.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mappers\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\NestedMapping.cs" />
@@ -120,26 +124,25 @@
     <Compile Include="Assets\Persistity\Serialization\Binary\BinarySerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinarySerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryConfiguration.cs" />
+    <Compile Include="Assets\Persistity\Serialization\DataObject.cs" />
     <Compile Include="Assets\Persistity\Serialization\Debug\DebugSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\DefaultEncoding.cs" />
     <Compile Include="Assets\Persistity\Serialization\Exceptions\NoKnownTypeException.cs" />
     <Compile Include="Assets\Persistity\Serialization\IDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ISerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ITypeHandler.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\IJsonDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\IJsonSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\JsonConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\JsonDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\JsonSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\SerializationConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\IXmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\IXmlSerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\XmlConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlSerializer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Binary\BinaryTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Binary\IBinaryTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Json\IJsonTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Json\JsonTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Xml\IXmlTransformer.cs" />
-    <Compile Include="Assets\Persistity\Transformers\Xml\XmlTransformer.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionComponent.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionException.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Assertions.cs" />
@@ -201,6 +204,7 @@
     <None Include="Assets\UnityTestTools\LICENSE.txt" />
     <None Include="Assets\UnityTestTools\changelog.txt" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>

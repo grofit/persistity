@@ -139,6 +139,7 @@
     <Compile Include="Assets\Tests\Editor\Models\C.cs" />
     <Compile Include="Assets\Tests\Editor\Models\D.cs" />
     <Compile Include="Assets\Tests\Editor\Models\E.cs" />
+    <Compile Include="Assets\Tests\Editor\Models\SomeTypes.cs" />
     <Compile Include="Assets\Tests\Editor\SerializationTests.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Editor\AssertionComponentEditor.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Editor\AssertionExplorerWindow.cs" />

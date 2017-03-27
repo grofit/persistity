@@ -2,22 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using Persistity.Mappings;
+using Persistity.Registries;
 using UnityEngine;
 
 namespace Persistity.Serialization.Xml
 {
     public class XmlDeserializer : IXmlDeserializer
     {
-        public Encoding Encoder = Encoding.Default;
+        public IMappingRegistry MappingRegistry { get; private set; }
+        public XmlConfiguration Configuration { get; private set; }
 
-        public IEnumerable<ITypeHandler<XElement, XElement>> TypeHandlers { get; set; }
-
-        public XmlDeserializer(IEnumerable<ITypeHandler<XElement, XElement>> typeHandlers = null)
+        public XmlDeserializer(IMappingRegistry mappingRegistry, XmlConfiguration configuration = null)
         {
-            TypeHandlers = typeHandlers ?? new List<ITypeHandler<XElement, XElement>>();
+            MappingRegistry = mappingRegistry;
+            Configuration = configuration ?? XmlConfiguration.Default;
         }
 
         private bool IsElementNull(XElement element)
@@ -33,6 +33,7 @@ namespace Persistity.Serialization.Xml
             if (type == typeof(float)) { return float.Parse(element.Value); }
             if (type == typeof(double)) { return double.Parse(element.Value); }
             if (type == typeof(decimal)) { return decimal.Parse(element.Value); }
+            if (type.IsEnum) { return Enum.Parse(type, element.Value); }
             if (type == typeof(Vector2))
             {
                 var x = float.Parse(element.Element("x").Value);
@@ -72,19 +73,25 @@ namespace Persistity.Serialization.Xml
                 return DateTime.FromBinary(binaryTime);
             }
 
-            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)
             { return matchingHandler.HandleTypeOut(element); }
 
             return element.Value;
         }
 
-        public T DeserializeData<T>(TypeMapping typeMapping, byte[] data) where T : new()
+        public T Deserialize<T>(DataObject data) where T: new()
+        { return (T) Deserialize(data); }
+
+        public object Deserialize(DataObject data)
         {
-            var xmlString = Encoder.GetString(data);
-            var xDoc = XDocument.Parse(xmlString);
+            var xDoc = XDocument.Parse(data.AsString);
             var containerElement = xDoc.Element("Container");
-            var instance = new T();
+            var typeName = containerElement.Element("Type").Value;
+            var type = Type.GetType(typeName);
+            var typeMapping = MappingRegistry.GetMappingFor(type);
+
+            var instance = Activator.CreateInstance(typeMapping.Type);
             Deserialize(typeMapping.InternalMappings, instance, containerElement);
             return instance;
         }

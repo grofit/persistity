@@ -5,7 +5,7 @@ Pipleines can be thought of as steps in a bigger workflow that is expressed as a
 ```csharp
 // Create the pipeline which wraps the underlying steps
 var saveToBinaryFilePipeline = new PipelineBuilder()
-    .TransformWith(transformer)
+    .SerializeWith(binarySerializer)
     .ProcessWith(encryptionProcessor)
     .SendTo(writeFileEndpoint)
     .Build();
@@ -26,6 +26,19 @@ public class SomeClass
     
     // Use your pipeline whenever you want in your game
 }
+```
+
+## Transforming Objects
+
+You can also transform objects within the pipeline, this allows you to pass in an object, but have it converted to another object before serialization. This is handy for when you have a quite complex game object but want it transformed into a simpler intermediary object to be serialized. Then the deserialized data can transformed back into the original object, but you have to tell it how to do so by implementing your own custom `ITransformer` objects, then passing them into the pipeline, like so:
+
+```
+// Create the pipeline which transforms an object and saves
+var saveToBinaryFilePipeline = new PipelineBuilder()
+    .SerializeWith(binarySerializer)
+    .TransformWith(someTransformer)
+    .SendTo(writeFileEndpoint)
+    .Build();
 ```
 
 ## Creating Pipelines

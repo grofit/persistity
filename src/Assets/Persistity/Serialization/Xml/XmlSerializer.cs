@@ -1,24 +1,24 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Xml.Linq;
 using Persistity.Exceptions;
 using Persistity.Extensions;
 using Persistity.Mappings;
+using Persistity.Registries;
 using UnityEngine;
 
 namespace Persistity.Serialization.Xml
 {
     public class XmlSerializer : IXmlSerializer
     {
-        public Encoding Encoder = Encoding.Default;
+        public IMappingRegistry MappingRegistry { get; private set; }
+        public XmlConfiguration Configuration { get; private set; }
 
-        public IEnumerable<ITypeHandler<XElement, XElement>> TypeHandlers { get; set; }
-
-        public XmlSerializer(IEnumerable<ITypeHandler<XElement, XElement>> typeHandlers = null)
+        public XmlSerializer(IMappingRegistry mappingRegistry, XmlConfiguration configuration = null)
         {
-            TypeHandlers = typeHandlers ?? new List<ITypeHandler<XElement, XElement>>();
+            MappingRegistry = mappingRegistry;
+            Configuration = configuration ?? XmlConfiguration.Default;
         }
 
         private readonly Type[] CatchmentTypes =
@@ -73,23 +73,29 @@ namespace Persistity.Serialization.Xml
                 return;
             }
 
-            if (type.IsTypeOf(CatchmentTypes))
+            if (type.IsTypeOf(CatchmentTypes) || type.IsEnum)
             {
                 element.Value = value.ToString();
                 return;
             }
 
-            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if(matchingHandler == null) { throw new NoKnownTypeException(type); }
             matchingHandler.HandleTypeIn(element, value);
         }
 
-        public byte[] SerializeData<T>(TypeMapping typeMapping, T data) where T : new()
+        public DataObject Serialize(object data)
         {
             var element = new XElement("Container");
+            var dataType = data.GetType();
+            var typeMapping = MappingRegistry.GetMappingFor(dataType);
             Serialize(typeMapping.InternalMappings, data, element);
+
+            var typeElement = new XElement("Type", dataType.AssemblyQualifiedName);
+            element.Add(typeElement);
+            
             var xmlString = element.ToString();
-            return Encoder.GetBytes(xmlString);
+            return new DataObject(xmlString);
         }
 
         private void SerializeProperty<T>(PropertyMapping propertyMapping, T data, XElement element)

@@ -2,22 +2,22 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Persistity.Json;
 using Persistity.Mappings;
+using Persistity.Registries;
 using UnityEngine;
 
 namespace Persistity.Serialization.Json
 {
     public class JsonDeserializer : IJsonDeserializer
     {
-        public Encoding Encoder = Encoding.Default;
+        public IMappingRegistry MappingRegistry { get; private set; }
+        public JsonConfiguration Configuration { get; private set; }
 
-        public IEnumerable<ITypeHandler<JSONNode, JSONNode>> TypeHandlers { get; set; }
-
-        public JsonDeserializer(IEnumerable<ITypeHandler<JSONNode, JSONNode>> typeHandlers = null)
+        public JsonDeserializer(IMappingRegistry mappingRegistry, JsonConfiguration configuration = null)
         {
-            TypeHandlers = typeHandlers ?? new List<ITypeHandler<JSONNode, JSONNode>>();
+            MappingRegistry = mappingRegistry;
+            Configuration = configuration ?? JsonConfiguration.Default;
         }
 
         private bool IsNullNode(JSONNode node)
@@ -33,7 +33,9 @@ namespace Persistity.Serialization.Json
             if (type == typeof(bool)) { return value.AsBool; }
             if (type == typeof(float)) { return value.AsFloat; }
             if (type == typeof(double)) { return value.AsDouble; }
+            if (type.IsEnum) { return Enum.Parse(type, value.Value); }
             if (type == typeof(DateTime)) { return DateTime.FromBinary(long.Parse(value.Value)); }
+            if (type.IsEnum) { return Enum.Parse(type, value.Value); }
             if (type == typeof(Vector2))
             { return new Vector2(value["x"].AsFloat, value["y"].AsFloat); }
             if (type == typeof(Vector3))
@@ -43,18 +45,24 @@ namespace Persistity.Serialization.Json
             if (type == typeof(Quaternion))
             { return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
 
-            var matchingHandler = TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)
             { return matchingHandler.HandleTypeOut(value); }
 
             return value.Value;
         }
 
-        public T DeserializeData<T>(TypeMapping typeMapping, byte[] data) where T : new()
+        public T Deserialize<T>(DataObject data) where T : new()
+        { return (T)Deserialize(data); }
+
+        public object Deserialize(DataObject data)
         {
-            var jsonString = Encoder.GetString(data);
-            var instance = new T();
-            var jsonData = JSON.Parse(jsonString);
+            var jsonData = JSON.Parse(data.AsString);
+            var typeName = jsonData["Type"].Value;
+            var type = Type.GetType(typeName);
+            var typeMapping = MappingRegistry.GetMappingFor(type);
+            var instance = Activator.CreateInstance(type);
+            
             Deserialize(typeMapping.InternalMappings, instance, jsonData);
             return instance;
         }
