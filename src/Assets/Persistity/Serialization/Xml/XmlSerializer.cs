@@ -84,7 +84,7 @@ namespace Persistity.Serialization.Xml
             matchingHandler.HandleTypeIn(element, value);
         }
 
-        public DataObject SerializeData(object data)
+        public DataObject Serialize(object data)
         {
             var element = new XElement("Container");
             var dataType = data.GetType();

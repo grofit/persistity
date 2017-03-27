@@ -80,10 +80,10 @@ namespace Persistity.Serialization.Xml
             return element.Value;
         }
 
-        public T DeserializeData<T>(DataObject data) where T: new()
-        { return (T) DeserializeData(data); }
+        public T Deserialize<T>(DataObject data) where T: new()
+        { return (T) Deserialize(data); }
 
-        public object DeserializeData(DataObject data)
+        public object Deserialize(DataObject data)
         {
             var xDoc = XDocument.Parse(data.AsString);
             var containerElement = xDoc.Element("Container");

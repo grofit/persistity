@@ -85,7 +85,7 @@ namespace Persistity.Serialization.Json
             return node;
         }
 
-        public DataObject SerializeData(object data)
+        public DataObject Serialize(object data)
         {
             var dataType = data.GetType();
             var typeMapping = MappingRegistry.GetMappingFor(dataType);

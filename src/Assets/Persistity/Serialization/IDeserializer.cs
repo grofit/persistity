@@ -2,7 +2,7 @@ namespace Persistity.Serialization
 {
     public interface IDeserializer
     {
-        object DeserializeData(DataObject data);
-        T DeserializeData<T>(DataObject data) where T : new();
+        object Deserialize(DataObject data);
+        T Deserialize<T>(DataObject data) where T : new();
     }
 }

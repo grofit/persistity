@@ -1,30 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Persistity.Convertors;
 using Persistity.Endpoints;
 using Persistity.Processors;
 using Persistity.Serialization;
+using Persistity.Transformers;
 
 namespace Persistity.Pipelines
 {
-    /*
-        var saveToBinaryFilePipeline = new PipelineBuilder()
-            .ConvertObject()
-            .SerializeWith(transformer)
-            .ProcessWith(encryptionProcessor)
-            .SendTo(writeFileEndpoint)
-            .Build();
-     */
-
     public class SendDataPipeline : ISendDataPipeline
     {
         public ISerializer Serializer { get; private set; }
-        public IEnumerable<IConvertor> Convertors { get; private set; }
+        public IEnumerable<ITransformer> Convertors { get; private set; }
         public IEnumerable<IProcessor> Processors { get; private set; }
         public ISendDataEndpoint SendToEndpoint { get; private set; }
 
-        public SendDataPipeline(ISerializer serializer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<IConvertor> convertors = null)
+        public SendDataPipeline(ISerializer serializer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> convertors = null)
         {
             Serializer = serializer;
             Processors = processors;
@@ -39,10 +30,10 @@ namespace Persistity.Pipelines
             if (Convertors != null)
             {
                 foreach(var convertor in Convertors)
-                { obj = convertor.ConvertTo(obj); }
+                { obj = convertor.TransformTo(obj); }
             }
 
-            var output = Serializer.SerializeData(obj);
+            var output = Serializer.Serialize(obj);
 
             if (Processors != null && Processors.Any())
             {

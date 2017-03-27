@@ -36,7 +36,7 @@ namespace Tests.Editor
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = serializer.SerializeData(dummyData);
+            var output = serializer.Serialize(dummyData);
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
 
@@ -78,7 +78,7 @@ namespace Tests.Editor
             var readFileEndpoint = new ReadFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = serializer.SerializeData(dummyData);
+            var output = serializer.Serialize(dummyData);
             var encryptedOutput = encryptionProcessor.Process(output);
 
             writeFileEndpoint.Execute(encryptedOutput, (x) =>
@@ -86,7 +86,7 @@ namespace Tests.Editor
                 readFileEndpoint.Execute((data) =>
                 {
                     var decryptedData = decryptionProcessor.Process(data);
-                    var outputModel = (A)deserializer.DeserializeData(decryptedData);
+                    var outputModel = (A)deserializer.Deserialize(decryptedData);
                     SerializationTestHelper.AssertPopulatedData(dummyData, outputModel);
                 }, HandleError);
             }, HandleError);
@@ -103,7 +103,7 @@ namespace Tests.Editor
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = serializer.SerializeData(dummyData);
+            var output = serializer.Serialize(dummyData);
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
 
@@ -118,7 +118,7 @@ namespace Tests.Editor
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = serializer.SerializeData(dummyData);
+            var output = serializer.Serialize(dummyData);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }
@@ -134,7 +134,7 @@ namespace Tests.Editor
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            var output = serializer.SerializeData(dummyData);
+            var output = serializer.Serialize(dummyData);
 
             writeFileEndpoint.Execute(output, HandleSuccess, HandleError);
         }

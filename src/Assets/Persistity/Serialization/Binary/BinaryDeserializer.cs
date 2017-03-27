@@ -113,10 +113,10 @@ namespace Persistity.Serialization.Binary
             return reader.ReadString();
         }
 
-        public T DeserializeData<T>(DataObject data) where T : new()
-        { return (T)DeserializeData(data); }
+        public T Deserialize<T>(DataObject data) where T : new()
+        { return (T)Deserialize(data); }
 
-        public object DeserializeData(DataObject data)
+        public object Deserialize(DataObject data)
         {
             using (var memoryStream = new MemoryStream(data.AsBytes))
             using (var reader = new BinaryReader(memoryStream))

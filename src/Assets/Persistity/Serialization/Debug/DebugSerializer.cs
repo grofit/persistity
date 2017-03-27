@@ -14,7 +14,7 @@ namespace Persistity.Serialization.Debug
             MappingRegistry = mappingRegistry;
         }
 
-        public DataObject SerializeData(object data)
+        public DataObject Serialize(object data)
         {
             var output = new StringBuilder();
             var typeMapping = MappingRegistry.GetMappingFor(data.GetType());

@@ -52,10 +52,10 @@ namespace Persistity.Serialization.Json
             return value.Value;
         }
 
-        public T DeserializeData<T>(DataObject data) where T : new()
-        { return (T)DeserializeData(data); }
+        public T Deserialize<T>(DataObject data) where T : new()
+        { return (T)Deserialize(data); }
 
-        public object DeserializeData(DataObject data)
+        public object Deserialize(DataObject data)
         {
             var jsonData = JSON.Parse(data.AsString);
             var typeName = jsonData["Type"].Value;

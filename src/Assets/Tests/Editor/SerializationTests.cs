@@ -31,7 +31,7 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GeneratePopulatedModel();
             var serializer = new DebugSerializer(_mappingRegistry);
 
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine(output.AsString);
         }
 
@@ -41,7 +41,7 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GenerateNulledModel();
             var serializer = new DebugSerializer(_mappingRegistry);
 
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine(output.AsString);
         }
 
@@ -51,12 +51,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GeneratePopulatedModel();
             var serializer = new JsonSerializer(_mappingRegistry);
 
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
             var deserializer = new JsonDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -67,12 +67,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GenerateNulledModel();
             var serializer = new JsonSerializer(_mappingRegistry);
 
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsString + " bytes");
             Console.WriteLine(output.AsString);
 
             var deserializer = new JsonDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -83,12 +83,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GeneratePopulatedModel();
 
             var serializer = new BinarySerializer(_mappingRegistry);
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
             Console.WriteLine(BitConverter.ToString(output.AsBytes));
 
             var deserializer = new BinaryDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -99,12 +99,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GenerateNulledModel();
 
             var serializer = new BinarySerializer(_mappingRegistry);
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
             Console.WriteLine(BitConverter.ToString(output.AsBytes));
 
             var deserializer = new BinaryDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -115,12 +115,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GeneratePopulatedModel();
 
             var serializer = new XmlSerializer(_mappingRegistry);
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
             var deserializer = new XmlDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -131,12 +131,12 @@ namespace Tests.Editor
             var a = SerializationTestHelper.GenerateNulledModel();
 
             var serializer = new XmlSerializer(_mappingRegistry);
-            var output = serializer.SerializeData(a);
+            var output = serializer.Serialize(a);
             Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
             var deserializer = new XmlDeserializer(_mappingRegistry);
-            var result = deserializer.DeserializeData<A>(output);
+            var result = deserializer.Deserialize<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }

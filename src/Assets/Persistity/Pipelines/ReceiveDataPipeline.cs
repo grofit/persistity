@@ -1,25 +1,25 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using Persistity.Convertors;
 using Persistity.Endpoints;
 using Persistity.Processors;
 using Persistity.Serialization;
+using Persistity.Transformers;
 
 namespace Persistity.Pipelines
 {
     public class ReceiveDataPipeline : IReceiveDataPipeline
     {
         public IDeserializer Deserializer { get; private set; }
-        public IEnumerable<IConvertor> Convertors { get; private set; }
+        public IEnumerable<ITransformer> Transformers { get; private set; }
         public IEnumerable<IProcessor> Processors { get; private set; }
         public IReceiveDataEndpoint ReceiveFromEndpoint { get; private set; }
 
-        public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<IConvertor> convertors = null)
+        public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> transformers = null)
         {
             Deserializer = deserializer;
             Processors = processors;
-            Convertors = convertors;
+            Transformers = transformers;
             ReceiveFromEndpoint = receiveFromEndpoint;
         }
 
@@ -37,11 +37,11 @@ namespace Persistity.Pipelines
                     { output = processor.Process(output); }
                 }
 
-                object model = Deserializer.DeserializeData(output);
-                if (Convertors != null)
+                object model = Deserializer.Deserialize(output);
+                if (Transformers != null)
                 {
-                    foreach (var convertor in Convertors)
-                    { model = convertor.ConvertTo(model); }
+                    foreach (var convertor in Transformers)
+                    { model = convertor.TransformTo(model); }
                 }
 
                 onSuccess((T)model);

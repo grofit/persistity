@@ -80,7 +80,7 @@ namespace Persistity.Serialization.Binary
             }
         }
 
-        public DataObject SerializeData(object data)
+        public DataObject Serialize(object data)
         {
             var typeMapping = MappingRegistry.GetMappingFor(data.GetType());
             using (var memoryStream = new MemoryStream())
