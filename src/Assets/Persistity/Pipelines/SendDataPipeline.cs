@@ -4,14 +4,14 @@ using System.Linq;
 using Persistity.Convertors;
 using Persistity.Endpoints;
 using Persistity.Processors;
-using Persistity.Transformers;
+using Persistity.Serialization;
 
 namespace Persistity.Pipelines
 {
     /*
         var saveToBinaryFilePipeline = new PipelineBuilder()
             .ConvertObject()
-            .TransformWith(transformer)
+            .SerializeWith(transformer)
             .ProcessWith(encryptionProcessor)
             .SendTo(writeFileEndpoint)
             .Build();
@@ -19,14 +19,14 @@ namespace Persistity.Pipelines
 
     public class SendDataPipeline : ISendDataPipeline
     {
-        public ITransformer Transformer { get; private set; }
+        public ISerializer Serializer { get; private set; }
         public IEnumerable<IConvertor> Convertors { get; private set; }
         public IEnumerable<IProcessor> Processors { get; private set; }
         public ISendDataEndpoint SendToEndpoint { get; private set; }
 
-        public SendDataPipeline(ITransformer transformer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<IConvertor> convertors = null)
+        public SendDataPipeline(ISerializer serializer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<IConvertor> convertors = null)
         {
-            Transformer = transformer;
+            Serializer = serializer;
             Processors = processors;
             Convertors = convertors;
             SendToEndpoint = sendToEndpoint;
@@ -42,7 +42,7 @@ namespace Persistity.Pipelines
                 { obj = convertor.ConvertTo(obj); }
             }
 
-            var output = Transformer.Transform(obj.GetType(), obj);
+            var output = Serializer.SerializeData(obj);
 
             if (Processors != null && Processors.Any())
             {

@@ -2,14 +2,14 @@
 using Persistity.Endpoints;
 using Persistity.Extensions;
 using Persistity.Processors;
-using Persistity.Transformers;
+using Persistity.Serialization;
 
 namespace Persistity.Pipelines.Builders
 {
     public class ReceivePipelineBuilder
     {
         private IReceiveDataEndpoint _receiveDataEndpointStep;
-        private ITransformer _transformStep;
+        private IDeserializer _deserializer;
         private IList<IProcessor> _processors;
 
         public ReceivePipelineBuilder(IReceiveDataEndpoint receiveDataEndpointStep)
@@ -31,15 +31,15 @@ namespace Persistity.Pipelines.Builders
         }
 
 
-        public ReceivePipelineBuilder TransformWith(ITransformer transformer)
+        public ReceivePipelineBuilder DeserializeWith(IDeserializer deserializer)
         {
-            _transformStep = transformer;
+            _deserializer = deserializer;
             return this;
         }
 
         public IReceiveDataPipeline Build()
         {
-            return new ReceiveDataPipeline(_transformStep, _receiveDataEndpointStep, _processors);
+            return new ReceiveDataPipeline(_deserializer, _receiveDataEndpointStep, _processors);
         }
     }
 }

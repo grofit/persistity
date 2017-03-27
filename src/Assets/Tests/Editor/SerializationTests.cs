@@ -4,6 +4,7 @@ using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Mappings;
 using Persistity.Mappings.Mappers;
+using Persistity.Registries;
 using Persistity.Serialization.Binary;
 using Persistity.Serialization.Debug;
 using Persistity.Serialization.Json;
@@ -15,45 +16,47 @@ namespace Tests.Editor
     [TestFixture]
     public class SerializationTests
     {
-        private DefaultTypeMapper _defaultTypeMapper = new DefaultTypeMapper();
+        private IMappingRegistry _mappingRegistry;
+
+        [SetUp]
+        public void Setup()
+        {
+            var mapper = new DefaultTypeMapper();
+            _mappingRegistry = new MappingRegistry(mapper);
+        }
         
         [Test]
         public void should_serialize_populated_data_with_debug_serializer()
         {
             var a = SerializationTestHelper.GeneratePopulatedModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
+            var serializer = new DebugSerializer(_mappingRegistry);
 
-            var serializer = new DebugSerializer();
-
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var output = serializer.SerializeData(a);
+            Console.WriteLine(output.AsString);
         }
 
         [Test]
         public void should_serialize_nulled_data_with_debug_serializer()
         {
             var a = SerializationTestHelper.GenerateNulledModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
+            var serializer = new DebugSerializer(_mappingRegistry);
 
-            var serializer = new DebugSerializer();
-
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var output = serializer.SerializeData(a);
+            Console.WriteLine(output.AsString);
         }
 
         [Test]
         public void should_correctly_serialize_populated_data_with_json()
         {
             var a = SerializationTestHelper.GeneratePopulatedModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
+            var serializer = new JsonSerializer(_mappingRegistry);
 
-            var serializer = new JsonSerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
 
-            var deserializer = new JsonDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new JsonDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -62,15 +65,14 @@ namespace Tests.Editor
         public void should_correctly_serialize_nulled_data_with_json()
         {
             var a = SerializationTestHelper.GenerateNulledModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
+            var serializer = new JsonSerializer(_mappingRegistry);
 
-            var serializer = new JsonSerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsString + " bytes");
+            Console.WriteLine(output.AsString);
 
-            var deserializer = new JsonDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new JsonDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -79,15 +81,14 @@ namespace Tests.Editor
         public void should_correctly_serialize_populated_data_with_binary()
         {
             var a = SerializationTestHelper.GeneratePopulatedModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
 
-            var serializer = new BinarySerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(BitConverter.ToString(output));
+            var serializer = new BinarySerializer(_mappingRegistry);
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output.AsBytes));
 
-            var deserializer = new BinaryDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new BinaryDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -96,15 +97,14 @@ namespace Tests.Editor
         public void should_correctly_serialize_nulled_data_with_binary()
         {
             var a = SerializationTestHelper.GenerateNulledModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
 
-            var serializer = new BinarySerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(BitConverter.ToString(output));
+            var serializer = new BinarySerializer(_mappingRegistry);
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output.AsBytes));
 
-            var deserializer = new BinaryDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new BinaryDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
@@ -113,15 +113,14 @@ namespace Tests.Editor
         public void should_correctly_serialize_populated_data_with_xml()
         {
             var a = SerializationTestHelper.GeneratePopulatedModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
 
-            var serializer = new XmlSerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var serializer = new XmlSerializer(_mappingRegistry);
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
 
-            var deserializer = new XmlDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new XmlDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertPopulatedData(a, result);
         }
@@ -130,15 +129,14 @@ namespace Tests.Editor
         public void should_correctly_serialize_nulled_data_with_xml()
         {
             var a = SerializationTestHelper.GenerateNulledModel();
-            var typeStuff = _defaultTypeMapper.GetTypeMappingsFor(typeof(A));
 
-            var serializer = new XmlSerializer();
-            var output = serializer.SerializeData(typeStuff, a);
-            Console.WriteLine("FileSize: " + output.Length + " bytes");
-            Console.WriteLine(Encoding.Default.GetString(output));
+            var serializer = new XmlSerializer(_mappingRegistry);
+            var output = serializer.SerializeData(a);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
 
-            var deserializer = new XmlDeserializer();
-            var result = deserializer.DeserializeData<A>(typeStuff, output);
+            var deserializer = new XmlDeserializer(_mappingRegistry);
+            var result = deserializer.DeserializeData<A>(output);
 
             SerializationTestHelper.AssertNulledData(a, result);
         }
