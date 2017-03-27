@@ -38,7 +38,7 @@ namespace Tests.Editor
             var serializer = new BinarySerializer();
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
@@ -55,7 +55,7 @@ namespace Tests.Editor
             var serializer = new BinarySerializer();
             var deserializer = new BinaryDeserializer();
             var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
             var encryptor = new AesEncryptor("some-password");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
 
@@ -82,7 +82,7 @@ namespace Tests.Editor
             var encryptor = new AesEncryptor("dummy-password-123");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
             var decryptionProcessor = new DecryptDataProcessor(encryptor);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
             var readFileEndpoint = new ReadFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
@@ -110,7 +110,7 @@ namespace Tests.Editor
             var serializer = new JsonSerializer();
             var deserializer = new JsonDeserializer();
             var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
@@ -127,7 +127,7 @@ namespace Tests.Editor
             var serializer = new JsonSerializer();
             var deserializer = new JsonDeserializer();
             var transformer = new JsonTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);
@@ -145,7 +145,7 @@ namespace Tests.Editor
             var serializer = new XmlSerializer();
             var deserializer = new XmlDeserializer();
             var transformer = new XmlTransformer(serializer, deserializer, mappingRegistry);
-            var writeFileEndpoint = new WriteFile(filename);
+            var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
             var output = transformer.Transform(dummyData);

@@ -3,11 +3,11 @@ using System.IO;
 
 namespace Persistity.Endpoints.Files
 {
-    public class WriteFile : ISendDataEndpoint
+    public class WriteFileEndpoint : ISendDataEndpoint
     {
         public string FilePath { get; set; }
 
-        public WriteFile(string filePath)
+        public WriteFileEndpoint(string filePath)
         {
             FilePath = filePath;
         }

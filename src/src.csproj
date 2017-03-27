@@ -79,6 +79,7 @@
   <ItemGroup>
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
+    <Compile Include="Assets\Persistity\Convertors\IConvertor.cs" />
     <Compile Include="Assets\Persistity\Encryption\AesEncryptor.cs" />
     <Compile Include="Assets\Persistity\Encryption\IEncryptor.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\ReadFileEndpoint.cs" />
