@@ -1,17 +1,16 @@
-# Transformers
+# Serializers
 
-So transformers are basically wrappers around serializers and offer a way to convert a statically typed model into a homogonised stream for use on other parts of the pipeline. They also wrap up the concept of type mapping, which is the way it knows how to extract and process your models.
+Serializers offer a way to convert a statically typed model into a homogonised data object for use on other parts of the pipeline. They also wrap up the concept of type mapping, which is the way it knows how to extract and process your models.
 
 ## Serialization
 
-Currently there are 3 transformers which will let you convert any objets with correct attribute `[PersistData]` to and from:
+Currently there are 3 serializers which will let you convert any objets with correct attribute `[PersistData]` to and from:
 
 - Json
 - Binary
 - Xml
 
-You can easily add your own serializers, which are derived from `ISerializer` and `IDeserializer` then wrapped into a single useable form via `ITransformer`.
-
+You can easily add your own serializers, which implement `ISerializer` and `IDeserializer`.
 
 ## Type Mappings
 
@@ -62,8 +61,11 @@ public class ReactiveIntHandler : ITypeHandler<BinaryWriter, BinaryReader>
 }
 
 // Pass known type handler to the Serializer and Deserializer
-var serializer = new BinarySerializer(new []{ new ReactiveIntHandler() });
-var deserializer = new BinaryDeserializer(new [] { new ReactiveIntHandler() });
+var binaryConfig = new BinaryConfiguration {
+    TypeHandlers = new []{ new ReactiveIntHandler() }
+}
+var serializer = new BinarySerializer(binaryConfig);
+var deserializer = new BinaryDeserializer(binaryConfig);
 
 // I can now use models with this property
 [Persist]
@@ -76,8 +78,10 @@ public class SomeClass
 
 It is a bit long winded and each serializer would need its own type handler but once it is setup you will be able to serialize any type you want in a given way, even the dreaded built in unity types if you wanted to strip certain data from a `GameObject` or whatever.
 
-## Creating A Transformer
+## Creating A Serializer
 
-This will hopefully become simpler in the future but the main idea is that you will be passed the type mapping which represents the structure of the data, and you iterate over that drilling down into the tree and converting each step into a piece of data.
+This will hopefully become simpler in the future but the main idea is that you will be passed the type and need to get a mapping for the type which represents the structure of the data, and you iterate over that drilling down into the tree and converting each step into a piece of data.
 
-So for example if you were to want to create a CSV transformer you would probably create a string builder and look at something like the `BinarySerializer` and `BinaryDeserializer` to see how it writes out each value in a flat manner and just put a comma after it.
+So for example if you were to want to create a CSV serializer you would probably create a string builder and look at something like the `BinarySerializer` and `BinaryDeserializer` to see how it writes out each value in a flat manner and just put a comma after it (well its obviously a bit more complex but thats the basics).
+
+Ultimately almost all De/serializers will take some configuration and an `IMappingRegistry` which will handle the type mapping for the types.

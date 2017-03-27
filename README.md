@@ -8,7 +8,8 @@ It provides a framework for extracting data from your models into any format you
 
 At its heart it has:
 
-- `Transformers` (Basically a wrapper around extraction of data and serialization)
+- `Transformers` (Transforms one statically typed model to another)
+- `Serializers` (Extracts and serializes models)
 - `Processors` (Does stuff on the data before it reaches its destination)
 - `Endpoints` (Sends or Recieves data from an end point)
 
@@ -37,14 +38,12 @@ So for example lets cover a quick use case for saving your game state data to a 
 ```csharp
 // This would normally be setup once in your app or via DI etc
 var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-var serializer = new BinarySerializer();
-var deserializer = new BinaryDeserializer();
-var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
+var binarySerializer = new BinarySerializer(mappingRegistry);
 var writeFileEndpoint = new WriteFileEndpoint("savegame.sav");
 
 // Create the pipeline which wraps the underlying steps
 var saveToBinaryFilePipeline = new PipelineBuilder()
-    .TransformWith(transformer)
+    .SerializeWith(binarySerializer)
     .SendTo(writeFileEndpoint)
     .Build();
 
@@ -62,7 +61,7 @@ var encryptionProcessor = new EncryptDataProcessor(encryptor);
 
 // Same as before but we now add the processor into the mix
 var saveToBinaryFilePipeline = new PipelineBuilder()
-    .TransformWith(transformer)
+    .SerializeWith(binarySerializer)
     .ProcessWith(encryptionProcessor)
     .SendTo(writeFileEndpoint)
     .Build();
@@ -80,9 +79,7 @@ So in the previous example we covered sending data to the file system, but lets 
 ```csharp
 // This would normally be setup once in your app or via DI etc
 var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-var serializer = new BinarySerializer();
-var deserializer = new BinaryDeserializer();
-var transformer = new BinaryTransformer(serializer, deserializer, mappingRegistry);
+var binaryDeserializer = new BinaryDeserializer(mappingRegistry);
 var encryptor = new AesEncryptor("some-pass-phrase");
 var decryptionProcessor = new DecryptDataProcessor(encryptor);
 var readFileEndpoint = new ReadFileEndpoint("savegame.sav");
@@ -91,7 +88,7 @@ var readFileEndpoint = new ReadFileEndpoint("savegame.sav");
 var loadBinaryFilePipeline = new PipelineBuilder()
     .RecieveFrom(readFileEndpoint)
     .ProcessWith(decryptionProcessor)
-    .TransformWith(transformer)
+    .DeserializeWith(binaryDeserializer)
     .Build();
 
 // Execute the pipeline to get your game data
@@ -107,7 +104,7 @@ So the builder offers a simple and flexible way to create pipelines wherever you
 ```csharp
 public class SaveEncryptedBinaryFilePipeline : SendDataPipeline
 {
-   public SaveEncryptedBinaryFilePipeline(IBinaryTransformer transformer, EncryptDataProcessor processor, WriteFileEndpoint endpoint) : base(transformer, sendToEndpoint, processor)
+   public SaveEncryptedBinaryFilePipeline(IBinarySerializer serializer, EncryptDataProcessor processor, WriteFileEndpoint endpoint) : base(serializer, sendToEndpoint, processor, null)
    {}
 }
 ```

@@ -6,7 +6,7 @@ Endpoints provide a way to send or recieve data to somewhere.
 
 ### Read/Write File Endpoint
 
-This simply takes the data from previous steps and writes it from a file, or reads a file and passes the data to the next step to process it. Currently it is all synchronous but depending upon appetite there may be a threaded version added to support non-blocking IO.
+This simply takes the data object from previous steps and writes it from a file, or reads a file and passes the data object to the next step to process it. Currently it is all synchronous but depending upon appetite there may be a threaded version added to support non-blocking IO.
 
 ### Read/Write Player Prefs Endpoint
 
