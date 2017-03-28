@@ -125,9 +125,9 @@
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinarySerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinaryConfiguration.cs" />
-    <Compile Include="Assets\Persistity\Serialization\DataObject.cs" />
+    <Compile Include="Assets\Persistity\DataObject.cs" />
     <Compile Include="Assets\Persistity\Serialization\Debug\DebugSerializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\DefaultEncoding.cs" />
+    <Compile Include="Assets\Persistity\DefaultEncoding.cs" />
     <Compile Include="Assets\Persistity\Serialization\Exceptions\NoKnownTypeException.cs" />
     <Compile Include="Assets\Persistity\Serialization\IDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ISerializer.cs" />

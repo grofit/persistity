@@ -1,4 +1,4 @@
-﻿namespace Persistity.Serialization
+﻿namespace Persistity
 {
     public struct DataObject
     {

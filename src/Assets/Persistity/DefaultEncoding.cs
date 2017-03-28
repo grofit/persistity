@@ -1,6 +1,6 @@
 ﻿using System.Text;
 
-namespace Persistity.Serialization
+namespace Persistity
 {
     public static class DefaultEncoding
     {
