@@ -26,7 +26,7 @@ namespace Persistity.Pipelines
         public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, params IProcessor[] processors) : this(deserializer, receiveFromEndpoint, processors, null)
         {}
 
-        public void Execute<T>(Action<T> onSuccess, Action<Exception> onError) where T: new()
+        public void Execute<T>(Action<T> onSuccess, Action<Exception> onError)
         {
             ReceiveFromEndpoint.Execute(x =>
             {
@@ -41,7 +41,7 @@ namespace Persistity.Pipelines
                 if (Transformers != null)
                 {
                     foreach (var convertor in Transformers)
-                    { model = convertor.TransformTo(model); }
+                    { model = convertor.TransformFrom(model); }
                 }
 
                 onSuccess((T)model);
