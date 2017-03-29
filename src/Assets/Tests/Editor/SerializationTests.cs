@@ -154,7 +154,7 @@ namespace Tests.Editor
             var deserializer = new JsonDeserializer(_mappingRegistry);
             var result = deserializer.Deserialize<DynamicTypesModel>(output);
 
-            Console.WriteLine(result.DynamicNestedProperty);
+            SerializationTestHelper.AssertDynamicTypesData(model, result);
             //SerializationTestHelper.AssertPopulatedData(model, result);
         }
     }

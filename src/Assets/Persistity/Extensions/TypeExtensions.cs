@@ -10,6 +10,5 @@ namespace Persistity.Extensions
 
         public static string GetPersistableName(this Type type)
         { return type.FullName; }
-
     }
 }

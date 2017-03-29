@@ -12,6 +12,11 @@ namespace Persistity.Serialization.Json
 {
     public class JsonSerializer : IJsonSerializer
     {
+        public const string TypeField = "Type";
+        public const string DataField = "Data";
+        public const string KeyField = "Key";
+        public const string ValueField = "Value";
+
         public IMappingRegistry MappingRegistry { get; private set; }
         public JsonConfiguration Configuration { get; private set; }
 
@@ -93,7 +98,7 @@ namespace Persistity.Serialization.Json
             var typeMapping = MappingRegistry.GetMappingFor(dataType);
 
             var jsonNode = Serialize(typeMapping.InternalMappings, data);
-            jsonNode.Add("Type", typeMapping.Type.GetPersistableName());
+            jsonNode.Add(TypeField, typeMapping.Type.GetPersistableName());
 
             var jsonString = jsonNode.ToString();
             return new DataObject(jsonString);
@@ -119,20 +124,20 @@ namespace Persistity.Serialization.Json
             
             var typeToUse = currentData.GetType();
             var jsonObject = new JSONObject();
-            jsonObject.Add("Type", typeToUse.GetPersistableName());
+            jsonObject.Add(TypeField, typeToUse.GetPersistableName());
 
             var isPrimitiveType = MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse);
             if (isPrimitiveType)
             {
                 var jsonData = SerializePrimitive(currentData, typeToUse);
-                jsonObject.Add("Data", jsonData);
+                jsonObject.Add(DataField, jsonData);
                 return jsonObject;
             }
             else
             {
                 var mapping = MappingRegistry.GetMappingFor(typeToUse);
                 var jsonData = Serialize(mapping.InternalMappings, currentData);
-                jsonObject.Add("Data", jsonData);
+                jsonObject.Add(DataField, jsonData);
                 return jsonObject;
             }
         }
@@ -156,12 +161,8 @@ namespace Persistity.Serialization.Json
                 }
 
                 var mappings = collectionMapping.InternalMappings;
-                if (collectionMapping.IsElementDynamicType)
+                if (!collectionMapping.IsElementDynamicType)
                 {
-                    var typeToUse = currentData.GetType();
-                    var mapping = MappingRegistry.GetMappingFor(typeToUse);
-                    mappings = mapping.InternalMappings;
-                    
                     if (mappings.Count > 0)
                     {
                         var result = Serialize(mappings, currentData);
@@ -172,24 +173,36 @@ namespace Persistity.Serialization.Json
                         var result = SerializePrimitive(currentData, collectionMapping.CollectionType);
                         jsonArray.Add(result);
                     }
-
-                    /*
-                    var jsonData = Serialize(mapping.InternalMappings, currentData);
-                    jsonObject.Add("Data", jsonData);
-                    return jsonObject;*/
-
+                    continue;
                 }
 
-                if (mappings.Count > 0)
+                var typeToUse = currentData.GetType();
+                var jsonTypeData = new JSONObject();
+                jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
+
+                if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
                 {
-                    var result = Serialize(mappings, currentData);
-                    jsonArray.Add(result);
+                    var result = SerializePrimitive(currentData, typeToUse);
+                    jsonTypeData.Add(DataField, result);
                 }
                 else
                 {
-                    var result = SerializePrimitive(currentData, collectionMapping.CollectionType);
-                    jsonArray.Add(result);
+                    var mapping = MappingRegistry.GetMappingFor(typeToUse);
+                    mappings = mapping.InternalMappings;
+
+                    if (mappings.Count > 0)
+                    {
+                        var result = Serialize(mappings, currentData);
+                        jsonTypeData.Add(DataField, result);
+                    }
+                    else
+                    {
+                        var result = SerializePrimitive(currentData, collectionMapping.CollectionType);
+                        jsonTypeData.Add(DataField, result);
+                    }
                 }
+
+                jsonArray.Add(jsonTypeData);
             }
 
             return jsonArray;
@@ -220,8 +233,8 @@ namespace Persistity.Serialization.Json
                 { jsonValue = SerializePrimitive(currentValue, dictionaryMapping.ValueType); }
 
                 var jsonKeyValue = new JSONObject();
-                jsonKeyValue.Add("key", jsonKey);
-                jsonKeyValue.Add("value", jsonValue);
+                jsonKeyValue.Add(KeyField, jsonKey);
+                jsonKeyValue.Add(ValueField, jsonValue);
                 jsonArray.Add(jsonKeyValue);
             }
 

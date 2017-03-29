@@ -58,7 +58,7 @@ namespace Persistity.Serialization.Json
         public object Deserialize(DataObject data)
         {
             var jsonData = JSON.Parse(data.AsString);
-            var typeName = jsonData["Type"].Value;
+            var typeName = jsonData[JsonSerializer.TypeField].Value;
             var type = MappingRegistry.TypeMapper.LoadType(typeName);
             var typeMapping = MappingRegistry.GetMappingFor(type);
             var instance = Activator.CreateInstance(type);
@@ -72,31 +72,40 @@ namespace Persistity.Serialization.Json
             for(var i=0;i<data.Count;i++)
             {
                 var currentElementNode = data[i];
-                if (IsNullNode(currentElementNode))
-                {
-                    if (instance.IsFixedSize)
-                    { instance[i] = null; }
-                    else
-                    { instance.Insert(i, null); }
-                }
-                else if (collectionMapping.InternalMappings.Count > 0)
-                {
-                    var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
-                    Deserialize(collectionMapping.InternalMappings, elementInstance, currentElementNode);
 
-                    if (instance.IsFixedSize)
-                    { instance[i] = elementInstance; }
+                var typeToUse = collectionMapping.CollectionType;
+                var mappings = collectionMapping.InternalMappings;
+                object deserializedValue;
+
+                if (collectionMapping.IsElementDynamicType)
+                {
+                    var jsonType = currentElementNode[JsonSerializer.TypeField];
+                    typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
+                    currentElementNode = currentElementNode[JsonSerializer.DataField];
+
+                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    { mappings = new List<Mapping>(); }
                     else
-                    { instance.Insert(i, elementInstance); }
+                    {
+                        var typeMapping = MappingRegistry.GetMappingFor(typeToUse);
+                        mappings = typeMapping.InternalMappings;
+                    }
+                }
+
+                if(IsNullNode(currentElementNode))
+                { deserializedValue = null; }
+                else if (mappings.Count > 0)
+                {
+                    deserializedValue = Activator.CreateInstance(typeToUse);
+                    Deserialize(mappings, deserializedValue, currentElementNode);
                 }
                 else
-                {
-                    var value = DeserializePrimitive(collectionMapping.CollectionType, currentElementNode);
-                    if (instance.IsFixedSize)
-                    { instance[i] = value; }
-                    else
-                    { instance.Insert(i, value); }
-                }
+                { deserializedValue = DeserializePrimitive(typeToUse, currentElementNode); }
+                
+                if (instance.IsFixedSize)
+                { instance[i] = deserializedValue; }
+                else
+                { instance.Insert(i, deserializedValue); }
             }
         }
 
@@ -105,8 +114,8 @@ namespace Persistity.Serialization.Json
             for (var i = 0; i < data.Count; i++)
             {
                 var currentElement = data[i];
-                var jsonKey = currentElement["key"];
-                var jsonValue = currentElement["value"];
+                var jsonKey = currentElement[JsonSerializer.KeyField];
+                var jsonValue = currentElement[JsonSerializer.ValueField];
                 
                 object currentKey, currentValue;
 
@@ -178,8 +187,8 @@ namespace Persistity.Serialization.Json
                 return;
             }
             
-            var jsonDynamicType = jsonData["Type"];
-            var jsonDynamicData = jsonData["Data"];
+            var jsonDynamicType = jsonData[JsonSerializer.TypeField];
+            var jsonDynamicData = jsonData[JsonSerializer.DataField];
             var instanceType = MappingRegistry.TypeMapper.LoadType(jsonDynamicType.Value);
             if (MappingRegistry.TypeMapper.IsPrimitiveType(instanceType))
             {
@@ -191,6 +200,7 @@ namespace Persistity.Serialization.Json
             var typeMapping = MappingRegistry.GetMappingFor(instanceType);
             var dynamicChildInstance = Activator.CreateInstance(instanceType);
             Deserialize(typeMapping.InternalMappings, dynamicChildInstance, jsonDynamicData);
+            mapping.SetValue(instance, dynamicChildInstance);
         }
 
         private void HandleCollectionMapping<T>(CollectionMapping mapping, T instance, JSONNode jsonNode)
@@ -204,21 +214,19 @@ namespace Persistity.Serialization.Json
             }
 
             var arrayCount = jsonData.Count;
+            IList collectionInstance;
 
             if (mapping.IsArray)
-            {
-                var arrayInstance = (IList) Activator.CreateInstance(mapping.Type, arrayCount);
-                DeserializeCollection(mapping, arrayInstance, jsonData);
-                mapping.SetValue(instance, arrayInstance);
-            }
+            { collectionInstance = (IList) Activator.CreateInstance(mapping.Type, arrayCount); }
             else
             {
                 var listType = typeof(List<>);
                 var constructedListType = listType.MakeGenericType(mapping.CollectionType);
-                var listInstance = (IList) Activator.CreateInstance(constructedListType);
-                DeserializeCollection(mapping, listInstance, jsonData);
-                mapping.SetValue(instance, listInstance);
+                collectionInstance = (IList) Activator.CreateInstance(constructedListType);
             }
+
+            DeserializeCollection(mapping, collectionInstance, jsonData);
+            mapping.SetValue(instance, collectionInstance);
         }
 
         private void HandleDictionaryMapping<T>(DictionaryMapping mapping, T instance, JSONNode jsonNode)
