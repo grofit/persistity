@@ -91,7 +91,7 @@ namespace Persistity.Serialization.Xml
             var typeMapping = MappingRegistry.GetMappingFor(dataType);
             Serialize(typeMapping.InternalMappings, data, element);
 
-            var typeElement = new XElement("Type", dataType.AssemblyQualifiedName);
+            var typeElement = new XElement("Type", dataType.GetPersistableName());
             element.Add(typeElement);
             
             var xmlString = element.ToString();

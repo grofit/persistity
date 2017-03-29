@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Persistity.Exceptions;
+using Persistity.Extensions;
 using Persistity.Json;
 using Persistity.Mappings;
 using Persistity.Registries;
@@ -92,7 +93,7 @@ namespace Persistity.Serialization.Json
             var typeMapping = MappingRegistry.GetMappingFor(dataType);
 
             var jsonNode = Serialize(typeMapping.InternalMappings, data);
-            jsonNode.Add("Type", typeMapping.Type.AssemblyQualifiedName);
+            jsonNode.Add("Type", typeMapping.Type.GetPersistableName());
 
             var jsonString = jsonNode.ToString();
             return new DataObject(jsonString);
@@ -118,7 +119,7 @@ namespace Persistity.Serialization.Json
             
             var typeToUse = currentData.GetType();
             var jsonObject = new JSONObject();
-            jsonObject.Add("Type", typeToUse.AssemblyQualifiedName);
+            jsonObject.Add("Type", typeToUse.GetPersistableName());
 
             var isPrimitiveType = MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse);
             if (isPrimitiveType)

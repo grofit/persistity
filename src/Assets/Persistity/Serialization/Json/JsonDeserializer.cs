@@ -59,7 +59,7 @@ namespace Persistity.Serialization.Json
         {
             var jsonData = JSON.Parse(data.AsString);
             var typeName = jsonData["Type"].Value;
-            var type = Type.GetType(typeName);
+            var type = MappingRegistry.TypeMapper.LoadType(typeName);
             var typeMapping = MappingRegistry.GetMappingFor(type);
             var instance = Activator.CreateInstance(type);
             
@@ -180,7 +180,7 @@ namespace Persistity.Serialization.Json
             
             var jsonDynamicType = jsonData["Type"];
             var jsonDynamicData = jsonData["Data"];
-            var instanceType = Type.GetType(jsonDynamicType.Value);
+            var instanceType = MappingRegistry.TypeMapper.LoadType(jsonDynamicType.Value);
             if (MappingRegistry.TypeMapper.IsPrimitiveType(instanceType))
             {
                 var primitiveValue = DeserializePrimitive(instanceType, jsonDynamicData);

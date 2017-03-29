@@ -8,7 +8,7 @@ namespace Persistity.Extensions
         public static bool IsTypeOf(this Type type, params Type[] types)
         { return types.Any(x => x == type); }
 
-        public static string GetMinimalName(this Type type)
+        public static string GetPersistableName(this Type type)
         { return type.FullName; }
 
     }

@@ -6,5 +6,6 @@ namespace Persistity.Mappings.Mappers
     {
         TypeMapping GetTypeMappingsFor(Type type);
         bool IsPrimitiveType(Type type);
+        Type LoadType(string partialName);
     }
 }

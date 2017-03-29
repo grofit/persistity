@@ -12,10 +12,12 @@ namespace Persistity.Mappings.Mappers
     public abstract class TypeMapper : ITypeMapper
     {
         public MappingConfiguration Configuration { get; private set; }
+        public IDictionary<string, Type> TypeCache { get; private set; }
 
         protected TypeMapper(MappingConfiguration configuration = null)
         {
             Configuration = configuration ?? MappingConfiguration.Default;
+            TypeCache = new Dictionary<string, Type>();
         }
 
         public bool IsGenericList(Type type)
@@ -37,10 +39,16 @@ namespace Persistity.Mappings.Mappers
 
         public Type LoadType(string partialName)
         {
-            return Type.GetType(partialName) ??
+            if(TypeCache.ContainsKey(partialName))
+            { return TypeCache[partialName]; }
+
+            var type = Type.GetType(partialName) ??
             AppDomain.CurrentDomain.GetAssemblies()
                     .Select(a => a.GetType(partialName))
                     .FirstOrDefault(t => t != null);
+
+            TypeCache.Add(partialName, type);
+            return type;
         }
 
         public virtual bool IsPrimitiveType(Type type)

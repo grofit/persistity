@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Persistity.Exceptions;
+using Persistity.Extensions;
 using Persistity.Mappings;
 using Persistity.Registries;
 using UnityEngine;
@@ -86,7 +87,7 @@ namespace Persistity.Serialization.Binary
             using (var memoryStream = new MemoryStream())
             using (var binaryWriter = new BinaryWriter(memoryStream))
             {
-                binaryWriter.Write(typeMapping.Type.AssemblyQualifiedName);
+                binaryWriter.Write(typeMapping.Type.GetPersistableName());
                 Serialize(typeMapping.InternalMappings, data, binaryWriter);
                 binaryWriter.Flush();
                 memoryStream.Seek(0, SeekOrigin.Begin);
