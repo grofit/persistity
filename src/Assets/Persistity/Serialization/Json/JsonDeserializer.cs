@@ -67,26 +67,6 @@ namespace Persistity.Serialization.Json
             return instance;
         }
 
-        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, JSONNode data)
-        {
-            if (nestedMapping.IsDynamicType)
-            {
-                var jsonType = data["Type"];
-                var jsonData = data["Data"];
-                var dynamicType = Type.GetType(jsonType.Value);
-
-                if (MappingRegistry.TypeMapper.IsPrimitiveType(dynamicType))
-                {
-                    DeserializePrimitive(dynamicType, jsonData);
-                }
-                var mapping = MappingRegistry.GetMappingFor(dynamicType);
-                Deserialize(mapping.InternalMappings, instance, jsonData);
-                return;
-            }
-
-            Deserialize(nestedMapping.InternalMappings, instance, data);
-        }
-
         private void DeserializeCollection(CollectionMapping collectionMapping, IList instance, JSONArray data)
         {
             for(var i=0;i<data.Count;i++)
@@ -180,6 +160,38 @@ namespace Persistity.Serialization.Json
             mapping.SetValue(instance, underlyingValue);
         }
 
+        private void HandleNestedMapping<T>(NestedMapping mapping, T instance, JSONNode jsonNode)
+        {
+            var jsonData = jsonNode[mapping.LocalName];
+
+            if (IsNullNode(jsonData))
+            {
+                mapping.SetValue(instance, null);
+                return;
+            }
+
+            if (!mapping.IsDynamicType)
+            {
+                var childInstance = Activator.CreateInstance(mapping.Type);
+                Deserialize(mapping.InternalMappings, childInstance, jsonData);
+                mapping.SetValue(instance, childInstance);
+                return;
+            }
+            
+            var jsonDynamicType = jsonData["Type"];
+            var jsonDynamicData = jsonData["Data"];
+            var instanceType = Type.GetType(jsonDynamicType.Value);
+            if (MappingRegistry.TypeMapper.IsPrimitiveType(instanceType))
+            {
+                var primitiveValue = DeserializePrimitive(instanceType, jsonDynamicData);
+                mapping.SetValue(instance, primitiveValue);
+                return;
+            }
+
+            var typeMapping = MappingRegistry.GetMappingFor(instanceType);
+            Deserialize(typeMapping.InternalMappings, instance, jsonDynamicData);
+        }
+
         private void HandleCollectionMapping<T>(CollectionMapping mapping, T instance, JSONNode jsonNode)
         {
             var jsonData = jsonNode[mapping.LocalName].AsArray;
@@ -222,29 +234,6 @@ namespace Persistity.Serialization.Json
                 var dictionary = (IDictionary) Activator.CreateInstance(constructedDictionaryType);
                 DeserializeDictionary(mapping, dictionary, jsonData);
                 mapping.SetValue(instance, dictionary);
-            }
-        }
-
-        private void HandleNestedMapping<T>(NestedMapping mapping, T instance, JSONNode jsonNode)
-        {
-            var jsonData = jsonNode[mapping.LocalName];
-
-            if (IsNullNode(jsonData))
-            {
-                mapping.SetValue(instance, null);
-            }
-            else
-            {
-                var instanceType = mapping.Type;
-                if (mapping.IsDynamicType)
-                {
-                    var jsonType = jsonData["Type"];
-                    instanceType = Type.GetType(jsonType.Value);
-                }
-
-                var childInstance = Activator.CreateInstance(instanceType);
-                DeserializeNestedObject(mapping, childInstance, jsonData);
-                mapping.SetValue(instance, childInstance);
             }
         }
     }
