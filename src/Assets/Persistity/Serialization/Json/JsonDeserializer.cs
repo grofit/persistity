@@ -189,7 +189,8 @@ namespace Persistity.Serialization.Json
             }
 
             var typeMapping = MappingRegistry.GetMappingFor(instanceType);
-            Deserialize(typeMapping.InternalMappings, instance, jsonDynamicData);
+            var dynamicChildInstance = Activator.CreateInstance(instanceType);
+            Deserialize(typeMapping.InternalMappings, dynamicChildInstance, jsonDynamicData);
         }
 
         private void HandleCollectionMapping<T>(CollectionMapping mapping, T instance, JSONNode jsonNode)

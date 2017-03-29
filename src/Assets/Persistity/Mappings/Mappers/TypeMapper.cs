@@ -35,6 +35,14 @@ namespace Persistity.Mappings.Mappers
             return propertyInfo.HasAttribute<DynamicTypeAttribute>();
         }
 
+        public Type LoadType(string partialName)
+        {
+            return Type.GetType(partialName) ??
+            AppDomain.CurrentDomain.GetAssemblies()
+                    .Select(a => a.GetType(partialName))
+                    .FirstOrDefault(t => t != null);
+        }
+
         public virtual bool IsPrimitiveType(Type type)
         {
             var isDefaultPrimitive = type.IsPrimitive ||
