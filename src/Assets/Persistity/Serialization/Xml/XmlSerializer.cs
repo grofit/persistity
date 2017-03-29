@@ -81,7 +81,7 @@ namespace Persistity.Serialization.Xml
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-            matchingHandler.HandleTypeIn(element, value);
+            matchingHandler.HandleTypeSerialization(element, value);
         }
 
         public DataObject Serialize(object data)

@@ -108,7 +108,7 @@ namespace Persistity.Serialization.Binary
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)
-            { return matchingHandler.HandleTypeOut(reader); }
+            { return matchingHandler.HandleTypeDeserialization(reader); }
 
             return reader.ReadString();
         }

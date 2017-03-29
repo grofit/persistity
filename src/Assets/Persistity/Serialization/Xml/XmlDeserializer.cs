@@ -75,7 +75,7 @@ namespace Persistity.Serialization.Xml
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)
-            { return matchingHandler.HandleTypeOut(element); }
+            { return matchingHandler.HandleTypeDeserialization(element); }
 
             return element.Value;
         }

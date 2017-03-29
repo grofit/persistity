@@ -77,9 +77,10 @@ namespace Persistity.Serialization.Json
             { node = new JSONString(value.ToString()); }
             else
             {
+                node = new JSONObject();
                 var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
                 if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-                matchingHandler.HandleTypeIn(node, value);
+                matchingHandler.HandleTypeSerialization(node, value);
             }
 
             return node;

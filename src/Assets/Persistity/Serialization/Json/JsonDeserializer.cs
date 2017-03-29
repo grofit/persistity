@@ -47,7 +47,7 @@ namespace Persistity.Serialization.Json
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)
-            { return matchingHandler.HandleTypeOut(value); }
+            { return matchingHandler.HandleTypeDeserialization(value); }
 
             return value.Value;
         }

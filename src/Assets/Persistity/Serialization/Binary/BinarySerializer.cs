@@ -76,7 +76,7 @@ namespace Persistity.Serialization.Binary
             {
                 var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
                 if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-                matchingHandler.HandleTypeIn(writer, value);
+                matchingHandler.HandleTypeSerialization(writer, value);
             }
         }
 
