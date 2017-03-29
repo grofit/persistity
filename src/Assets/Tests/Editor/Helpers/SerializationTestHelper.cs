@@ -93,16 +93,16 @@ namespace Tests.Editor.Helpers
         {
             var model = new DynamicTypesModel();
             model.DynamicNestedProperty = new E { IntValue = 10 };
-            model.DynamicPrimitiveProperty = 10;
+            model.DynamicPrimitiveProperty = 12;
 
             model.DynamicList = new List<object>();
             model.DynamicList.Add(new E() { IntValue = 22 });
-            model.DynamicList.Add(new C() { FloatValue = 22 });
+            model.DynamicList.Add(new C() { FloatValue = 25 });
             model.DynamicList.Add(20);
 
             model.DynamicDictionary = new Dictionary<object, object>();
-            model.DynamicDictionary.Add("key1", 10);
-            model.DynamicDictionary.Add(new E{IntValue = 99}, 22);
+            model.DynamicDictionary.Add("key1", 62);
+            model.DynamicDictionary.Add(new E{IntValue = 99}, 54);
             model.DynamicDictionary.Add(1, new C {FloatValue = 51.0f});
             return model;
         }
