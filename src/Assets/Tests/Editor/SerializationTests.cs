@@ -68,7 +68,7 @@ namespace Tests.Editor
             var serializer = new JsonSerializer(_mappingRegistry);
 
             var output = serializer.Serialize(model);
-            Console.WriteLine("FileSize: " + output.AsString + " bytes");
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
             var deserializer = new JsonDeserializer(_mappingRegistry);
@@ -155,7 +155,6 @@ namespace Tests.Editor
             var result = deserializer.Deserialize<DynamicTypesModel>(output);
 
             SerializationTestHelper.AssertDynamicTypesData(model, result);
-            //SerializationTestHelper.AssertPopulatedData(model, result);
         }
     }
 }

@@ -119,23 +119,62 @@ namespace Persistity.Serialization.Json
                 
                 object currentKey, currentValue;
 
-                if (dictionaryMapping.KeyMappings.Count > 0)
+                if (!dictionaryMapping.IsKeyDynamicType)
                 {
-                    currentKey = Activator.CreateInstance(dictionaryMapping.KeyType);
-                    Deserialize(dictionaryMapping.KeyMappings, currentKey, jsonKey);
+                    if (dictionaryMapping.KeyMappings.Count > 0)
+                    {
+                        currentKey = Activator.CreateInstance(dictionaryMapping.KeyType);
+                        Deserialize(dictionaryMapping.KeyMappings, currentKey, jsonKey);
+                    }
+                    else
+                    { currentKey = DeserializePrimitive(dictionaryMapping.KeyType, jsonKey); }
                 }
                 else
-                { currentKey = DeserializePrimitive(dictionaryMapping.KeyType, jsonKey); }
+                {
+                    var jsonType = jsonKey[JsonSerializer.TypeField];
+                    var jsonData = jsonKey[JsonSerializer.DataField];
+                    var typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
 
-                if (IsNullNode(jsonValue))
-                { currentValue = null; }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
+                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    { currentKey = DeserializePrimitive(typeToUse, jsonData); }
+                    else
+                    {
+                        currentKey = Activator.CreateInstance(typeToUse);
+                        var typeMapping = MappingRegistry.GetMappingFor(typeToUse);
+                        Deserialize(typeMapping.InternalMappings, currentKey, jsonData);
+                    }
+                }
+
+                if (!dictionaryMapping.IsValueDynamicType)
                 {
-                    currentValue = Activator.CreateInstance(dictionaryMapping.ValueType);
-                    Deserialize(dictionaryMapping.ValueMappings, currentValue, jsonValue);
+                    if (IsNullNode(jsonValue))
+                    { currentValue = null; }
+                    else if (dictionaryMapping.ValueMappings.Count > 0)
+                    {
+                        currentValue = Activator.CreateInstance(dictionaryMapping.ValueType);
+                        Deserialize(dictionaryMapping.ValueMappings, currentValue, jsonValue);
+                    }
+                    else
+                    { currentValue = DeserializePrimitive(dictionaryMapping.ValueType, jsonValue); }
                 }
                 else
-                { currentValue = DeserializePrimitive(dictionaryMapping.ValueType, jsonValue); }
+                {
+                    var jsonType = jsonValue[JsonSerializer.TypeField];
+                    var jsonData = jsonValue[JsonSerializer.DataField];
+
+                    var typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
+
+                    if (IsNullNode(jsonData))
+                    { currentValue = null; }
+                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    { currentValue = DeserializePrimitive(typeToUse, jsonData); }
+                    else
+                    {
+                        currentValue = Activator.CreateInstance(typeToUse);
+                        var typeMapping = MappingRegistry.GetMappingFor(typeToUse);
+                        Deserialize(typeMapping.InternalMappings, currentValue, jsonData);
+                    }
+                }
 
                 instance.Add(currentKey, currentValue);
             }

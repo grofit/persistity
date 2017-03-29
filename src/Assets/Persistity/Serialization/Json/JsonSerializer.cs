@@ -197,7 +197,7 @@ namespace Persistity.Serialization.Json
                     }
                     else
                     {
-                        var result = SerializePrimitive(currentData, collectionMapping.CollectionType);
+                        var result = SerializePrimitive(currentData, typeToUse);
                         jsonTypeData.Add(DataField, result);
                     }
                 }
@@ -219,18 +219,61 @@ namespace Persistity.Serialization.Json
             foreach (var currentKey in dictionaryValue.Keys)
             {
                 JSONNode jsonKey, jsonValue;
-                if (dictionaryMapping.KeyMappings.Count > 0)
-                { jsonKey = Serialize(dictionaryMapping.KeyMappings, currentKey); }
+
+                if (!dictionaryMapping.IsKeyDynamicType)
+                {
+                    if (dictionaryMapping.KeyMappings.Count > 0)
+                    { jsonKey = Serialize(dictionaryMapping.KeyMappings, currentKey); }
+                    else
+                    { jsonKey = SerializePrimitive(currentKey, dictionaryMapping.KeyType); }
+                }
                 else
-                { jsonKey = SerializePrimitive(currentKey, dictionaryMapping.KeyType); }
+                {
+                    var typeToUse = currentKey.GetType();
+                    var jsonTypeData = new JSONObject();
+                    jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
+
+                    JSONNode dataNode;
+                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    { dataNode = SerializePrimitive(currentKey, typeToUse); }
+                    else
+                    {
+                        var typeMapping = MappingRegistry.GetMappingFor(typeToUse);
+                        dataNode = Serialize(typeMapping.InternalMappings, currentKey);
+                    }
+
+                    jsonTypeData.Add(DataField, dataNode);
+                    jsonKey = jsonTypeData;
+                }
 
                 var currentValue = dictionaryValue[currentKey];
-                if(currentValue == null)
-                { jsonValue = GetNullNode(); }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
-                { jsonValue = Serialize(dictionaryMapping.ValueMappings, currentValue); }
+                if (!dictionaryMapping.IsValueDynamicType)
+                {
+                    if (currentValue == null)
+                    { jsonValue = GetNullNode(); }
+                    else if (dictionaryMapping.ValueMappings.Count > 0)
+                    { jsonValue = Serialize(dictionaryMapping.ValueMappings, currentValue); }
+                    else
+                    { jsonValue = SerializePrimitive(currentValue, dictionaryMapping.ValueType); }
+                }
                 else
-                { jsonValue = SerializePrimitive(currentValue, dictionaryMapping.ValueType); }
+                {
+                    var typeToUse = currentValue.GetType();
+                    var jsonTypeData = new JSONObject();
+                    jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
+
+                    JSONNode dataNode;
+                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    { dataNode = SerializePrimitive(currentValue, typeToUse); }
+                    else
+                    {
+                        var typeMapping = MappingRegistry.GetMappingFor(typeToUse);
+                        dataNode = Serialize(typeMapping.InternalMappings, currentValue);
+                    }
+
+                    jsonTypeData.Add(DataField, dataNode);
+                    jsonValue = jsonTypeData;
+                }
 
                 var jsonKeyValue = new JSONObject();
                 jsonKeyValue.Add(KeyField, jsonKey);

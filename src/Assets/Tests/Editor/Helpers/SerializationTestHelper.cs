@@ -94,10 +94,16 @@ namespace Tests.Editor.Helpers
             var model = new DynamicTypesModel();
             model.DynamicNestedProperty = new E { IntValue = 10 };
             model.DynamicPrimitiveProperty = 10;
+
             model.DynamicList = new List<object>();
             model.DynamicList.Add(new E() { IntValue = 22 });
             model.DynamicList.Add(new C() { FloatValue = 22 });
             model.DynamicList.Add(20);
+
+            model.DynamicDictionary = new Dictionary<object, object>();
+            model.DynamicDictionary.Add("key1", 10);
+            model.DynamicDictionary.Add(new E{IntValue = 99}, 22);
+            model.DynamicDictionary.Add(1, new C {FloatValue = 51.0f});
             return model;
         }
 
@@ -183,12 +189,30 @@ namespace Tests.Editor.Helpers
 
             Assert.That(actual.DynamicList.Count, Is.Not.Null);
             Assert.That(actual.DynamicList.Count, Is.EqualTo(expected.DynamicList.Count));
-            Assert.That(actual.DynamicList[0], Is.TypeOf(typeof(E)));
+            Assert.That(actual.DynamicList[0], Is.TypeOf(expected.DynamicList[0].GetType()));
             Assert.That((actual.DynamicList[0] as E).IntValue, Is.EqualTo((expected.DynamicList[0] as E).IntValue));
-            Assert.That(actual.DynamicList[1], Is.TypeOf(typeof(C)));
+            Assert.That(actual.DynamicList[1], Is.TypeOf(expected.DynamicList[1].GetType()));
             Assert.That((actual.DynamicList[1] as C).FloatValue, Is.EqualTo((expected.DynamicList[1] as C).FloatValue));
-            Assert.That(actual.DynamicList[2], Is.TypeOf(typeof(int)));
+            Assert.That(actual.DynamicList[2], Is.TypeOf(expected.DynamicList[2].GetType()));
             Assert.That(actual.DynamicList[2], Is.EqualTo(expected.DynamicList[2]));
+
+            Assert.That(actual.DynamicDictionary, Is.Not.Null);
+            Assert.That(actual.DynamicDictionary.Count, Is.EqualTo(expected.DynamicDictionary.Count));
+
+            var expectedFirstKey = expected.DynamicDictionary.Keys.ElementAt(0);
+            var actualFirstKey = actual.DynamicDictionary.Keys.ElementAt(0);
+            Assert.That(actualFirstKey, Is.EqualTo(expectedFirstKey));
+            Assert.That(actual.DynamicDictionary[actualFirstKey], Is.EqualTo(expected.DynamicDictionary[expectedFirstKey]));
+
+            var expectedSecondKey = (E)expected.DynamicDictionary.Keys.ElementAt(1);
+            var actualSecondKey = (E)actual.DynamicDictionary.Keys.ElementAt(1);
+            Assert.That(actualSecondKey.IntValue, Is.EqualTo(expectedSecondKey.IntValue));
+            Assert.That(actual.DynamicDictionary[actualSecondKey], Is.EqualTo(expected.DynamicDictionary[expectedSecondKey]));
+
+            var expectedThirdKey = expected.DynamicDictionary.Keys.ElementAt(2);
+            var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
+            Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
+            Assert.That((actual.DynamicDictionary[actualThirdKey] as C).FloatValue, Is.EqualTo((expected.DynamicDictionary[expectedThirdKey] as C).FloatValue));
         }
     }
 }
