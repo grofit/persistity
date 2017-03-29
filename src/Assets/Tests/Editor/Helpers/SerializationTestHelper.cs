@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Tests.Editor;
 using NUnit.Framework;
@@ -86,6 +87,17 @@ namespace Tests.Editor.Helpers
             a.ComplexDictionary = null;
 
             return a;
+        }
+
+        public static DynamicTypesModel GenerateDynamicTypesModel()
+        {
+            var model = new DynamicTypesModel();
+            model.DynamicNestedProperty = new E { IntValue = 10 };
+            model.DynamicPrimitiveProperty = 10;
+            model.DynamicList = new List<object>();
+            model.DynamicList.Add(new E() { IntValue = 22 });
+            model.DynamicList.Add(new C() { FloatValue = 22 });
+            return model;
         }
 
         public static void AssertPopulatedData(A expected, A result)

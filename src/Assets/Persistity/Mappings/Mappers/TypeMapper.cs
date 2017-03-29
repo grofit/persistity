@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
+using Persistity.Attributes;
 using Persistity.Extensions;
 using UnityEngine;
 
@@ -22,6 +23,17 @@ namespace Persistity.Mappings.Mappers
 
         public bool IsGenericDictionary(Type type)
         { return type.IsGenericType && type.GetGenericTypeDefinition() == typeof(IDictionary<,>); }
+
+        public bool IsDynamicType(Type type)
+        { return type.IsAbstract || type.IsInterface || type == typeof(object); }
+
+        public bool IsDynamicType(PropertyInfo propertyInfo)
+        {
+            var typeIsDynamic = IsDynamicType(propertyInfo.PropertyType);
+            if(typeIsDynamic) { return true; }
+
+            return propertyInfo.HasAttribute<DynamicTypeAttribute>();
+        }
 
         public virtual bool IsPrimitiveType(Type type)
         {
@@ -46,13 +58,13 @@ namespace Persistity.Mappings.Mappers
                 Type = type
             };
 
-            var mappings = GetMappingsFor(type, type.Name);
+            var mappings = GetMappingsFromType(type, type.Name);
             typeMapping.InternalMappings.AddRange(mappings);
 
             return typeMapping;
         }
 
-        public virtual List<Mapping> GetMappingsFor(Type type, string scope)
+        public virtual List<Mapping> GetMappingsFromType(Type type, string scope)
         {
             var properties = GetPropertiesFor(type);
 
@@ -101,10 +113,11 @@ namespace Persistity.Mappings.Mappers
                 Type = propertyInfo.PropertyType,
                 GetValue = (x) => propertyInfo.GetValue(x, null) as IList,
                 SetValue = (x, v) => propertyInfo.SetValue(x, v, null),
-                IsArray = isArray
+                IsArray = isArray,
+                IsElementDynamicType = IsDynamicType(collectionType)
             };
 
-            var collectionMappingTypes = GetMappingsFor(collectionType, scope);
+            var collectionMappingTypes = GetMappingsFromType(collectionType, scope);
             collectionMapping.InternalMappings.AddRange(collectionMappingTypes);
 
             return collectionMapping;
@@ -127,12 +140,14 @@ namespace Persistity.Mappings.Mappers
                 Type = propertyInfo.PropertyType,
                 GetValue = (x) => propertyInfo.GetValue(x, null) as IDictionary,
                 SetValue = (x, v) => propertyInfo.SetValue(x, v, null),
+                IsKeyDynamicType = IsDynamicType(keyType),
+                IsValueDynamicType = IsDynamicType(valueType)
             };
 
-            var keyMappingTypes = GetMappingsFor(keyType, scope);
+            var keyMappingTypes = GetMappingsFromType(keyType, scope);
             dictionaryMapping.KeyMappings.AddRange(keyMappingTypes);
 
-            var valueMappingTypes = GetMappingsFor(valueType, scope);
+            var valueMappingTypes = GetMappingsFromType(valueType, scope);
             dictionaryMapping.ValueMappings.AddRange(valueMappingTypes);
 
             return dictionaryMapping;
@@ -158,10 +173,11 @@ namespace Persistity.Mappings.Mappers
                 ScopedName = scope,
                 Type = propertyInfo.PropertyType,
                 GetValue = x => propertyInfo.GetValue(x, null),
-                SetValue = (x, v) => propertyInfo.SetValue(x, v, null)
+                SetValue = (x, v) => propertyInfo.SetValue(x, v, null),
+                IsDynamicType = IsDynamicType(propertyInfo)
             };
 
-            var mappingTypes = GetMappingsFor(propertyInfo.PropertyType, scope);
+            var mappingTypes = GetMappingsFromType(propertyInfo.PropertyType, scope);
             nestedMapping.InternalMappings.AddRange(mappingTypes);
             return nestedMapping;
         }

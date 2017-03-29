@@ -60,23 +60,12 @@
     <Reference Include="UnityEngine.Networking">
       <HintPath>Library\UnityAssemblies\UnityEngine.Networking.dll</HintPath>
     </Reference>
-    <Reference Include="UnityEngine.PlaymodeTestsRunner">
-      <HintPath>Library\UnityAssemblies\UnityEngine.PlaymodeTestsRunner.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.Analytics">
-      <HintPath>Library\UnityAssemblies\UnityEngine.Analytics.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.HoloLens">
-      <HintPath>Library\UnityAssemblies\UnityEngine.HoloLens.dll</HintPath>
-    </Reference>
-    <Reference Include="UnityEngine.VR">
-      <HintPath>Library\UnityAssemblies\UnityEngine.VR.dll</HintPath>
-    </Reference>
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Persistity\Attributes\DynamicTypeAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
     <Compile Include="Assets\Persistity\Endpoints\InMemory\InMemoryEndpoint.cs" />
@@ -105,7 +94,6 @@
     <Compile Include="Assets\Persistity\Mappings\Mapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\NestedMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
-    <Compile Include="Assets\Persistity\Mappings\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\PipelineBuilder.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\ReceivePipelineBuilder.cs" />

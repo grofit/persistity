@@ -103,7 +103,7 @@ namespace Persistity.Serialization.Json
             if (data == null) { return GetNullNode(); }
             var underlyingValue = propertyMapping.GetValue(data);
             if (underlyingValue == null) { return GetNullNode(); }
-
+            
             return SerializePrimitive(underlyingValue, propertyMapping.Type);
         }
 
@@ -113,7 +113,27 @@ namespace Persistity.Serialization.Json
             var currentData = nestedMapping.GetValue(data);
             if (currentData == null) { return GetNullNode(); }
 
-            return Serialize(nestedMapping.InternalMappings, currentData);
+            if (!nestedMapping.IsDynamicType)
+            { return Serialize(nestedMapping.InternalMappings, currentData); }
+            
+            var typeToUse = currentData.GetType();
+            var jsonObject = new JSONObject();
+            jsonObject.Add("Type", typeToUse.AssemblyQualifiedName);
+
+            var isPrimitiveType = MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse);
+            if (isPrimitiveType)
+            {
+                var jsonData = SerializePrimitive(currentData, typeToUse);
+                jsonObject.Add("Data", jsonData);
+                return jsonObject;
+            }
+            else
+            {
+                var mapping = MappingRegistry.GetMappingFor(typeToUse);
+                var jsonData = Serialize(mapping.InternalMappings, currentData);
+                jsonObject.Add("Data", jsonData);
+                return jsonObject;
+            }
         }
         
         private JSONNode SerializeCollection<T>(CollectionMapping collectionMapping, T data)
@@ -127,11 +147,41 @@ namespace Persistity.Serialization.Json
             for (var i = 0; i < collectionValue.Count; i++)
             {
                 var currentData = collectionValue[i];
+
                 if (currentData == null)
-                { jsonArray.Add(GetNullNode()); }
-                else if (collectionMapping.InternalMappings.Count > 0)
                 {
-                    var result = Serialize(collectionMapping.InternalMappings, currentData);
+                    jsonArray.Add(GetNullNode());
+                    continue;
+                }
+
+                var mappings = collectionMapping.InternalMappings;
+                if (collectionMapping.IsElementDynamicType)
+                {
+                    var typeToUse = currentData.GetType();
+                    var mapping = MappingRegistry.GetMappingFor(typeToUse);
+                    mappings = mapping.InternalMappings;
+                    
+                    if (mappings.Count > 0)
+                    {
+                        var result = Serialize(mappings, currentData);
+                        jsonArray.Add(result);
+                    }
+                    else
+                    {
+                        var result = SerializePrimitive(currentData, collectionMapping.CollectionType);
+                        jsonArray.Add(result);
+                    }
+
+                    /*
+                    var jsonData = Serialize(mapping.InternalMappings, currentData);
+                    jsonObject.Add("Data", jsonData);
+                    return jsonObject;*/
+
+                }
+
+                if (mappings.Count > 0)
+                {
+                    var result = Serialize(mappings, currentData);
                     jsonArray.Add(result);
                 }
                 else

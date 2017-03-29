@@ -67,20 +67,25 @@ namespace Persistity.Serialization.Json
             return instance;
         }
 
-        private void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, JSONNode data)
+        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, JSONNode data)
         {
-            if (IsNullNode(data))
+            if (nestedMapping.IsDynamicType)
             {
-                propertyMapping.SetValue(instance, null);
+                var jsonType = data["Type"];
+                var jsonData = data["Data"];
+                var dynamicType = Type.GetType(jsonType.Value);
+
+                if (MappingRegistry.TypeMapper.IsPrimitiveType(dynamicType))
+                {
+                    DeserializePrimitive(dynamicType, jsonData);
+                }
+                var mapping = MappingRegistry.GetMappingFor(dynamicType);
+                Deserialize(mapping.InternalMappings, instance, jsonData);
                 return;
             }
 
-            var underlyingValue = DeserializePrimitive(propertyMapping.Type, data);
-            propertyMapping.SetValue(instance, underlyingValue);
+            Deserialize(nestedMapping.InternalMappings, instance, data);
         }
-
-        private void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, JSONNode data)
-        { Deserialize(nestedMapping.InternalMappings, instance, data); }
 
         private void DeserializeCollection(CollectionMapping collectionMapping, IList instance, JSONArray data)
         {
@@ -152,67 +157,94 @@ namespace Persistity.Serialization.Json
             foreach (var mapping in mappings)
             {
                 if (mapping is PropertyMapping)
-                {
-                    var jsonData = jsonNode[mapping.LocalName];
-                    DeserializeProperty((mapping as PropertyMapping), instance, jsonData);                   
-                }
+                { HandlePropertyMapping(mapping as PropertyMapping, instance, jsonNode); }
                 else if (mapping is NestedMapping)
-                {
-                    var nestedMapping = (mapping as NestedMapping);
-                    var jsonData = jsonNode[mapping.LocalName];
-
-                    if (IsNullNode(jsonData))
-                    { nestedMapping.SetValue(instance, null); }
-                    else
-                    {
-                        var childInstance = Activator.CreateInstance(nestedMapping.Type);
-                        DeserializeNestedObject(nestedMapping, childInstance, jsonData);
-                        nestedMapping.SetValue(instance, childInstance);
-                    }
-                }
+                { HandleNestedMapping(mapping as NestedMapping, instance, jsonNode); }
                 else if (mapping is DictionaryMapping)
-                {
-                    var dictionaryMapping = (mapping as DictionaryMapping);
-                    var jsonData = jsonNode[mapping.LocalName].AsArray;
-                    if (IsNullNode(jsonData))
-                    { dictionaryMapping.SetValue(instance, null); }
-                    else
-                    { 
-                        var dictionarytype = typeof(Dictionary<,>);
-                        var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
-                        var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
-                        DeserializeDictionary(dictionaryMapping, dictionary, jsonData);
-                        dictionaryMapping.SetValue(instance, dictionary);
-                    }
-                }
+                { HandleDictionaryMapping(mapping as DictionaryMapping, instance, jsonNode); }
                 else
+                { HandleCollectionMapping(mapping as CollectionMapping, instance, jsonNode); }
+            }
+        }
+
+        private void HandlePropertyMapping<T>(PropertyMapping mapping, T instance, JSONNode jsonNode)
+        {
+            var jsonData = jsonNode[mapping.LocalName];
+            if (IsNullNode(jsonData))
+            {
+                mapping.SetValue(instance, null);
+                return;
+            }
+
+            var underlyingValue = DeserializePrimitive(mapping.Type, jsonData);
+            mapping.SetValue(instance, underlyingValue);
+        }
+
+        private void HandleCollectionMapping<T>(CollectionMapping mapping, T instance, JSONNode jsonNode)
+        {
+            var jsonData = jsonNode[mapping.LocalName].AsArray;
+
+            if (IsNullNode(jsonData))
+            {
+                mapping.SetValue(instance, null);
+                return;
+            }
+
+            var arrayCount = jsonData.Count;
+
+            if (mapping.IsArray)
+            {
+                var arrayInstance = (IList) Activator.CreateInstance(mapping.Type, arrayCount);
+                DeserializeCollection(mapping, arrayInstance, jsonData);
+                mapping.SetValue(instance, arrayInstance);
+            }
+            else
+            {
+                var listType = typeof(List<>);
+                var constructedListType = listType.MakeGenericType(mapping.CollectionType);
+                var listInstance = (IList) Activator.CreateInstance(constructedListType);
+                DeserializeCollection(mapping, listInstance, jsonData);
+                mapping.SetValue(instance, listInstance);
+            }
+        }
+
+        private void HandleDictionaryMapping<T>(DictionaryMapping mapping, T instance, JSONNode jsonNode)
+        {
+            var jsonData = jsonNode[mapping.LocalName].AsArray;
+            if (IsNullNode(jsonData))
+            {
+                mapping.SetValue(instance, null);
+            }
+            else
+            {
+                var dictionarytype = typeof(Dictionary<,>);
+                var constructedDictionaryType = dictionarytype.MakeGenericType(mapping.KeyType, mapping.ValueType);
+                var dictionary = (IDictionary) Activator.CreateInstance(constructedDictionaryType);
+                DeserializeDictionary(mapping, dictionary, jsonData);
+                mapping.SetValue(instance, dictionary);
+            }
+        }
+
+        private void HandleNestedMapping<T>(NestedMapping mapping, T instance, JSONNode jsonNode)
+        {
+            var jsonData = jsonNode[mapping.LocalName];
+
+            if (IsNullNode(jsonData))
+            {
+                mapping.SetValue(instance, null);
+            }
+            else
+            {
+                var instanceType = mapping.Type;
+                if (mapping.IsDynamicType)
                 {
-                    var collectionMapping = (mapping as CollectionMapping);
-                    var jsonData = jsonNode[mapping.LocalName].AsArray;
-
-                    if (IsNullNode(jsonData))
-                    {
-                        collectionMapping.SetValue(instance, null);
-                        continue;
-                    }
-
-                    var arrayCount = jsonData.Count;
-
-                    if (collectionMapping.IsArray)
-                    {
-                        var arrayInstance = (IList) Activator.CreateInstance(collectionMapping.Type, arrayCount);
-                        DeserializeCollection(collectionMapping, arrayInstance, jsonData);
-                        collectionMapping.SetValue(instance, arrayInstance);
-                    }
-                    else
-                    {
-                        var listType = typeof(List<>);
-                        var constructedListType = listType.MakeGenericType(collectionMapping.CollectionType);
-                        var listInstance = (IList)Activator.CreateInstance(constructedListType);
-                        DeserializeCollection(collectionMapping, listInstance, jsonData);
-                        collectionMapping.SetValue(instance, listInstance);
-                    }
+                    var jsonType = jsonData["Type"];
+                    instanceType = Type.GetType(jsonType.Value);
                 }
+
+                var childInstance = Activator.CreateInstance(instanceType);
+                DeserializeNestedObject(mapping, childInstance, jsonData);
+                mapping.SetValue(instance, childInstance);
             }
         }
     }
