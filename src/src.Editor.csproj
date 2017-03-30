@@ -134,6 +134,7 @@
     <Compile Include="Assets\Tests\Editor\EncryptionTests.cs" />
     <Compile Include="Assets\Tests\Editor\EndToEndSanityTests.cs" />
     <Compile Include="Assets\Tests\Editor\Helpers\SerializationTestHelper.cs" />
+    <Compile Include="Assets\Tests\Editor\Helpers\TypeAssertionHelper.cs" />
     <Compile Include="Assets\Tests\Editor\Models\ComplexModel.cs" />
     <Compile Include="Assets\Tests\Editor\Models\B.cs" />
     <Compile Include="Assets\Tests\Editor\Models\C.cs" />
