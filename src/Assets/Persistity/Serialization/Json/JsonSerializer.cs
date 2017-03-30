@@ -96,70 +96,20 @@ namespace Persistity.Serialization.Json
         {
             if (value == null) { return GetNullNode(); }
 
-            JSONNode node = null;
-            var actualType = type;
             var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
-            if (!isDefaultPrimitive)
-            {
-                var nullableType = Nullable.GetUnderlyingType(type);
-            }
+            if(isDefaultPrimitive) { return SerializeDefaultPrimitive(value, type); }
 
-            if (actualType == typeof(byte)) { node = new JSONNumber((byte)value); }
-            else if (actualType == typeof(short)) { node = new JSONNumber((short)value); }
-            else if (actualType == typeof(int)) { node = new JSONNumber((int)value); }
-            else if (actualType == typeof(long)) { node = new JSONString(value.ToString()); }
-            else if (actualType == typeof(Guid)) { node = new JSONString(value.ToString()); }
-            else if (actualType == typeof(bool)) { node = new JSONBool((bool)value); }
-            else if (actualType == typeof(float)) { node = new JSONNumber((float)value); }
-            else if (actualType == typeof(double)) { node = new JSONNumber((double)value); }
-            else if (actualType == typeof(Vector2))
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
             {
-                var typedValue = (Vector2)value;
-                node = new JSONObject();
-                node.Add("x", new JSONNumber(typedValue.x));
-                node.Add("y", new JSONNumber(typedValue.y));
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return SerializeDefaultPrimitive(value, underlyingType);
             }
-            else if (actualType == typeof(Vector3))
-            {
-                var typedValue = (Vector3)value;
-                node = new JSONObject();
-                node.Add("x", new JSONNumber(typedValue.x));
-                node.Add("y", new JSONNumber(typedValue.y));
-                node.Add("z", new JSONNumber(typedValue.z));
-            }
-            else if (actualType == typeof(Vector4))
-            {
-                var typedValue = (Vector4)value;
-                node = new JSONObject();
-                node.Add("x", new JSONNumber(typedValue.x));
-                node.Add("y", new JSONNumber(typedValue.y));
-                node.Add("z", new JSONNumber(typedValue.z));
-                node.Add("w", new JSONNumber(typedValue.w));
-            }
-            else if (actualType == typeof(Quaternion))
-            {
-                var typedValue = (Quaternion) value;
-                node = new JSONObject();
-                node.Add("x", new JSONNumber(typedValue.x));
-                node.Add("y", new JSONNumber(typedValue.y));
-                node.Add("z", new JSONNumber(typedValue.z));
-                node.Add("w", new JSONNumber(typedValue.w));
-            }
-            else if (actualType == typeof(DateTime))
-            {
-                var typedValue = (DateTime) value;
-                node = new JSONString(typedValue.ToBinary().ToString());
-            }
-            else if (actualType == typeof(string) || actualType.IsEnum)
-            { node = new JSONString(value.ToString()); }
-            else
-            {
-                node = new JSONObject();
-                var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(actualType));
-                if(matchingHandler == null) { throw new NoKnownTypeException(actualType); }
-                matchingHandler.HandleTypeSerialization(node, value);
-            }
-
+            
+            var node = new JSONObject();
+            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if(matchingHandler == null) { throw new NoKnownTypeException(type); }
+            matchingHandler.HandleTypeSerialization(node, value);
             return node;
         }
 

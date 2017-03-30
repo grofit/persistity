@@ -52,7 +52,7 @@ namespace Persistity.Serialization.Binary
             return true;
         }
 
-        public object DeserializePrimitive(Type type, BinaryReader reader)
+        public object DeserializeDefaultPrimitive(Type type, BinaryReader reader)
         {
             if (type == typeof(byte)) { return reader.ReadByte(); }
             if (type == typeof(short)) { return reader.ReadInt16(); }
@@ -104,6 +104,25 @@ namespace Persistity.Serialization.Binary
             {
                 var binaryTime = reader.ReadInt64();
                 return DateTime.FromBinary(binaryTime);
+            }
+
+            return reader.ReadString();
+        }
+
+        public object DeserializePrimitive(Type type, BinaryReader reader)
+        {
+            if(IsDataNull(reader))
+            { return null; }
+
+            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
+            if (isDefaultPrimitive)
+            { return DeserializeDefaultPrimitive(type, reader); }
+
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return DeserializeDefaultPrimitive(underlyingType, reader);
             }
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));

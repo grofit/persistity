@@ -30,20 +30,20 @@ namespace Persistity.Serialization.Binary
         public void WriteNullObject(BinaryWriter writer)
         { writer.Write(NullObjectSig); }
 
-        public void SerializePrimitive(object value, Type type, BinaryWriter writer)
+        public void SerializeDefaultPrimitive(object value, Type type, BinaryWriter writer)
         {
             if (type == typeof(byte)) { writer.Write((byte)value); }
             else if (type == typeof(short)) { writer.Write((short)value); }
-            else if(type == typeof(int)) { writer.Write((int)value); }
-            else if(type == typeof(long)) { writer.Write((long)value); }
-            else if(type == typeof(bool)) { writer.Write((bool)value); }
-            else if(type == typeof(float)) { writer.Write((float)value); }
-            else if(type == typeof(double)) { writer.Write((double)value); }
-            else if(type == typeof(decimal)) { writer.Write((decimal)value); }
-            else if(type.IsEnum) { writer.Write((int)value); }
+            else if (type == typeof(int)) { writer.Write((int)value); }
+            else if (type == typeof(long)) { writer.Write((long)value); }
+            else if (type == typeof(bool)) { writer.Write((bool)value); }
+            else if (type == typeof(float)) { writer.Write((float)value); }
+            else if (type == typeof(double)) { writer.Write((double)value); }
+            else if (type == typeof(decimal)) { writer.Write((decimal)value); }
+            else if (type.IsEnum) { writer.Write((int)value); }
             else if (type == typeof(Vector2))
             {
-                var vector = (Vector2) value;
+                var vector = (Vector2)value;
                 writer.Write(vector.x);
                 writer.Write(vector.y);
             }
@@ -64,7 +64,7 @@ namespace Persistity.Serialization.Binary
             }
             else if (type == typeof(Quaternion))
             {
-                var quaternion = (Quaternion) value;
+                var quaternion = (Quaternion)value;
                 writer.Write(quaternion.x);
                 writer.Write(quaternion.y);
                 writer.Write(quaternion.z);
@@ -73,12 +73,34 @@ namespace Persistity.Serialization.Binary
             else if (type == typeof(DateTime)) { writer.Write(((DateTime)value).ToBinary()); }
             else if (type == typeof(Guid)) { writer.Write(((Guid)value).ToString()); }
             else if (type == typeof(string)) { writer.Write(value.ToString()); }
-            else
+        }
+
+        public void SerializePrimitive(object value, Type type, BinaryWriter writer)
+        {
+            if (value == null)
             {
-                var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
-                if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-                matchingHandler.HandleTypeSerialization(writer, value);
+                WriteNullData(writer);
+                return;
             }
+
+            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
+            if (isDefaultPrimitive)
+            {
+                SerializeDefaultPrimitive(value, type, writer);
+                return;
+            }
+
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                SerializeDefaultPrimitive(value, underlyingType, writer);
+                return;
+            }
+
+            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
+            if(matchingHandler == null) { throw new NoKnownTypeException(type); }
+            matchingHandler.HandleTypeSerialization(writer, value);
         }
 
         public DataObject Serialize(object data)

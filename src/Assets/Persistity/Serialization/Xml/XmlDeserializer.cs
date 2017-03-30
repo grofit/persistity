@@ -23,7 +23,7 @@ namespace Persistity.Serialization.Xml
         private bool IsElementNull(XElement element)
         { return element.Attribute("IsNull") != null; }
 
-        private object DeserializePrimitive(Type type, XElement element)
+        private object DeserializeDefaultPrimitive(Type type, XElement element)
         {
             if (type == typeof(byte)) { return byte.Parse(element.Value); }
             if (type == typeof(short)) { return short.Parse(element.Value); }
@@ -71,6 +71,25 @@ namespace Persistity.Serialization.Xml
             {
                 var binaryTime = long.Parse(element.Value);
                 return DateTime.FromBinary(binaryTime);
+            }
+
+            return element.Value;
+        }
+
+        private object DeserializePrimitive(Type type, XElement element)
+        {
+            if(IsElementNull(element))
+            { return null; }
+
+            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
+            if (isDefaultPrimitive)
+            { return DeserializeDefaultPrimitive(type, element); }
+
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return DeserializeDefaultPrimitive(underlyingType, element);
             }
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));

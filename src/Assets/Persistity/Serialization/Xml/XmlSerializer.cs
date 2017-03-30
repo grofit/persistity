@@ -30,44 +30,44 @@ namespace Persistity.Serialization.Xml
         private void MarkAsNull(XElement element)
         { element.Add(new XAttribute("IsNull", true)); }
 
-        private void SerializePrimitive(object value, Type type, XElement element)
+        private void SerializeDefaultPrimitive(object value, Type type, XElement element)
         {
             if (type == typeof(Vector2))
             {
                 var typedObject = (Vector2)value;
-                element.Add(new XElement("x", typedObject.x));    
+                element.Add(new XElement("x", typedObject.x));
                 element.Add(new XElement("y", typedObject.y));
                 return;
             }
             if (type == typeof(Vector3))
             {
                 var typedObject = (Vector3)value;
-                element.Add(new XElement("x", typedObject.x));    
-                element.Add(new XElement("y", typedObject.y));    
+                element.Add(new XElement("x", typedObject.x));
+                element.Add(new XElement("y", typedObject.y));
                 element.Add(new XElement("z", typedObject.z));
                 return;
             }
             if (type == typeof(Vector4))
             {
                 var typedObject = (Vector4)value;
-                element.Add(new XElement("x", typedObject.x));    
-                element.Add(new XElement("y", typedObject.y));    
-                element.Add(new XElement("z", typedObject.z));    
+                element.Add(new XElement("x", typedObject.x));
+                element.Add(new XElement("y", typedObject.y));
+                element.Add(new XElement("z", typedObject.z));
                 element.Add(new XElement("w", typedObject.w));
                 return;
             }
             if (type == typeof(Quaternion))
             {
                 var typedObject = (Quaternion)value;
-                element.Add(new XElement("x", typedObject.x));    
-                element.Add(new XElement("y", typedObject.y));    
-                element.Add(new XElement("z", typedObject.z));    
+                element.Add(new XElement("x", typedObject.x));
+                element.Add(new XElement("y", typedObject.y));
+                element.Add(new XElement("z", typedObject.z));
                 element.Add(new XElement("w", typedObject.w));
                 return;
             }
             if (type == typeof(DateTime))
             {
-                var typedValue = (DateTime) value;
+                var typedValue = (DateTime)value;
                 var stringValue = typedValue.ToBinary().ToString();
                 element.Value = stringValue;
                 return;
@@ -76,6 +76,30 @@ namespace Persistity.Serialization.Xml
             if (type.IsTypeOf(CatchmentTypes) || type.IsEnum)
             {
                 element.Value = value.ToString();
+                return;
+            }
+        }
+
+        private void SerializePrimitive(object value, Type type, XElement element)
+        {
+            if (value == null)
+            {
+                MarkAsNull(element);
+                return;
+            }
+
+            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
+            if (isDefaultPrimitive)
+            {
+                SerializeDefaultPrimitive(value, type, element);
+                return;
+            }
+
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                SerializeDefaultPrimitive(value, underlyingType, element);
                 return;
             }
 

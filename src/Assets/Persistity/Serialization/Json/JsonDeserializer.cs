@@ -23,10 +23,8 @@ namespace Persistity.Serialization.Json
         private bool IsNullNode(JSONNode node)
         { return node == null; }
 
-        private object DeserializePrimitive(Type type, JSONNode value)
+        private object DeserializeDefaultPrimitive(Type type, JSONNode value)
         {
-            
-
             if (type == typeof(byte)) { return (byte)value.AsInt; }
             if (type == typeof(short)) { return (short)value.AsInt; }
             if (type == typeof(int)) { return value.AsInt; }
@@ -46,6 +44,23 @@ namespace Persistity.Serialization.Json
             { return new Vector4(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
             if (type == typeof(Quaternion))
             { return new Quaternion(value["x"].AsFloat, value["y"].AsFloat, value["z"].AsFloat, value["w"].AsFloat); }
+            
+            return value.Value;
+        }
+
+        private object DeserializePrimitive(Type type, JSONNode value)
+        {
+            if (value is JSONNull ) { return null; }
+
+            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
+            if (isDefaultPrimitive) { return DeserializeDefaultPrimitive(type, value); }
+
+            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
+            if (isNullablePrimitive)
+            {
+                var underlyingType = Nullable.GetUnderlyingType(type);
+                return DeserializeDefaultPrimitive(underlyingType, value);
+            }
 
             var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
             if (matchingHandler != null)

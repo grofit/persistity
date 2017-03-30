@@ -59,7 +59,7 @@ namespace Persistity.Mappings.Types
             if(nullableType == null) { return false; }
             return IsDefaultPrimitiveType(nullableType);
         }
-
+        
         public bool ShouldTreatAsPrimitiveType(Type type)
         { return Configuration.TreatAsPrimitives.Any(x => type == x); }
 
