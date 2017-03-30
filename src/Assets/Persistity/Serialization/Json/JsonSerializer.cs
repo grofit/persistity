@@ -197,7 +197,7 @@ namespace Persistity.Serialization.Json
             var jsonObject = new JSONObject();
             jsonObject.Add(TypeField, typeToUse.GetPersistableName());
 
-            var isPrimitiveType = MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse);
+            var isPrimitiveType = MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse);
             if (isPrimitiveType)
             {
                 var jsonData = SerializePrimitive(currentData, typeToUse);
@@ -251,7 +251,7 @@ namespace Persistity.Serialization.Json
                 var jsonTypeData = new JSONObject();
                 jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
 
-                if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                 {
                     var result = SerializePrimitive(currentData, typeToUse);
                     jsonTypeData.Add(DataField, result);
@@ -305,7 +305,7 @@ namespace Persistity.Serialization.Json
                     jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
 
                     JSONNode dataNode;
-                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { dataNode = SerializePrimitive(currentKey, typeToUse); }
                     else
                     {
@@ -334,7 +334,7 @@ namespace Persistity.Serialization.Json
                     jsonTypeData.Add(TypeField, typeToUse.GetPersistableName());
 
                     JSONNode dataNode;
-                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { dataNode = SerializePrimitive(currentValue, typeToUse); }
                     else
                     {

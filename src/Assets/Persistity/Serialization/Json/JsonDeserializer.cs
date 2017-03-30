@@ -85,7 +85,7 @@ namespace Persistity.Serialization.Json
                     typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
                     currentElementNode = currentElementNode[JsonSerializer.DataField];
 
-                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { mappings = new List<Mapping>(); }
                     else
                     {
@@ -137,7 +137,7 @@ namespace Persistity.Serialization.Json
                     var jsonData = jsonKey[JsonSerializer.DataField];
                     var typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
 
-                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { currentKey = DeserializePrimitive(typeToUse, jsonData); }
                     else
                     {
@@ -168,7 +168,7 @@ namespace Persistity.Serialization.Json
 
                     if (IsNullNode(jsonData))
                     { currentValue = null; }
-                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { currentValue = DeserializePrimitive(typeToUse, jsonData); }
                     else
                     {
@@ -231,7 +231,7 @@ namespace Persistity.Serialization.Json
             var jsonDynamicType = jsonData[JsonSerializer.TypeField];
             var jsonDynamicData = jsonData[JsonSerializer.DataField];
             var instanceType = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonDynamicType.Value);
-            if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(instanceType))
+            if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(instanceType))
             {
                 var primitiveValue = DeserializePrimitive(instanceType, jsonDynamicData);
                 mapping.SetValue(instance, primitiveValue);

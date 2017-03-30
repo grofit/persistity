@@ -1,5 +1,4 @@
 ﻿using System;
-using Assets.Tests.Editor;
 using NUnit.Framework;
 using Persistity.Mappings.Mappers;
 using Persistity.Mappings.Types;
