@@ -1,12 +1,9 @@
-﻿using System.Collections.Generic;
-using Persistity.Json;
+﻿using Persistity.Json;
 
 namespace Persistity.Serialization.Json
 {
-    public class JsonConfiguration : SerializationConfiguration
+    public class JsonConfiguration : SerializationConfiguration<JSONNode, JSONNode>
     {
-        public IEnumerable<ITypeHandler<JSONNode, JSONNode>> TypeHandlers { get; set; }
-
         public static JsonConfiguration Default
         {
             get

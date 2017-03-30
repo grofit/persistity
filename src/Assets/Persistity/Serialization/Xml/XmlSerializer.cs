@@ -1,23 +1,16 @@
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Xml.Linq;
-using Persistity.Exceptions;
 using Persistity.Extensions;
-using Persistity.Mappings;
 using Persistity.Registries;
+using Persistity.Serialization.Binary;
 using UnityEngine;
 
 namespace Persistity.Serialization.Xml
 {
-    public class XmlSerializer : IXmlSerializer
+    public class XmlSerializer : GenericSerializer<XElement, XElement>, IXmlSerializer
     {
-        public IMappingRegistry MappingRegistry { get; private set; }
-        public XmlConfiguration Configuration { get; private set; }
-
-        public XmlSerializer(IMappingRegistry mappingRegistry, XmlConfiguration configuration = null)
+        public XmlSerializer(IMappingRegistry mappingRegistry, XmlConfiguration configuration = null) : base(mappingRegistry)
         {
-            MappingRegistry = mappingRegistry;
             Configuration = configuration ?? XmlConfiguration.Default;
         }
 
@@ -27,10 +20,16 @@ namespace Persistity.Serialization.Xml
             typeof(long), typeof(Guid), typeof(float), typeof(double), typeof(decimal)
         };
 
-        private void MarkAsNull(XElement element)
-        { element.Add(new XAttribute("IsNull", true)); }
+        public override void HandleNullData(XElement state)
+        { state.Add(new XAttribute("IsNull", true)); }
 
-        private void SerializeDefaultPrimitive(object value, Type type, XElement element)
+        public override void HandleNullObject(XElement state)
+        { state.Add(new XAttribute("IsNull", true)); }
+
+        public override void AddCountToState(XElement state, int count)
+        { state.Add(new XAttribute("Count", count)); }
+        
+        public override void SerializeDefaultPrimitive(object value, Type type, XElement element)
         {
             if (type == typeof(Vector2))
             {
@@ -80,35 +79,7 @@ namespace Persistity.Serialization.Xml
             }
         }
 
-        private void SerializePrimitive(object value, Type type, XElement element)
-        {
-            if (value == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
-            if (isDefaultPrimitive)
-            {
-                SerializeDefaultPrimitive(value, type, element);
-                return;
-            }
-
-            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
-            if (isNullablePrimitive)
-            {
-                var underlyingType = Nullable.GetUnderlyingType(type);
-                SerializeDefaultPrimitive(value, underlyingType, element);
-                return;
-            }
-
-            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
-            if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-            matchingHandler.HandleTypeSerialization(element, value);
-        }
-
-        public DataObject Serialize(object data)
+        public override DataObject Serialize(object data)
         {
             var element = new XElement("Container");
             var dataType = data.GetType();
@@ -120,133 +91,6 @@ namespace Persistity.Serialization.Xml
             
             var xmlString = element.ToString();
             return new DataObject(xmlString);
-        }
-
-        private void SerializeProperty<T>(PropertyMapping propertyMapping, T data, XElement element)
-        {
-            if (data == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-            var underlyingValue = propertyMapping.GetValue(data);
-
-            if (underlyingValue == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            SerializePrimitive(underlyingValue, propertyMapping.Type, element);
-        }
-
-        private void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, XElement element)
-        {
-            if (data == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-            var currentData = nestedMapping.GetValue(data);
-
-            if (currentData == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-            Serialize(nestedMapping.InternalMappings, currentData, element);
-        }
-        
-        private void SerializeCollection<T>(CollectionMapping collectionMapping, T data, XElement element)
-        {
-            if (data == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            var collectionValue = collectionMapping.GetValue(data);
-
-            if (collectionValue == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            element.Add(new XAttribute("Count", collectionValue.Count));
-            for (var i = 0; i < collectionValue.Count; i++)
-            {
-                var currentData = collectionValue[i];
-                var newElement = new XElement("CollectionElement");
-                element.Add(newElement);
-
-                if (currentData == null)
-                { MarkAsNull(newElement); }
-                else if (collectionMapping.InternalMappings.Count > 0)
-                { Serialize(collectionMapping.InternalMappings, currentData, newElement); }
-                else
-                { SerializePrimitive(currentData, collectionMapping.CollectionType, newElement); }
-            }
-        }
-
-        private void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, XElement element)
-        {
-            if (data == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            var dictionaryValue = dictionaryMapping.GetValue(data);
-
-            if (dictionaryValue == null)
-            {
-                MarkAsNull(element);
-                return;
-            }
-
-            element.Add(new XAttribute("Count", dictionaryValue.Count));
-
-            foreach (var key in dictionaryValue.Keys)
-            {
-                var currentValue = dictionaryValue[key];
-
-                var keyElement = new XElement("Key");
-                if (dictionaryMapping.KeyMappings.Count > 0)
-                { Serialize(dictionaryMapping.KeyMappings, key, keyElement); }
-                else
-                { SerializePrimitive(key, dictionaryMapping.KeyType, keyElement); }
-
-                var valueElement = new XElement("Value");
-                if(currentValue == null)
-                { MarkAsNull(valueElement); }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
-                { Serialize(dictionaryMapping.ValueMappings, currentValue, valueElement); }
-                else
-                { SerializePrimitive(currentValue, dictionaryMapping.ValueType, valueElement); }
-
-                var keyValuePairElement = new XElement("KeyValuePair");
-                keyValuePairElement.Add(keyElement, valueElement);
-                element.Add(keyValuePairElement);
-            }
-        }
-
-        private void Serialize<T>(IEnumerable<Mapping> mappings, T data, XElement element)
-        {
-            foreach (var mapping in mappings)
-            {
-                var newElement = new XElement(mapping.LocalName);
-                element.Add(newElement);
-
-                if (mapping is PropertyMapping)
-                { SerializeProperty((mapping as PropertyMapping), data, newElement); }
-                else if (mapping is NestedMapping)
-                { SerializeNestedObject((mapping as NestedMapping), data, newElement); }
-                else if (mapping is DictionaryMapping)
-                { SerializeDictionary((mapping as DictionaryMapping), data, newElement); }
-                else
-                { SerializeCollection((mapping as CollectionMapping), data, newElement); }
-            }
         }
     }
 }
