@@ -88,7 +88,7 @@ namespace Persistity.Serialization.Xml
             var xDoc = XDocument.Parse(data.AsString);
             var containerElement = xDoc.Element("Container");
             var typeName = containerElement.Element("Type").Value;
-            var type = MappingRegistry.TypeMapper.LoadType(typeName);
+            var type = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(typeName);
             var typeMapping = MappingRegistry.GetMappingFor(type);
 
             var instance = Activator.CreateInstance(typeMapping.Type);

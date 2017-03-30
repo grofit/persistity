@@ -122,7 +122,7 @@ namespace Persistity.Serialization.Binary
             using (var reader = new BinaryReader(memoryStream))
             {
                 var typeName = reader.ReadString();
-                var type = MappingRegistry.TypeMapper.LoadType(typeName);
+                var type = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(typeName);
                 var typeMapping = MappingRegistry.GetMappingFor(type);
                 var instance = Activator.CreateInstance(type);
                 Deserialize(typeMapping.InternalMappings, instance, reader);

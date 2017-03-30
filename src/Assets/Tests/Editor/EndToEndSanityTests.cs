@@ -6,6 +6,7 @@ using Persistity.Encryption;
 using Persistity.Endpoints.Files;
 using Persistity.Mappings;
 using Persistity.Mappings.Mappers;
+using Persistity.Mappings.Types;
 using Persistity.Pipelines.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Registries;
@@ -13,12 +14,23 @@ using Persistity.Serialization.Binary;
 using Persistity.Serialization.Json;
 using Persistity.Serialization.Xml;
 using Tests.Editor.Helpers;
+using Tests.Editor.Models;
 
 namespace Tests.Editor
 {
     [TestFixture]
     public class EndToEndSanityTests
     {
+        private IMappingRegistry _mappingRegistry;
+
+        [SetUp]
+        public void Setup()
+        {
+            var typeAnalyzer = new TypeAnalyzer();
+            var typeMapper = new DefaultTypeMapper(typeAnalyzer);
+            _mappingRegistry = new MappingRegistry(typeMapper);
+        }
+
         private void HandleError(Exception exception)
         { Assert.Fail(exception.Message); }
 
@@ -30,9 +42,8 @@ namespace Tests.Editor
         {
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer(mappingRegistry);
+            
+            var serializer = new BinarySerializer(_mappingRegistry);
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
@@ -45,9 +56,8 @@ namespace Tests.Editor
         {
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer(mappingRegistry);
+            
+            var serializer = new BinarySerializer(_mappingRegistry);
             var writeFileEndpoint = new WriteFileEndpoint(filename);
             var encryptor = new AesEncryptor("some-password");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
@@ -67,10 +77,9 @@ namespace Tests.Editor
         {
             var filename = "encrypted_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new BinarySerializer(mappingRegistry);
-            var deserializer = new BinaryDeserializer(mappingRegistry);
+            
+            var serializer = new BinarySerializer(_mappingRegistry);
+            var deserializer = new BinaryDeserializer(_mappingRegistry);
             var encryptor = new AesEncryptor("dummy-password-123");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
             var decryptionProcessor = new DecryptDataProcessor(encryptor);
@@ -86,7 +95,7 @@ namespace Tests.Editor
                 readFileEndpoint.Execute((data) =>
                 {
                     var decryptedData = decryptionProcessor.Process(data);
-                    var outputModel = (A)deserializer.Deserialize(decryptedData);
+                    var outputModel = (ComplexModel)deserializer.Deserialize(decryptedData);
                     SerializationTestHelper.AssertPopulatedData(dummyData, outputModel);
                 }, HandleError);
             }, HandleError);
@@ -97,9 +106,8 @@ namespace Tests.Editor
         {
             var filename = "example_json_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new JsonSerializer(mappingRegistry);
+            
+            var serializer = new JsonSerializer(_mappingRegistry);
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
@@ -112,9 +120,8 @@ namespace Tests.Editor
         {
             var filename = "example_save.json";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new JsonSerializer(mappingRegistry);
+            
+            var serializer = new JsonSerializer(_mappingRegistry);
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
@@ -128,9 +135,8 @@ namespace Tests.Editor
         {
             var filename = "example_save.xml";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
-
-            var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
-            var serializer = new XmlSerializer(mappingRegistry);
+            
+            var serializer = new XmlSerializer(_mappingRegistry);
             var writeFileEndpoint = new WriteFileEndpoint(filename);
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();

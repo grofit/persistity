@@ -25,6 +25,8 @@ namespace Persistity.Serialization.Json
 
         private object DeserializePrimitive(Type type, JSONNode value)
         {
+            
+
             if (type == typeof(byte)) { return (byte)value.AsInt; }
             if (type == typeof(short)) { return (short)value.AsInt; }
             if (type == typeof(int)) { return value.AsInt; }
@@ -59,7 +61,7 @@ namespace Persistity.Serialization.Json
         {
             var jsonData = JSON.Parse(data.AsString);
             var typeName = jsonData[JsonSerializer.TypeField].Value;
-            var type = MappingRegistry.TypeMapper.LoadType(typeName);
+            var type = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(typeName);
             var typeMapping = MappingRegistry.GetMappingFor(type);
             var instance = Activator.CreateInstance(type);
             
@@ -80,10 +82,10 @@ namespace Persistity.Serialization.Json
                 if (collectionMapping.IsElementDynamicType)
                 {
                     var jsonType = currentElementNode[JsonSerializer.TypeField];
-                    typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
+                    typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
                     currentElementNode = currentElementNode[JsonSerializer.DataField];
 
-                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
                     { mappings = new List<Mapping>(); }
                     else
                     {
@@ -133,9 +135,9 @@ namespace Persistity.Serialization.Json
                 {
                     var jsonType = jsonKey[JsonSerializer.TypeField];
                     var jsonData = jsonKey[JsonSerializer.DataField];
-                    var typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
+                    var typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
 
-                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
                     { currentKey = DeserializePrimitive(typeToUse, jsonData); }
                     else
                     {
@@ -162,11 +164,11 @@ namespace Persistity.Serialization.Json
                     var jsonType = jsonValue[JsonSerializer.TypeField];
                     var jsonData = jsonValue[JsonSerializer.DataField];
 
-                    var typeToUse = MappingRegistry.TypeMapper.LoadType(jsonType.Value);
+                    var typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
 
                     if (IsNullNode(jsonData))
                     { currentValue = null; }
-                    if (MappingRegistry.TypeMapper.IsPrimitiveType(typeToUse))
+                    if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(typeToUse))
                     { currentValue = DeserializePrimitive(typeToUse, jsonData); }
                     else
                     {
@@ -228,8 +230,8 @@ namespace Persistity.Serialization.Json
             
             var jsonDynamicType = jsonData[JsonSerializer.TypeField];
             var jsonDynamicData = jsonData[JsonSerializer.DataField];
-            var instanceType = MappingRegistry.TypeMapper.LoadType(jsonDynamicType.Value);
-            if (MappingRegistry.TypeMapper.IsPrimitiveType(instanceType))
+            var instanceType = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonDynamicType.Value);
+            if (MappingRegistry.TypeMapper.TypeAnalyzer.ShouldTreatAsPrimitiveType(instanceType))
             {
                 var primitiveValue = DeserializePrimitive(instanceType, jsonDynamicData);
                 mapping.SetValue(instance, primitiveValue);

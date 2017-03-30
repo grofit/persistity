@@ -10,9 +10,9 @@ namespace Tests.Editor.Helpers
 {
     public static class SerializationTestHelper
     {
-        public static A GeneratePopulatedModel()
+        public static ComplexModel GeneratePopulatedModel()
         {
-            var a = new A();
+            var a = new ComplexModel();
             a.TestValue = "WOW";
             a.NonPersisted = 100;
             a.Stuff.Add("woop");
@@ -67,9 +67,9 @@ namespace Tests.Editor.Helpers
             return a;
         }
 
-        public static A GenerateNulledModel()
+        public static ComplexModel GenerateNulledModel()
         {
-            var a = new A();
+            var a = new ComplexModel();
             a.TestValue = null;
             a.NonPersisted = 0;
             a.Stuff = null;
@@ -87,6 +87,24 @@ namespace Tests.Editor.Helpers
             a.ComplexDictionary = null;
 
             return a;
+        }
+
+        public static NullableTypesModel GenerateNulledNullableModel()
+        {
+            var model = new NullableTypesModel();
+            model.NullableFloat = null;
+            model.NullableVector3 = null;
+            model.NullableInt = null;
+            return model;
+        }
+
+        public static NullableTypesModel GeneratePopulatedNullableModel()
+        {
+            var model = new NullableTypesModel();
+            model.NullableFloat = 10.0f;
+            model.NullableVector3 = Vector3.one;
+            model.NullableInt = 22;
+            return model;
         }
 
         public static DynamicTypesModel GenerateDynamicTypesModel()
@@ -107,7 +125,7 @@ namespace Tests.Editor.Helpers
             return model;
         }
 
-        public static void AssertPopulatedData(A expected, A actual)
+        public static void AssertPopulatedData(ComplexModel expected, ComplexModel actual)
         {
             Assert.That(actual.TestValue, Is.EqualTo(expected.TestValue));
             Assert.That(actual.NonPersisted, Is.EqualTo(0));
@@ -156,7 +174,7 @@ namespace Tests.Editor.Helpers
             }
         }
 
-        public static void AssertNulledData(A expected, A actual)
+        public static void AssertNulledData(ComplexModel expected, ComplexModel actual)
         {
             Assert.That(actual.TestValue, Is.EqualTo(expected.TestValue));
             Assert.That(actual.NonPersisted, Is.EqualTo(0));
@@ -178,7 +196,7 @@ namespace Tests.Editor.Helpers
         public static void AssertDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
         {
             Assert.That(actual, Is.Not.Null);
-            Assert.That(actual.DynamicNestedProperty, Is.TypeOf(typeof(E)));
+            Assert.That(actual.DynamicNestedProperty, Is.TypeOf(expected.DynamicNestedProperty.GetType()));
 
             var typedNestedProperty = (E)actual.DynamicNestedProperty;
             Assert.That(typedNestedProperty, Is.Not.Null);
@@ -213,6 +231,14 @@ namespace Tests.Editor.Helpers
             var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
             Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
             Assert.That((actual.DynamicDictionary[actualThirdKey] as C).FloatValue, Is.EqualTo((expected.DynamicDictionary[expectedThirdKey] as C).FloatValue));
+        }
+
+        public static void AssertNullableModelData(NullableTypesModel expected, NullableTypesModel actual)
+        {
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.NullableFloat, Is.EqualTo(expected.NullableFloat));
+            Assert.That(actual.NullableInt, Is.EqualTo(expected.NullableInt));
+            Assert.That(actual.NullableVector3, Is.EqualTo(expected.NullableVector3));
         }
     }
 }
