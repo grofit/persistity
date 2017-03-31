@@ -1,109 +1,76 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using Persistity.Exceptions;
 using Persistity.Extensions;
-using Persistity.Mappings;
 using Persistity.Registries;
 using UnityEngine;
 
 namespace Persistity.Serialization.Binary
 {
-    public class BinarySerializer : IBinarySerializer
+    public class BinarySerializer : GenericSerializer<BinaryWriter, BinaryReader>, IBinarySerializer
     {
         public static readonly char[] NullDataSig = {(char) 141, (char) 141};
         public static readonly char[] NullObjectSig = {(char) 141, (char)229, (char)141};
-
-        public IMappingRegistry MappingRegistry { get; private set; }
-        public BinaryConfiguration Configuration { get; private set; }
-
-        public BinarySerializer(IMappingRegistry mappingRegistry, BinaryConfiguration configuration = null)
+        
+        public BinarySerializer(IMappingRegistry mappingRegistry, BinaryConfiguration configuration = null) : base(mappingRegistry)
         {
-            MappingRegistry = mappingRegistry;
             Configuration = configuration ?? BinaryConfiguration.Default;
         }
 
-        public void WriteNullData(BinaryWriter writer)
-        { writer.Write(NullDataSig); }
+        protected override void HandleNullData(BinaryWriter state)
+        { state.Write(NullDataSig); }
 
-        public void WriteNullObject(BinaryWriter writer)
-        { writer.Write(NullObjectSig); }
+        protected override void HandleNullObject(BinaryWriter state)
+        { state.Write(NullObjectSig); }
 
-        public void SerializeDefaultPrimitive(object value, Type type, BinaryWriter writer)
+        protected override void AddCountToState(BinaryWriter state, int count)
+        { state.Write(count); }
+
+        protected override void SerializeDefaultPrimitive(object value, Type type, BinaryWriter state)
         {
-            if (type == typeof(byte)) { writer.Write((byte)value); }
-            else if (type == typeof(short)) { writer.Write((short)value); }
-            else if (type == typeof(int)) { writer.Write((int)value); }
-            else if (type == typeof(long)) { writer.Write((long)value); }
-            else if (type == typeof(bool)) { writer.Write((bool)value); }
-            else if (type == typeof(float)) { writer.Write((float)value); }
-            else if (type == typeof(double)) { writer.Write((double)value); }
-            else if (type == typeof(decimal)) { writer.Write((decimal)value); }
-            else if (type.IsEnum) { writer.Write((int)value); }
+            if (type == typeof(byte)) { state.Write((byte)value); }
+            else if (type == typeof(short)) { state.Write((short)value); }
+            else if (type == typeof(int)) { state.Write((int)value); }
+            else if (type == typeof(long)) { state.Write((long)value); }
+            else if (type == typeof(bool)) { state.Write((bool)value); }
+            else if (type == typeof(float)) { state.Write((float)value); }
+            else if (type == typeof(double)) { state.Write((double)value); }
+            else if (type == typeof(decimal)) { state.Write((decimal)value); }
+            else if (type.IsEnum) { state.Write((int)value); }
             else if (type == typeof(Vector2))
             {
                 var vector = (Vector2)value;
-                writer.Write(vector.x);
-                writer.Write(vector.y);
+                state.Write(vector.x);
+                state.Write(vector.y);
             }
             else if (type == typeof(Vector3))
             {
                 var vector = (Vector3)value;
-                writer.Write(vector.x);
-                writer.Write(vector.y);
-                writer.Write(vector.z);
+                state.Write(vector.x);
+                state.Write(vector.y);
+                state.Write(vector.z);
             }
             else if (type == typeof(Vector4))
             {
                 var vector = (Vector4)value;
-                writer.Write(vector.x);
-                writer.Write(vector.y);
-                writer.Write(vector.z);
-                writer.Write(vector.w);
+                state.Write(vector.x);
+                state.Write(vector.y);
+                state.Write(vector.z);
+                state.Write(vector.w);
             }
             else if (type == typeof(Quaternion))
             {
                 var quaternion = (Quaternion)value;
-                writer.Write(quaternion.x);
-                writer.Write(quaternion.y);
-                writer.Write(quaternion.z);
-                writer.Write(quaternion.w);
+                state.Write(quaternion.x);
+                state.Write(quaternion.y);
+                state.Write(quaternion.z);
+                state.Write(quaternion.w);
             }
-            else if (type == typeof(DateTime)) { writer.Write(((DateTime)value).ToBinary()); }
-            else if (type == typeof(Guid)) { writer.Write(((Guid)value).ToString()); }
-            else if (type == typeof(string)) { writer.Write(value.ToString()); }
+            else if (type == typeof(DateTime)) { state.Write(((DateTime)value).ToBinary()); }
+            else if (type == typeof(Guid)) { state.Write(((Guid)value).ToString()); }
+            else if (type == typeof(string)) { state.Write(value.ToString()); }
         }
-
-        public void SerializePrimitive(object value, Type type, BinaryWriter writer)
-        {
-            if (value == null)
-            {
-                WriteNullData(writer);
-                return;
-            }
-
-            var isDefaultPrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsDefaultPrimitiveType(type);
-            if (isDefaultPrimitive)
-            {
-                SerializeDefaultPrimitive(value, type, writer);
-                return;
-            }
-
-            var isNullablePrimitive = MappingRegistry.TypeMapper.TypeAnalyzer.IsNullablePrimitiveType(type);
-            if (isNullablePrimitive)
-            {
-                var underlyingType = Nullable.GetUnderlyingType(type);
-                SerializeDefaultPrimitive(value, underlyingType, writer);
-                return;
-            }
-
-            var matchingHandler = Configuration.TypeHandlers.SingleOrDefault(x => x.MatchesType(type));
-            if(matchingHandler == null) { throw new NoKnownTypeException(type); }
-            matchingHandler.HandleTypeSerialization(writer, value);
-        }
-
-        public DataObject Serialize(object data)
+        
+        public override DataObject Serialize(object data)
         {
             var typeMapping = MappingRegistry.GetMappingFor(data.GetType());
             using (var memoryStream = new MemoryStream())
@@ -115,124 +82,6 @@ namespace Persistity.Serialization.Binary
                 memoryStream.Seek(0, SeekOrigin.Begin);
 
                 return new DataObject(memoryStream.ToArray());
-            }
-        }
-
-        public void SerializeProperty<T>(PropertyMapping propertyMapping, T data, BinaryWriter writer)
-        {
-            if (data == null)
-            {
-                WriteNullData(writer);
-                return;
-            }
-
-            var underlyingValue = propertyMapping.GetValue(data);
-
-            if (underlyingValue == null)
-            {
-                WriteNullData(writer);
-                return;
-            }
-
-            SerializePrimitive(underlyingValue, propertyMapping.Type, writer);
-        }
-
-        public void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, BinaryWriter writer)
-        {
-            if (data == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            var currentData = nestedMapping.GetValue(data);
-
-            if (currentData == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            Serialize(nestedMapping.InternalMappings, currentData, writer);
-        }
-        
-        public void SerializeCollection<T>(CollectionMapping collectionMapping, T data, BinaryWriter writer)
-        {
-            if (data == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            var collectionValue = collectionMapping.GetValue(data);
-
-            if (collectionValue == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            writer.Write(collectionValue.Count);
-            for (var i = 0; i < collectionValue.Count; i++)
-            {
-                var currentData = collectionValue[i];
-                if (currentData == null)
-                { WriteNullObject(writer); }
-                else if (collectionMapping.InternalMappings.Count > 0)
-                { Serialize(collectionMapping.InternalMappings, currentData, writer); }
-                else
-                { SerializePrimitive(currentData, collectionMapping.CollectionType, writer); }
-            }
-        }
-
-        public void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, BinaryWriter writer)
-        {
-            if (data == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            var dictionaryValue = dictionaryMapping.GetValue(data);
-
-            if (dictionaryValue == null)
-            {
-                WriteNullObject(writer);
-                return;
-            }
-
-            writer.Write(dictionaryValue.Count);
-
-            foreach (var key in dictionaryValue.Keys)
-            {
-                var currentValue = dictionaryValue[key];
-
-                if (dictionaryMapping.KeyMappings.Count > 0)
-                { Serialize(dictionaryMapping.KeyMappings, key, writer); }
-                else
-                { SerializePrimitive(key, dictionaryMapping.KeyType, writer); }
-
-                if (currentValue == null)
-                { WriteNullData(writer); }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
-                { Serialize(dictionaryMapping.ValueMappings, currentValue, writer); }
-                else
-                { SerializePrimitive(currentValue, dictionaryMapping.ValueType, writer); }
-            }
-        }
-
-        public void Serialize<T>(IEnumerable<Mapping> mappings, T data, BinaryWriter writer)
-        {
-            foreach (var mapping in mappings)
-            {
-                if (mapping is PropertyMapping)
-                { SerializeProperty((mapping as PropertyMapping), data, writer); }
-                else if (mapping is NestedMapping)
-                { SerializeNestedObject((mapping as NestedMapping), data, writer); }
-                else if(mapping is DictionaryMapping)
-                { SerializeDictionary(mapping as DictionaryMapping, data, writer);}
-                else
-                { SerializeCollection((mapping as CollectionMapping), data, writer); }
             }
         }
     }

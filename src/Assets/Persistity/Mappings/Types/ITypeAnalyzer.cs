@@ -15,7 +15,5 @@ namespace Persistity.Mappings.Types
         bool IsIgnoredType(Type type);
         bool ShouldTreatAsPrimitiveType(Type type);
         bool IsPrimitiveType(Type type);
-
-        Type LoadType(string partialName);
     }
 }
