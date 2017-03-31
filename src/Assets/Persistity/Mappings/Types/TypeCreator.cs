@@ -8,6 +8,8 @@ namespace Persistity.Mappings.Types
     public class TypeCreator : ITypeCreator
     {
         protected readonly Type Dictionarytype = typeof(Dictionary<,>);
+        protected readonly Type ListType = typeof(List<>);
+
         public IDictionary<string, Type> TypeCache { get; private set; }
 
         public TypeCreator()
@@ -33,6 +35,15 @@ namespace Persistity.Mappings.Types
         {
             var constructedDictionaryType = Dictionarytype.MakeGenericType(keyType, valueType);
             return (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+        }
+
+        public IList CreateFixedCollection(Type collectionType, int size)
+        { return (IList)Activator.CreateInstance(collectionType, size); }
+
+        public IList CreateList(Type elementType)
+        {
+            var constructedListType = ListType.MakeGenericType(elementType);
+            return (IList)Activator.CreateInstance(constructedListType);
         }
     }
 }

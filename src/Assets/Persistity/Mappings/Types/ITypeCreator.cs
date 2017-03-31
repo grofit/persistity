@@ -7,5 +7,7 @@ namespace Persistity.Mappings.Types
     {
         Type LoadType(string partialName);
         IDictionary CreateDictionary(Type keyType, Type valueType);
+        IList CreateFixedCollection(Type collectionType, int size);
+        IList CreateList(Type elementType);
     }
 }

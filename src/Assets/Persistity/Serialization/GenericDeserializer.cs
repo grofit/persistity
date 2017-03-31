@@ -64,49 +64,37 @@ namespace Persistity.Serialization
 
             IList collectionInstance;
             if (mapping.IsArray)
-            {
-                collectionInstance = (IList)Activator.CreateInstance(mapping.Type, count);
-                
-            }
+            { collectionInstance = TypeCreator.CreateFixedCollection(mapping.Type, count); }
             else
-            {
-                var listType = typeof(List<>);
-                var constructedListType = listType.MakeGenericType(mapping.CollectionType);
-                collectionInstance = (IList)Activator.CreateInstance(constructedListType);
-            }
+            { collectionInstance = TypeCreator.CreateList(mapping.CollectionType); }
 
             mapping.SetValue(instance, collectionInstance);
 
             for (var i = 0; i < count; i++)
             {
-                if (IsObjectNull(state))
-                {
-                    if (collectionInstance.IsFixedSize)
-                    { collectionInstance[i] = null; }
-                    else
-                    { collectionInstance.Insert(i, null); }
-                }
-                else if (mapping.InternalMappings.Count > 0)
-                {
-                    var elementInstance = Activator.CreateInstance(mapping.CollectionType);
-                    Deserialize(mapping.InternalMappings, elementInstance, state);
+                var elementInstance = DeserializeCollectionElement(mapping, state);
 
-                    if (collectionInstance.IsFixedSize)
-                    { collectionInstance[i] = elementInstance; }
-                    else
-                    { collectionInstance.Insert(i, elementInstance); }
-                }
+                if (collectionInstance.IsFixedSize)
+                { collectionInstance[i] = elementInstance; }
                 else
-                {
-                    object value = null;
-                    if (!IsDataNull(state))
-                    { value = DeserializePrimitive(mapping.CollectionType, state); }
-                    if (collectionInstance.IsFixedSize)
-                    { collectionInstance[i] = value; }
-                    else
-                    { collectionInstance.Insert(i, value); }
-                }
+                { collectionInstance.Insert(i, elementInstance); }
+
             }
+        }
+
+        protected virtual object DeserializeCollectionElement(CollectionMapping mapping, TDeserializeState state)
+        {
+            if (IsObjectNull(state))
+            { return null; }
+
+            if (mapping.InternalMappings.Count > 0)
+            {
+                var elementInstance = Activator.CreateInstance(mapping.CollectionType);
+                Deserialize(mapping.InternalMappings, elementInstance, state);
+                return elementInstance;
+            }
+
+            return DeserializePrimitive(mapping.CollectionType, state);
         }
 
         protected virtual object DeserializePrimitive(Type type, TDeserializeState state)
