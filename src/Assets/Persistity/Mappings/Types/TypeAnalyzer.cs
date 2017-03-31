@@ -11,11 +11,9 @@ namespace Persistity.Mappings.Types
     public class TypeAnalyzer : ITypeAnalyzer
     {
         public TypeAnalyzerConfiguration Configuration { get; private set; }
-        public IDictionary<string, Type> TypeCache { get; private set; }
-
+        
         public TypeAnalyzer(TypeAnalyzerConfiguration configuration = null)
         {
-            TypeCache = new Dictionary<string, Type>();
             Configuration = configuration ?? TypeAnalyzerConfiguration.Default;
         }
 
@@ -78,20 +76,6 @@ namespace Persistity.Mappings.Types
             }
 
             return ShouldTreatAsPrimitiveType(type);
-        }
-
-        public Type LoadType(string partialName)
-        {
-            if (TypeCache.ContainsKey(partialName))
-            { return TypeCache[partialName]; }
-
-            var type = Type.GetType(partialName) ??
-            AppDomain.CurrentDomain.GetAssemblies()
-                    .Select(a => a.GetType(partialName))
-                    .FirstOrDefault(t => t != null);
-
-            TypeCache.Add(partialName, type);
-            return type;
         }
     }
 }

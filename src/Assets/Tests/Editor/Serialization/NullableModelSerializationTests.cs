@@ -16,10 +16,13 @@ namespace Tests.Editor.Serialization
     public class NullableModelSerializationTests
     {
         private IMappingRegistry _mappingRegistry;
+        private ITypeCreator _typeCreator;
 
         [SetUp]
         public void Setup()
         {
+            _typeCreator = new TypeCreator();
+
             var analyzer = new TypeAnalyzer();
             var mapper = new DefaultTypeMapper(analyzer);
             _mappingRegistry = new MappingRegistry(mapper);
@@ -45,7 +48,7 @@ namespace Tests.Editor.Serialization
             Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
-            var deserializer = new JsonDeserializer(_mappingRegistry);
+            var deserializer = new JsonDeserializer(_mappingRegistry, _typeCreator);
             var result = deserializer.Deserialize<NullableTypesModel>(output);
 
             SerializationTestHelper.AssertNullableModelData(model, result);
@@ -61,7 +64,7 @@ namespace Tests.Editor.Serialization
             Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
             Console.WriteLine(BitConverter.ToString(output.AsBytes));
 
-            var deserializer = new BinaryDeserializer(_mappingRegistry);
+            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
             var result = deserializer.Deserialize<NullableTypesModel>(output);
 
             SerializationTestHelper.AssertNullableModelData(model, result);
@@ -77,7 +80,7 @@ namespace Tests.Editor.Serialization
             Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
             Console.WriteLine(output.AsString);
 
-            var deserializer = new XmlDeserializer(_mappingRegistry);
+            var deserializer = new XmlDeserializer(_mappingRegistry, _typeCreator);
             var result = deserializer.Deserialize<NullableTypesModel>(output);
 
             SerializationTestHelper.AssertNullableModelData(model, result);

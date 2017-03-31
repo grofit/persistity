@@ -6,7 +6,7 @@ using Persistity.Exceptions;
 using Persistity.Mappings;
 using Persistity.Registries;
 
-namespace Persistity.Serialization.Binary
+namespace Persistity.Serialization
 {
     public abstract class GenericSerializer<TSerializeState, TDeserializeState> : ISerializer
     {
