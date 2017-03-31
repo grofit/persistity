@@ -61,13 +61,7 @@ namespace Persistity.Serialization
             }
 
             var count = GetCountFromState(state);
-
-            IList collectionInstance;
-            if (mapping.IsArray)
-            { collectionInstance = TypeCreator.CreateFixedCollection(mapping.Type, count); }
-            else
-            { collectionInstance = TypeCreator.CreateList(mapping.CollectionType); }
-
+            var collectionInstance = CreateCollectionFromMapping(mapping, count);
             mapping.SetValue(instance, collectionInstance);
 
             for (var i = 0; i < count; i++)
@@ -78,8 +72,15 @@ namespace Persistity.Serialization
                 { collectionInstance[i] = elementInstance; }
                 else
                 { collectionInstance.Insert(i, elementInstance); }
-
             }
+        }
+
+        protected IList CreateCollectionFromMapping(CollectionMapping mapping, int count)
+        {
+            if (mapping.IsArray)
+            { return TypeCreator.CreateFixedCollection(mapping.Type, count); }
+            
+            return TypeCreator.CreateList(mapping.CollectionType);
         }
 
         protected virtual object DeserializeCollectionElement(CollectionMapping mapping, TDeserializeState state)
