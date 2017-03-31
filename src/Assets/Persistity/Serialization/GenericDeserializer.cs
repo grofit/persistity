@@ -28,7 +28,15 @@ namespace Persistity.Serialization
         protected abstract int GetCountFromState(TDeserializeState state);
         protected abstract object DeserializeDefaultPrimitive(Type type, TDeserializeState state);
 
-        protected void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, TDeserializeState state)
+        protected IList CreateCollectionFromMapping(CollectionMapping mapping, int count)
+        {
+            if (mapping.IsArray)
+            { return TypeCreator.CreateFixedCollection(mapping.Type, count); }
+
+            return TypeCreator.CreateList(mapping.CollectionType);
+        }
+
+        protected virtual void DeserializeProperty<T>(PropertyMapping propertyMapping, T instance, TDeserializeState state)
         {
             if (IsDataNull(state))
             { propertyMapping.SetValue(instance, null); }
@@ -39,7 +47,7 @@ namespace Persistity.Serialization
             }
         }
 
-        protected void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, TDeserializeState state)
+        protected virtual void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, TDeserializeState state)
         {
             if (IsObjectNull(state))
             {
@@ -52,7 +60,7 @@ namespace Persistity.Serialization
             Deserialize(nestedMapping.InternalMappings, childInstance, state);
         }
 
-        protected void DeserializeCollection<T>(CollectionMapping mapping, T instance, TDeserializeState state)
+        protected virtual void DeserializeCollection<T>(CollectionMapping mapping, T instance, TDeserializeState state)
         {
             if (IsObjectNull(state))
             {
@@ -73,14 +81,6 @@ namespace Persistity.Serialization
                 else
                 { collectionInstance.Insert(i, elementInstance); }
             }
-        }
-
-        protected IList CreateCollectionFromMapping(CollectionMapping mapping, int count)
-        {
-            if (mapping.IsArray)
-            { return TypeCreator.CreateFixedCollection(mapping.Type, count); }
-            
-            return TypeCreator.CreateList(mapping.CollectionType);
         }
 
         protected virtual object DeserializeCollectionElement(CollectionMapping mapping, TDeserializeState state)
