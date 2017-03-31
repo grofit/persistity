@@ -144,43 +144,62 @@ namespace Persistity.Serialization
             mapping.SetValue(instance, dictionary);
 
             for (var i = 0; i < count; i++)
-            {
-                object keyInstance, valueInstance;
-                if (mapping.KeyMappings.Count > 0)
-                {
-                    keyInstance = Activator.CreateInstance(mapping.KeyType);
-                    Deserialize(mapping.KeyMappings, keyInstance, state);
-                }
-                else
-                { keyInstance = DeserializePrimitive(mapping.KeyType, state); }
-
-                if (IsDataNull(state))
-                { valueInstance = null; }
-                else if (mapping.ValueMappings.Count > 0)
-                {
-                    valueInstance = Activator.CreateInstance(mapping.ValueType);
-                    Deserialize(mapping.ValueMappings, valueInstance, state);
-                }
-                else
-                { valueInstance = DeserializePrimitive(mapping.ValueType, state); }
-
-                dictionary.Add(keyInstance, valueInstance);
-            }
+            { DeserializeDictionaryKeyValuePair(mapping, dictionary, state); }
         }
-        
-        public void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, TDeserializeState state)
+
+        protected virtual void DeserializeDictionaryKeyValuePair(DictionaryMapping mapping, IDictionary dictionary, TDeserializeState state)
+        {
+            var keyInstance = DeserializeDictionaryKey(mapping, state);
+            var valueInstance = DeserializeDictionaryValue(mapping, state);
+            dictionary.Add(keyInstance, valueInstance);
+        }
+
+        protected virtual object DeserializeDictionaryKey(DictionaryMapping mapping, TDeserializeState state)
+        {
+            if (IsDataNull(state))
+            { return null; }
+
+            if (mapping.KeyMappings.Count > 0)
+            {
+                var keyInstance = Activator.CreateInstance(mapping.KeyType);
+                Deserialize(mapping.KeyMappings, keyInstance, state);
+                return keyInstance;
+            }
+
+            return DeserializePrimitive(mapping.KeyType, state);
+        }
+
+        protected virtual object DeserializeDictionaryValue(DictionaryMapping mapping, TDeserializeState state)
+        {
+            if (IsDataNull(state))
+            { return null; }
+
+            if (mapping.ValueMappings.Count > 0)
+            {
+                var valueInstance = Activator.CreateInstance(mapping.ValueType);
+                Deserialize(mapping.ValueMappings, valueInstance, state);
+                return valueInstance;
+            }
+
+            return DeserializePrimitive(mapping.ValueType, state);
+        }
+
+        protected virtual void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, TDeserializeState state)
         {
             foreach (var mapping in mappings)
-            {
-                if (mapping is PropertyMapping)
-                { DeserializeProperty(mapping as PropertyMapping, instance, state); }
-                else if (mapping is NestedMapping)
-                { DeserializeNestedObject(mapping as NestedMapping, instance, state); }
-                else if (mapping is DictionaryMapping)
-                { DeserializeDictionary(mapping as DictionaryMapping, instance, state); }
-                else
-                { DeserializeCollection(mapping as CollectionMapping, instance, state); }
-            }
+            { DelegateMappingType(mapping, instance, state); }
+        }
+
+        protected virtual void DelegateMappingType<T>(Mapping mapping, T instance, TDeserializeState state)
+        {
+            if (mapping is PropertyMapping)
+            { DeserializeProperty((mapping as PropertyMapping), instance, state); }
+            else if (mapping is NestedMapping)
+            { DeserializeNestedObject((mapping as NestedMapping), instance, state); }
+            else if (mapping is DictionaryMapping)
+            { DeserializeDictionary(mapping as DictionaryMapping, instance, state); }
+            else
+            { DeserializeCollection((mapping as CollectionMapping), instance, state); }
         }
     }
 }
