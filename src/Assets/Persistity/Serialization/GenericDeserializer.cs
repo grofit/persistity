@@ -137,10 +137,8 @@ namespace Persistity.Serialization
                 return;
             }
 
-            var dictionarytype = typeof(Dictionary<,>);
             var count = GetCountFromState(state);
-            var constructedDictionaryType = dictionarytype.MakeGenericType(mapping.KeyType, mapping.ValueType);
-            var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+            var dictionary = MappingRegistry.TypeMapper.TypeAnalyzer.CreateDictionary(mapping.KeyType, mapping.ValueType);
             mapping.SetValue(instance, dictionary);
 
             for (var i = 0; i < count; i++)

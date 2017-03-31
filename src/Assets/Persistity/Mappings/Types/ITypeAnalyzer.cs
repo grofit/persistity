@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Reflection;
 
 namespace Persistity.Mappings.Types
@@ -17,5 +18,6 @@ namespace Persistity.Mappings.Types
         bool IsPrimitiveType(Type type);
 
         Type LoadType(string partialName);
+        IDictionary CreateDictionary(Type keyType, Type valueType);
     }
 }

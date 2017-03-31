@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
@@ -11,6 +12,8 @@ namespace Persistity.Mappings.Types
     public class TypeAnalyzer : ITypeAnalyzer
     {
         public TypeAnalyzerConfiguration Configuration { get; private set; }
+
+        protected readonly Type Dictionarytype = typeof(Dictionary<,>);
         public IDictionary<string, Type> TypeCache { get; private set; }
 
         public TypeAnalyzer(TypeAnalyzerConfiguration configuration = null)
@@ -92,6 +95,12 @@ namespace Persistity.Mappings.Types
 
             TypeCache.Add(partialName, type);
             return type;
+        }
+
+        public IDictionary CreateDictionary(Type keyType, Type valueType)
+        {
+            var constructedDictionaryType = Dictionarytype.MakeGenericType(keyType, valueType);
+            return (IDictionary)Activator.CreateInstance(constructedDictionaryType);
         }
     }
 }
