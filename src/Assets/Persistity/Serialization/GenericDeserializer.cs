@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Persistity.Mappings;
+using Persistity.Mappings.Types;
 using Persistity.Registries;
 
 namespace Persistity.Serialization
@@ -10,11 +11,13 @@ namespace Persistity.Serialization
     public abstract class GenericDeserializer<TSerializeState, TDeserializeState> : IDeserializer
     {
         public IMappingRegistry MappingRegistry { get; private set; }
+        public ITypeCreator TypeCreator { get; private set; }
         public SerializationConfiguration<TSerializeState, TDeserializeState> Configuration { get; protected set; }
 
-        protected GenericDeserializer(IMappingRegistry mappingRegistry, SerializationConfiguration<TSerializeState, TDeserializeState> configuration = null)
+        protected GenericDeserializer(IMappingRegistry mappingRegistry, ITypeCreator typeCreator, SerializationConfiguration<TSerializeState, TDeserializeState> configuration = null)
         {
             MappingRegistry = mappingRegistry;
+            TypeCreator = typeCreator;
             Configuration = configuration ?? SerializationConfiguration<TSerializeState, TDeserializeState>.Default;
         }
 
@@ -138,7 +141,7 @@ namespace Persistity.Serialization
             }
 
             var count = GetCountFromState(state);
-            var dictionary = MappingRegistry.TypeMapper.TypeAnalyzer.CreateDictionary(mapping.KeyType, mapping.ValueType);
+            var dictionary = TypeCreator.CreateDictionary(mapping.KeyType, mapping.ValueType);
             mapping.SetValue(instance, dictionary);
 
             for (var i = 0; i < count; i++)

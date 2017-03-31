@@ -22,10 +22,13 @@ namespace Tests.Editor
     public class EndToEndSanityTests
     {
         private IMappingRegistry _mappingRegistry;
+        private ITypeCreator _typeCreator;
 
         [SetUp]
         public void Setup()
         {
+            _typeCreator = new TypeCreator();
+
             var typeAnalyzer = new TypeAnalyzer();
             var typeMapper = new DefaultTypeMapper(typeAnalyzer);
             _mappingRegistry = new MappingRegistry(typeMapper);
@@ -79,7 +82,7 @@ namespace Tests.Editor
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
             
             var serializer = new BinarySerializer(_mappingRegistry);
-            var deserializer = new BinaryDeserializer(_mappingRegistry);
+            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
             var encryptor = new AesEncryptor("dummy-password-123");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
             var decryptionProcessor = new DecryptDataProcessor(encryptor);

@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using Persistity.Mappings.Types;
 using Persistity.Registries;
 using UnityEngine;
 
@@ -7,7 +8,7 @@ namespace Persistity.Serialization.Binary
 {
     public class BinaryDeserializer : GenericDeserializer<BinaryWriter, BinaryReader>
     {
-        public BinaryDeserializer(IMappingRegistry mappingRegistry, BinaryConfiguration configuration = null) : base(mappingRegistry)
+        public BinaryDeserializer(IMappingRegistry mappingRegistry, ITypeCreator typeCreator, BinaryConfiguration configuration = null) : base(mappingRegistry, typeCreator)
         {
             Configuration = configuration ?? BinaryConfiguration.Default;
         }
@@ -110,7 +111,7 @@ namespace Persistity.Serialization.Binary
             using (var reader = new BinaryReader(memoryStream))
             {
                 var typeName = reader.ReadString();
-                var type = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(typeName);
+                var type = TypeCreator.LoadType(typeName);
                 var typeMapping = MappingRegistry.GetMappingFor(type);
                 var instance = Activator.CreateInstance(type);
                 Deserialize(typeMapping.InternalMappings, instance, reader);

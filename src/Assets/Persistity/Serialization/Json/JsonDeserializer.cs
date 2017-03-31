@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Persistity.Json;
 using Persistity.Mappings;
+using Persistity.Mappings.Types;
 using Persistity.Registries;
 using UnityEngine;
 
@@ -12,11 +13,13 @@ namespace Persistity.Serialization.Json
     public class JsonDeserializer : IJsonDeserializer
     {
         public IMappingRegistry MappingRegistry { get; private set; }
+        public ITypeCreator TypeCreator { get; set; }
         public JsonConfiguration Configuration { get; private set; }
 
-        public JsonDeserializer(IMappingRegistry mappingRegistry, JsonConfiguration configuration = null)
+        public JsonDeserializer(IMappingRegistry mappingRegistry, ITypeCreator typeCreator, JsonConfiguration configuration = null)
         {
             MappingRegistry = mappingRegistry;
+            TypeCreator = typeCreator;
             Configuration = configuration ?? JsonConfiguration.Default;
         }
 
@@ -76,7 +79,7 @@ namespace Persistity.Serialization.Json
         {
             var jsonData = JSON.Parse(data.AsString);
             var typeName = jsonData[JsonSerializer.TypeField].Value;
-            var type = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(typeName);
+            var type = TypeCreator.LoadType(typeName);
             var typeMapping = MappingRegistry.GetMappingFor(type);
             var instance = Activator.CreateInstance(type);
             
@@ -97,7 +100,7 @@ namespace Persistity.Serialization.Json
                 if (collectionMapping.IsElementDynamicType)
                 {
                     var jsonType = currentElementNode[JsonSerializer.TypeField];
-                    typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
+                    typeToUse = TypeCreator.LoadType(jsonType.Value);
                     currentElementNode = currentElementNode[JsonSerializer.DataField];
 
                     if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
@@ -150,7 +153,7 @@ namespace Persistity.Serialization.Json
                 {
                     var jsonType = jsonKey[JsonSerializer.TypeField];
                     var jsonData = jsonKey[JsonSerializer.DataField];
-                    var typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
+                    var typeToUse = TypeCreator.LoadType(jsonType.Value);
 
                     if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse))
                     { currentKey = DeserializePrimitive(typeToUse, jsonData); }
@@ -179,7 +182,7 @@ namespace Persistity.Serialization.Json
                     var jsonType = jsonValue[JsonSerializer.TypeField];
                     var jsonData = jsonValue[JsonSerializer.DataField];
 
-                    var typeToUse = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonType.Value);
+                    var typeToUse = TypeCreator.LoadType(jsonType.Value);
 
                     if (IsNullNode(jsonData))
                     { currentValue = null; }
@@ -245,7 +248,7 @@ namespace Persistity.Serialization.Json
             
             var jsonDynamicType = jsonData[JsonSerializer.TypeField];
             var jsonDynamicData = jsonData[JsonSerializer.DataField];
-            var instanceType = MappingRegistry.TypeMapper.TypeAnalyzer.LoadType(jsonDynamicType.Value);
+            var instanceType = TypeCreator.LoadType(jsonDynamicType.Value);
             if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(instanceType))
             {
                 var primitiveValue = DeserializePrimitive(instanceType, jsonDynamicData);

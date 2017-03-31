@@ -113,8 +113,10 @@
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\Types\ITypeAnalyzer.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\ITypeCreator.cs" />
     <Compile Include="Assets\Persistity\Mappings\Types\MappingConfiguration.cs" />
     <Compile Include="Assets\Persistity\Mappings\Types\TypeAnalyzer.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\TypeCreator.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\PipelineBuilder.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\ReceivePipelineBuilder.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\SendPipelineBuilder.cs" />
