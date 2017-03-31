@@ -18,12 +18,6 @@ namespace Persistity.Serialization.Json
             Configuration = configuration ?? JsonConfiguration.Default;
         }
 
-        private readonly Type[] CatchmentTypes =
-        {
-            typeof(bool), typeof(byte), typeof(short), typeof(int),
-            typeof(long), typeof(Guid), typeof(float), typeof(double), typeof(decimal)
-        };
-
         protected override bool IsDataNull(JToken state)
         {
             if(state == null) { return true; }
@@ -53,17 +47,7 @@ namespace Persistity.Serialization.Json
             if (type == typeof(Quaternion))
             { return new Quaternion(state["x"].ToObject<float>(), state["y"].ToObject<float>(), state["z"].ToObject<float>(), state["w"].ToObject<float>()); }
 
-            if(type == typeof(bool)) { return (bool)state; }
-            if(type == typeof(byte)) { return (byte)state; }
-            if(type == typeof(short)) { return (short)state; }
-            if(type == typeof(int)) { return (int)state; }
-            if(type == typeof(long)) { return (long)state; }
-            if(type == typeof(Guid)) { return (Guid)state; }
-            if(type == typeof(float)) { return (float)state; }
-            if(type == typeof(double)) { return (double)state; }
-            if(type == typeof(decimal)) { return (decimal)state; }
-
-            return state.ToString();
+            return state.ToObject(type);
         }
         
         public override T Deserialize<T>(DataObject data)
