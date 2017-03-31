@@ -36,8 +36,44 @@ namespace Persistity.Serialization
             }
         }
 
-        protected void DeserializeCollection(CollectionMapping collectionMapping, IList collectionInstance, int count, TDeserializeState state)
+        protected void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, TDeserializeState state)
         {
+            if (IsObjectNull(state))
+            {
+                nestedMapping.SetValue(instance, null);
+                return;
+            }
+
+            var childInstance = Activator.CreateInstance(nestedMapping.Type);
+            nestedMapping.SetValue(instance, childInstance);
+            Deserialize(nestedMapping.InternalMappings, childInstance, state);
+        }
+
+        protected void DeserializeCollection<T>(CollectionMapping mapping, T instance, TDeserializeState state)
+        {
+            if (IsObjectNull(state))
+            {
+                mapping.SetValue(instance, null);
+                return;
+            }
+
+            var count = GetCountFromState(state);
+
+            IList collectionInstance;
+            if (mapping.IsArray)
+            {
+                collectionInstance = (IList)Activator.CreateInstance(mapping.Type, count);
+                
+            }
+            else
+            {
+                var listType = typeof(List<>);
+                var constructedListType = listType.MakeGenericType(mapping.CollectionType);
+                collectionInstance = (IList)Activator.CreateInstance(constructedListType);
+            }
+
+            mapping.SetValue(instance, collectionInstance);
+
             for (var i = 0; i < count; i++)
             {
                 if (IsObjectNull(state))
@@ -47,10 +83,10 @@ namespace Persistity.Serialization
                     else
                     { collectionInstance.Insert(i, null); }
                 }
-                else if (collectionMapping.InternalMappings.Count > 0)
+                else if (mapping.InternalMappings.Count > 0)
                 {
-                    var elementInstance = Activator.CreateInstance(collectionMapping.CollectionType);
-                    Deserialize(collectionMapping.InternalMappings, elementInstance, state);
+                    var elementInstance = Activator.CreateInstance(mapping.CollectionType);
+                    Deserialize(mapping.InternalMappings, elementInstance, state);
 
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = elementInstance; }
@@ -61,7 +97,7 @@ namespace Persistity.Serialization
                 {
                     object value = null;
                     if (!IsDataNull(state))
-                    { value = DeserializePrimitive(collectionMapping.CollectionType, state); }
+                    { value = DeserializePrimitive(mapping.CollectionType, state); }
                     if (collectionInstance.IsFixedSize)
                     { collectionInstance[i] = value; }
                     else
@@ -93,97 +129,57 @@ namespace Persistity.Serialization
             throw new Exception("Type is not primitive or known, cannot deserialize " + type);
         }
 
-        protected virtual void DeserializeDictionary(DictionaryMapping dictionaryMapping, IDictionary dictionaryInstance, int count, TDeserializeState state)
+        protected virtual void DeserializeDictionary<T>(DictionaryMapping mapping, T instance, TDeserializeState state)
         {
+            if (IsObjectNull(state))
+            {
+                mapping.SetValue(instance, null);
+                return;
+            }
+
+            var dictionarytype = typeof(Dictionary<,>);
+            var count = GetCountFromState(state);
+            var constructedDictionaryType = dictionarytype.MakeGenericType(mapping.KeyType, mapping.ValueType);
+            var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
+            mapping.SetValue(instance, dictionary);
+
             for (var i = 0; i < count; i++)
             {
                 object keyInstance, valueInstance;
-                if (dictionaryMapping.KeyMappings.Count > 0)
+                if (mapping.KeyMappings.Count > 0)
                 {
-                    keyInstance = Activator.CreateInstance(dictionaryMapping.KeyType);
-                    Deserialize(dictionaryMapping.KeyMappings, keyInstance, state);
+                    keyInstance = Activator.CreateInstance(mapping.KeyType);
+                    Deserialize(mapping.KeyMappings, keyInstance, state);
                 }
                 else
-                { keyInstance = DeserializePrimitive(dictionaryMapping.KeyType, state); }
+                { keyInstance = DeserializePrimitive(mapping.KeyType, state); }
 
                 if (IsDataNull(state))
                 { valueInstance = null; }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
+                else if (mapping.ValueMappings.Count > 0)
                 {
-                    valueInstance = Activator.CreateInstance(dictionaryMapping.ValueType);
-                    Deserialize(dictionaryMapping.ValueMappings, valueInstance, state);
+                    valueInstance = Activator.CreateInstance(mapping.ValueType);
+                    Deserialize(mapping.ValueMappings, valueInstance, state);
                 }
                 else
-                { valueInstance = DeserializePrimitive(dictionaryMapping.ValueType, state); }
+                { valueInstance = DeserializePrimitive(mapping.ValueType, state); }
 
-                dictionaryInstance.Add(keyInstance, valueInstance);
+                dictionary.Add(keyInstance, valueInstance);
             }
         }
-
-        protected void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, TDeserializeState state)
-        { Deserialize(nestedMapping.InternalMappings, instance, state); }
-
+        
         public void Deserialize<T>(IEnumerable<Mapping> mappings, T instance, TDeserializeState state)
         {
             foreach (var mapping in mappings)
             {
                 if (mapping is PropertyMapping)
-                { DeserializeProperty((mapping as PropertyMapping), instance, state); }
+                { DeserializeProperty(mapping as PropertyMapping, instance, state); }
                 else if (mapping is NestedMapping)
-                {
-                    var nestedMapping = (mapping as NestedMapping);
-                    if (IsObjectNull(state))
-                    {
-                        nestedMapping.SetValue(instance, null);
-                        continue;
-                    }
-
-                    var childInstance = Activator.CreateInstance(nestedMapping.Type);
-                    DeserializeNestedObject(nestedMapping, childInstance, state);
-                    nestedMapping.SetValue(instance, childInstance);
-                }
+                { DeserializeNestedObject(mapping as NestedMapping, instance, state); }
                 else if (mapping is DictionaryMapping)
-                {
-                    var dictionaryMapping = (mapping as DictionaryMapping);
-                    if (IsObjectNull(state))
-                    {
-                        dictionaryMapping.SetValue(instance, null);
-                        continue;
-                    }
-
-                    var dictionarytype = typeof(Dictionary<,>);
-                    var dictionaryCount = GetCountFromState(state);
-                    var constructedDictionaryType = dictionarytype.MakeGenericType(dictionaryMapping.KeyType, dictionaryMapping.ValueType);
-                    var dictionary = (IDictionary)Activator.CreateInstance(constructedDictionaryType);
-                    DeserializeDictionary(dictionaryMapping, dictionary, dictionaryCount, state);
-                    dictionaryMapping.SetValue(instance, dictionary);
-                }
+                { DeserializeDictionary(mapping as DictionaryMapping, instance, state); }
                 else
-                {
-                    var collectionMapping = (mapping as CollectionMapping);
-                    if (IsObjectNull(state))
-                    {
-                        collectionMapping.SetValue(instance, null);
-                        continue;
-                    }
-
-                    var arrayCount = GetCountFromState(state);
-
-                    if (collectionMapping.IsArray)
-                    {
-                        var arrayInstance = (IList)Activator.CreateInstance(collectionMapping.Type, arrayCount);
-                        DeserializeCollection(collectionMapping, arrayInstance, arrayCount, state);
-                        collectionMapping.SetValue(instance, arrayInstance);
-                    }
-                    else
-                    {
-                        var listType = typeof(List<>);
-                        var constructedListType = listType.MakeGenericType(collectionMapping.CollectionType);
-                        var listInstance = (IList)Activator.CreateInstance(constructedListType);
-                        DeserializeCollection(collectionMapping, listInstance, arrayCount, state);
-                        collectionMapping.SetValue(instance, listInstance);
-                    }
-                }
+                { DeserializeCollection(mapping as CollectionMapping, instance, state); }
             }
         }
     }
