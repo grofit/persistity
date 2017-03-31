@@ -27,6 +27,7 @@ namespace Tests.Editor.Serialization
         }
         
         [Test]
+        [Ignore]
         public void should_correctly_serialize_dynamic_data_with_json()
         {
             var model = SerializationTestHelper.GenerateDynamicTypesModel();
