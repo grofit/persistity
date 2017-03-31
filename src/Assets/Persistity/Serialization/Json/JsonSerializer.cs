@@ -5,14 +5,11 @@ using Newtonsoft.Json.Linq;
 using Persistity.Extensions;
 using Persistity.Mappings;
 using Persistity.Registries;
-using Persistity.Serialization.Binary;
-using Persistity.Serialization.Xml;
 using UnityEngine;
 
 namespace Persistity.Serialization.Json
 {
-   
-    public class JsonSerializer : GenericSerializer<JContainer, JContainer>, IXmlSerializer
+   public class JsonSerializer : GenericSerializer<JToken, JToken>, IJsonSerializer
     {
         public const string TypeField = "Type";
         public const string DataField = "Data";
@@ -21,7 +18,7 @@ namespace Persistity.Serialization.Json
 
         public JsonSerializer(IMappingRegistry mappingRegistry, JsonConfiguration configuration = null) : base(mappingRegistry)
         {
-            //Configuration = configuration ?? XmlConfiguration.Default;
+            Configuration = configuration ?? JsonConfiguration.Default;
         }
 
         private readonly Type[] CatchmentTypes =
@@ -30,16 +27,16 @@ namespace Persistity.Serialization.Json
             typeof(long), typeof(Guid), typeof(float), typeof(double), typeof(decimal)
         };
 
-        protected override void HandleNullData(JContainer state)
+        protected override void HandleNullData(JToken state)
         { state.Replace(JValue.CreateNull()); }
 
-        protected override void HandleNullObject(JContainer state)
+        protected override void HandleNullObject(JToken state)
         { HandleNullData(state); }
 
-        protected override void AddCountToState(JContainer state, int count)
+        protected override void AddCountToState(JToken state, int count)
         { }
 
-        protected override void SerializeDefaultPrimitive(object value, Type type, JContainer element)
+        protected override void SerializeDefaultPrimitive(object value, Type type, JToken element)
         {
             if (type == typeof(Vector2))
             {
@@ -110,7 +107,7 @@ namespace Persistity.Serialization.Json
             return new DataObject(xmlString);
         }
 
-        protected override void Serialize<T>(IEnumerable<Mapping> mappings, T data, JContainer state)
+        protected override void Serialize<T>(IEnumerable<Mapping> mappings, T data, JToken state)
         {
             foreach (var mapping in mappings)
             {
@@ -121,7 +118,7 @@ namespace Persistity.Serialization.Json
             }
         }
 
-        protected override void SerializeCollection<T>(CollectionMapping collectionMapping, T data, JContainer state)
+        protected override void SerializeCollection<T>(CollectionMapping collectionMapping, T data, JToken state)
         {
             var objectValue = AttemptGetValue(collectionMapping, data, state);
             if (objectValue == null) { return; }
@@ -138,7 +135,7 @@ namespace Persistity.Serialization.Json
             }
         }
         
-        protected override void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, JContainer state)
+        protected override void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, JToken state)
         {
             var objectValue = AttemptGetValue(dictionaryMapping, data, state);
             if (objectValue == null) { return; }
@@ -154,7 +151,7 @@ namespace Persistity.Serialization.Json
             }
         }
         
-        protected override void SerializeDictionaryKeyValuePair(DictionaryMapping dictionaryMapping, IDictionary dictionary, object key, JContainer state)
+        protected override void SerializeDictionaryKeyValuePair(DictionaryMapping dictionaryMapping, IDictionary dictionary, object key, JToken state)
         {
             var keyElement = new JObject();
             var valueElement = new JObject();

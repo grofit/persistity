@@ -1,8 +1,8 @@
-﻿using Persistity.Json;
+﻿using Newtonsoft.Json.Linq;
 
 namespace Persistity.Serialization.Json
 {
-    public class JsonConfiguration : SerializationConfiguration<JSONLazyNode, JSONNode>
+    public class JsonConfiguration : SerializationConfiguration<JToken, JToken>
     {
         public static JsonConfiguration Default
         {
@@ -10,7 +10,7 @@ namespace Persistity.Serialization.Json
             {
                 return new JsonConfiguration
                 {
-                    TypeHandlers = new ITypeHandler<JSONLazyNode, JSONNode>[0]
+                    TypeHandlers = new ITypeHandler<JToken, JToken>[0]
                 };
             }
         }
