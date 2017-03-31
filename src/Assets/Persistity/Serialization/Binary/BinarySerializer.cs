@@ -16,16 +16,16 @@ namespace Persistity.Serialization.Binary
             Configuration = configuration ?? BinaryConfiguration.Default;
         }
 
-        public override void HandleNullData(BinaryWriter state)
+        protected override void HandleNullData(BinaryWriter state)
         { state.Write(NullDataSig); }
 
-        public override void HandleNullObject(BinaryWriter state)
+        protected override void HandleNullObject(BinaryWriter state)
         { state.Write(NullObjectSig); }
 
-        public override void AddCountToState(BinaryWriter state, int count)
+        protected override void AddCountToState(BinaryWriter state, int count)
         { state.Write(count); }
 
-        public override void SerializeDefaultPrimitive(object value, Type type, BinaryWriter writer)
+        protected override void SerializeDefaultPrimitive(object value, Type type, BinaryWriter writer)
         {
             if (type == typeof(byte)) { writer.Write((byte)value); }
             else if (type == typeof(short)) { writer.Write((short)value); }

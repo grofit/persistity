@@ -1,6 +1,9 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Xml.Linq;
 using Persistity.Extensions;
+using Persistity.Mappings;
 using Persistity.Registries;
 using Persistity.Serialization.Binary;
 using UnityEngine;
@@ -20,16 +23,16 @@ namespace Persistity.Serialization.Xml
             typeof(long), typeof(Guid), typeof(float), typeof(double), typeof(decimal)
         };
 
-        public override void HandleNullData(XElement state)
+        protected override void HandleNullData(XElement state)
         { state.Add(new XAttribute("IsNull", true)); }
 
-        public override void HandleNullObject(XElement state)
-        { state.Add(new XAttribute("IsNull", true)); }
+        protected override void HandleNullObject(XElement state)
+        { HandleNullData(state); }
 
-        public override void AddCountToState(XElement state, int count)
+        protected override void AddCountToState(XElement state, int count)
         { state.Add(new XAttribute("Count", count)); }
-        
-        public override void SerializeDefaultPrimitive(object value, Type type, XElement element)
+
+        protected override void SerializeDefaultPrimitive(object value, Type type, XElement element)
         {
             if (type == typeof(Vector2))
             {
@@ -91,6 +94,43 @@ namespace Persistity.Serialization.Xml
             
             var xmlString = element.ToString();
             return new DataObject(xmlString);
+        }
+
+        protected override void Serialize<T>(IEnumerable<Mapping> mappings, T data, XElement state)
+        {
+            foreach (var mapping in mappings)
+            {
+                var newElement = new XElement(mapping.LocalName);
+                state.Add(newElement);
+
+                DelegateMappingType(mapping, data, newElement);
+            }
+        }
+
+        protected override void SerializeCollectionElement<T>(CollectionMapping collectionMapping, T element, XElement state)
+        {
+            var newElement = new XElement("CollectionElement");
+            state.Add(newElement);
+
+            if (element == null)
+            { HandleNullObject(newElement); }
+            else if (collectionMapping.InternalMappings.Count > 0)
+            { Serialize(collectionMapping.InternalMappings, element, newElement); }
+            else
+            { SerializePrimitive(element, collectionMapping.CollectionType, newElement); }
+        }
+
+        protected override void SerializeDictionaryKeyValuePair(DictionaryMapping dictionaryMapping, IDictionary dictionary, object key, XElement state)
+        {
+            var keyElement = new XElement("Key");
+            SerializeDictionaryKey(dictionaryMapping, key, keyElement);
+
+            var valueElement = new XElement("Value");
+            SerializeDictionaryValue(dictionaryMapping, dictionary[key], valueElement);
+
+            var keyValuePairElement = new XElement("KeyValuePair");
+            keyValuePairElement.Add(keyElement, valueElement);
+            state.Add(keyValuePairElement);
         }
     }
 }

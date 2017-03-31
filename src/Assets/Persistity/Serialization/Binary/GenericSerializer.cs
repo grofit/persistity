@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Persistity.Exceptions;
@@ -18,13 +19,49 @@ namespace Persistity.Serialization.Binary
             Configuration = configuration ?? SerializationConfiguration<TSerializeState, TDeserializeState>.Default;
         }
 
-        public abstract void HandleNullData(TSerializeState state);
-        public abstract void HandleNullObject(TSerializeState state);
-        public abstract void AddCountToState(TSerializeState state, int count);
-        public abstract void SerializeDefaultPrimitive(object value, Type type, TSerializeState state);
         public abstract DataObject Serialize(object data);
 
-        public void SerializePrimitive(object value, Type type, TSerializeState state)
+        protected abstract void HandleNullData(TSerializeState state);
+        protected abstract void HandleNullObject(TSerializeState state);
+        protected abstract void AddCountToState(TSerializeState state, int count);
+        protected abstract void SerializeDefaultPrimitive(object value, Type type, TSerializeState state);
+
+        protected object AttemptGetValue<T>(Mapping mapping, T data, TSerializeState state, bool isObject = true)
+        {
+            if (data == null)
+            {
+                if(isObject)
+                { HandleNullObject(state); }
+                else
+                { HandleNullData(state); }
+
+                return null;
+            }
+
+            object outputValue = null;
+
+            if (mapping is DictionaryMapping)
+            { outputValue = (mapping as DictionaryMapping).GetValue(data); }
+            else if (mapping is CollectionMapping)
+            { outputValue = (mapping as CollectionMapping).GetValue(data); }
+            else if (mapping is PropertyMapping)
+            { outputValue = (mapping as PropertyMapping).GetValue(data); }
+            else if (mapping is NestedMapping)
+            { outputValue = (mapping as NestedMapping).GetValue(data); }
+
+            if (outputValue == null)
+            {
+                if (isObject)
+                { HandleNullObject(state); }
+                else
+                { HandleNullData(state); }
+                return null;
+            }
+
+            return outputValue;
+        }
+
+        protected virtual void SerializePrimitive(object value, Type type, TSerializeState state)
         {
             if (value == null)
             {
@@ -52,122 +89,95 @@ namespace Persistity.Serialization.Binary
             matchingHandler.HandleTypeSerialization(state, value);
         }
 
-        public void SerializeProperty<T>(PropertyMapping propertyMapping, T data, TSerializeState state)
+        protected virtual void SerializeProperty<T>(PropertyMapping propertyMapping, T data, TSerializeState state)
         {
-            if (data == null)
-            {
-                HandleNullData(state);
-                return;
-            }
-
-            var underlyingValue = propertyMapping.GetValue(data);
-
-            if (underlyingValue == null)
-            {
-                HandleNullData(state);
-                return;
-            }
-
+            var underlyingValue = AttemptGetValue(propertyMapping, data, state, false);
+            if (underlyingValue == null) { return; }
             SerializePrimitive(underlyingValue, propertyMapping.Type, state);
         }
 
-        public void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, TSerializeState state)
+        protected virtual void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, TSerializeState state)
         {
-            if (data == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
-
-            var currentData = nestedMapping.GetValue(data);
-
-            if (currentData == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
-
+            var currentData = AttemptGetValue(nestedMapping, data, state);
+            if (currentData == null) { return; }
             Serialize(nestedMapping.InternalMappings, currentData, state);
         }
-        
-        public void SerializeCollection<T>(CollectionMapping collectionMapping, T data, TSerializeState state)
+
+        protected virtual void SerializeCollection<T>(CollectionMapping collectionMapping, T data, TSerializeState state)
         {
-            if (data == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
-
-            var collectionValue = collectionMapping.GetValue(data);
-
-            if (collectionValue == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
+            var objectValue = AttemptGetValue(collectionMapping, data, state);
+            if (objectValue == null) { return; }
+            var collectionValue = (objectValue as IList);
 
             AddCountToState(state, collectionValue.Count);
             for (var i = 0; i < collectionValue.Count; i++)
             {
-                var currentData = collectionValue[i];
-                if (currentData == null)
-                { HandleNullObject(state); }
-                else if (collectionMapping.InternalMappings.Count > 0)
-                { Serialize(collectionMapping.InternalMappings, currentData, state); }
-                else
-                { SerializePrimitive(currentData, collectionMapping.CollectionType, state); }
+                var element = collectionValue[i];
+                SerializeCollectionElement(collectionMapping, element, state);
             }
         }
 
-        public void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, TSerializeState state)
+        protected virtual void SerializeCollectionElement<T>(CollectionMapping collectionMapping, T element, TSerializeState state)
         {
-            if (data == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
+            if (element == null)
+            { HandleNullObject(state); }
+            else if (collectionMapping.InternalMappings.Count > 0)
+            { Serialize(collectionMapping.InternalMappings, element, state); }
+            else
+            { SerializePrimitive(element, collectionMapping.CollectionType, state); }
+        }
 
-            var dictionaryValue = dictionaryMapping.GetValue(data);
-
-            if (dictionaryValue == null)
-            {
-                HandleNullObject(state);
-                return;
-            }
+        protected virtual void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, TSerializeState state)
+        {
+            var objectValue = AttemptGetValue(dictionaryMapping, data, state);
+            if(objectValue == null) { return; }
+            var dictionaryValue = (objectValue as IDictionary);
 
             AddCountToState(state, dictionaryValue.Count);
-
             foreach (var key in dictionaryValue.Keys)
-            {
-                var currentValue = dictionaryValue[key];
-
-                if (dictionaryMapping.KeyMappings.Count > 0)
-                { Serialize(dictionaryMapping.KeyMappings, key, state); }
-                else
-                { SerializePrimitive(key, dictionaryMapping.KeyType, state); }
-
-                if (currentValue == null)
-                { HandleNullData(state); }
-                else if (dictionaryMapping.ValueMappings.Count > 0)
-                { Serialize(dictionaryMapping.ValueMappings, currentValue, state); }
-                else
-                { SerializePrimitive(currentValue, dictionaryMapping.ValueType, state); }
-            }
+            { SerializeDictionaryKeyValuePair(dictionaryMapping, dictionaryValue, key, state); }
         }
 
-        public void Serialize<T>(IEnumerable<Mapping> mappings, T data, TSerializeState state)
+        protected virtual void SerializeDictionaryKeyValuePair(DictionaryMapping dictionaryMapping, IDictionary dictionary, object key, TSerializeState state)
+        {
+            SerializeDictionaryKey(dictionaryMapping, key, state);
+            SerializeDictionaryValue(dictionaryMapping, dictionary[key], state);
+        }
+
+        protected virtual void SerializeDictionaryKey(DictionaryMapping dictionaryMapping, object key, TSerializeState state)
+        {
+            if (dictionaryMapping.KeyMappings.Count > 0)
+            { Serialize(dictionaryMapping.KeyMappings, key, state); }
+            else
+            { SerializePrimitive(key, dictionaryMapping.KeyType, state); }
+        }
+
+        protected virtual void SerializeDictionaryValue(DictionaryMapping dictionaryMapping, object value, TSerializeState state)
+        {
+            if (value == null)
+            { HandleNullData(state); }
+            else if (dictionaryMapping.ValueMappings.Count > 0)
+            { Serialize(dictionaryMapping.ValueMappings, value, state); }
+            else
+            { SerializePrimitive(value, dictionaryMapping.ValueType, state); }
+        }
+
+        protected virtual void Serialize<T>(IEnumerable<Mapping> mappings, T data, TSerializeState state)
         {
             foreach (var mapping in mappings)
-            {
-                if (mapping is PropertyMapping)
-                { SerializeProperty((mapping as PropertyMapping), data, state); }
-                else if (mapping is NestedMapping)
-                { SerializeNestedObject((mapping as NestedMapping), data, state); }
-                else if(mapping is DictionaryMapping)
-                { SerializeDictionary(mapping as DictionaryMapping, data, state);}
-                else
-                { SerializeCollection((mapping as CollectionMapping), data, state); }
-            }
+            { DelegateMappingType(mapping, data, state); }
+        }
+
+        protected virtual void DelegateMappingType<T>(Mapping mapping, T data, TSerializeState state)
+        {
+            if (mapping is PropertyMapping)
+            { SerializeProperty((mapping as PropertyMapping), data, state); }
+            else if (mapping is NestedMapping)
+            { SerializeNestedObject((mapping as NestedMapping), data, state); }
+            else if (mapping is DictionaryMapping)
+            { SerializeDictionary(mapping as DictionaryMapping, data, state); }
+            else
+            { SerializeCollection((mapping as CollectionMapping), data, state); }
         }
     }
 }
