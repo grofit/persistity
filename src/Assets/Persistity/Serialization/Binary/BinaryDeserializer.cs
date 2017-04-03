@@ -121,5 +121,11 @@ namespace Persistity.Serialization.Binary
 
         public override T Deserialize<T>(DataObject data)
         { return (T)Deserialize(data); }
+
+        protected override string GetDynamicTypeNameFromState(BinaryReader state)
+        { return state.ReadString(); }
+
+        protected override BinaryReader GetDynamicTypeDataFromState(BinaryReader state)
+        { return state; }
     }
 }

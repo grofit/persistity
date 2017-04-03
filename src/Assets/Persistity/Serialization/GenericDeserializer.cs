@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Cryptography;
 using Persistity.Mappings;
 using Persistity.Mappings.Types;
 using Persistity.Registries;
@@ -28,6 +29,9 @@ namespace Persistity.Serialization
         protected abstract int GetCountFromState(TDeserializeState state);
         protected abstract object DeserializeDefaultPrimitive(Type type, TDeserializeState state);
 
+        protected abstract string GetDynamicTypeNameFromState(TDeserializeState state);
+        protected abstract TDeserializeState GetDynamicTypeDataFromState(TDeserializeState state);
+
         protected IList CreateCollectionFromMapping(CollectionMapping mapping, int count)
         {
             if (mapping.IsArray)
@@ -47,6 +51,22 @@ namespace Persistity.Serialization
             }
         }
 
+        protected virtual object DeserializeDynamicTypeData(TDeserializeState state)
+        {
+            var dynamicTypeName = GetDynamicTypeNameFromState(state);
+            var instanceType = TypeCreator.LoadType(dynamicTypeName);
+            var dataState = GetDynamicTypeDataFromState(state);
+
+            if (MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(instanceType))
+            { return DeserializePrimitive(instanceType, dataState); }
+
+            var instance = TypeCreator.Instantiate(instanceType);
+            var typeMapping = MappingRegistry.GetMappingFor(instanceType);
+            Deserialize(typeMapping.InternalMappings, instance, dataState);
+
+            return instance;
+        }
+
         protected virtual void DeserializeNestedObject<T>(NestedMapping nestedMapping, T instance, TDeserializeState state)
         {
             if (IsObjectNull(state))
@@ -55,7 +75,14 @@ namespace Persistity.Serialization
                 return;
             }
 
-            var childInstance = Activator.CreateInstance(nestedMapping.Type);
+            if (nestedMapping.IsDynamicType)
+            {
+                var dynamicInstance = DeserializeDynamicTypeData(state);
+                nestedMapping.SetValue(instance, dynamicInstance);
+                return;
+            }
+
+            var childInstance = TypeCreator.Instantiate(nestedMapping.Type);
             nestedMapping.SetValue(instance, childInstance);
             Deserialize(nestedMapping.InternalMappings, childInstance, state);
         }
@@ -88,9 +115,12 @@ namespace Persistity.Serialization
             if (IsObjectNull(state))
             { return null; }
 
+            if (mapping.IsElementDynamicType)
+            { return DeserializeDynamicTypeData(state); }
+
             if (mapping.InternalMappings.Count > 0)
             {
-                var elementInstance = Activator.CreateInstance(mapping.CollectionType);
+                var elementInstance = TypeCreator.Instantiate(mapping.CollectionType);
                 Deserialize(mapping.InternalMappings, elementInstance, state);
                 return elementInstance;
             }
@@ -149,9 +179,12 @@ namespace Persistity.Serialization
             if (IsDataNull(state))
             { return null; }
 
+            if (mapping.IsKeyDynamicType)
+            { return DeserializeDynamicTypeData(state); }
+
             if (mapping.KeyMappings.Count > 0)
             {
-                var keyInstance = Activator.CreateInstance(mapping.KeyType);
+                var keyInstance = TypeCreator.Instantiate(mapping.KeyType);
                 Deserialize(mapping.KeyMappings, keyInstance, state);
                 return keyInstance;
             }
@@ -163,6 +196,9 @@ namespace Persistity.Serialization
         {
             if (IsDataNull(state))
             { return null; }
+
+            if (mapping.IsValueDynamicType)
+            { return DeserializeDynamicTypeData(state); }
 
             if (mapping.ValueMappings.Count > 0)
             {

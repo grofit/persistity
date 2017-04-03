@@ -36,6 +36,12 @@ namespace Persistity.Serialization.Json
         protected override void AddCountToState(JToken state, int count)
         { }
 
+        protected override JToken GetDynamicTypeState(JToken state, Type type)
+        {
+            state[TypeField] = type.GetPersistableName();
+            return state[DataField] = new JObject();
+        }
+
         protected override void SerializeDefaultPrimitive(object value, Type type, JToken element)
         {
             if (type == typeof(Vector2))
@@ -76,13 +82,6 @@ namespace Persistity.Serialization.Json
                 var typedValue = (DateTime)value;
                 var stringValue = typedValue.ToBinary().ToString();
                 element.Replace(new JValue(stringValue));
-                return;
-            }
-
-            //TODO REMOVE
-            if (type == typeof(long))
-            {
-                element.Replace(new JValue(value.ToString()));
                 return;
             }
 

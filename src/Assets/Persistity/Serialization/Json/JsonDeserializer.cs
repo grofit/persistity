@@ -30,6 +30,12 @@ namespace Persistity.Serialization.Json
         protected override bool IsObjectNull(JToken state)
         { return IsDataNull(state); }
 
+        protected override string GetDynamicTypeNameFromState(JToken state)
+        { return state[JsonSerializer.TypeField].ToString(); }
+
+        protected override JToken GetDynamicTypeDataFromState(JToken state)
+        { return state[JsonSerializer.DataField]; }
+
         protected override object DeserializeDefaultPrimitive(Type type, JToken state)
         {
             if (type == typeof(DateTime))

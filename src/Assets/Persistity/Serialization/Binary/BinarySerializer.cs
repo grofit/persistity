@@ -25,6 +25,12 @@ namespace Persistity.Serialization.Binary
         protected override void AddCountToState(BinaryWriter state, int count)
         { state.Write(count); }
 
+        protected override BinaryWriter GetDynamicTypeState(BinaryWriter state, Type type)
+        {
+            state.Write(type.GetPersistableName());
+            return state;
+        }
+
         protected override void SerializeDefaultPrimitive(object value, Type type, BinaryWriter state)
         {
             if (type == typeof(byte)) { state.Write((byte)value); }

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using Persistity.Exceptions;
+using Persistity.Extensions;
 using Persistity.Mappings;
 using Persistity.Registries;
 
@@ -20,6 +21,8 @@ namespace Persistity.Serialization
         }
 
         public abstract DataObject Serialize(object data);
+
+        protected abstract TSerializeState GetDynamicTypeState(TSerializeState state, Type type);
 
         protected abstract void HandleNullData(TSerializeState state);
         protected abstract void HandleNullObject(TSerializeState state);
@@ -96,10 +99,31 @@ namespace Persistity.Serialization
             SerializePrimitive(underlyingValue, propertyMapping.Type, state);
         }
 
+        protected virtual void SerializeDynamicTypeData<T>(T data, TSerializeState state)
+        {
+            var typeToUse = data.GetType();
+            var dynamicTypeState = GetDynamicTypeState(state, typeToUse);
+            var isPrimitiveType = MappingRegistry.TypeMapper.TypeAnalyzer.IsPrimitiveType(typeToUse);
+            if (isPrimitiveType)
+            { SerializePrimitive(data, typeToUse, dynamicTypeState); }
+            else
+            {
+                var mapping = MappingRegistry.GetMappingFor(typeToUse);
+                Serialize(mapping.InternalMappings, data, dynamicTypeState);
+            }
+        }
+
         protected virtual void SerializeNestedObject<T>(NestedMapping nestedMapping, T data, TSerializeState state)
         {
             var currentData = AttemptGetValue(nestedMapping, data, state);
             if (currentData == null) { return; }
+
+            if (nestedMapping.IsDynamicType)
+            {
+                SerializeDynamicTypeData(currentData, state);
+                return;
+            }
+
             Serialize(nestedMapping.InternalMappings, currentData, state);
         }
 
@@ -120,11 +144,23 @@ namespace Persistity.Serialization
         protected virtual void SerializeCollectionElement<T>(CollectionMapping collectionMapping, T element, TSerializeState state)
         {
             if (element == null)
-            { HandleNullObject(state); }
-            else if (collectionMapping.InternalMappings.Count > 0)
-            { Serialize(collectionMapping.InternalMappings, element, state); }
-            else
-            { SerializePrimitive(element, collectionMapping.CollectionType, state); }
+            {
+                HandleNullObject(state);
+                return;
+            }
+
+            if (collectionMapping.IsElementDynamicType)
+            {
+                SerializeDynamicTypeData(element, state);
+                return;
+            }
+            
+            if (collectionMapping.InternalMappings.Count > 0)
+            {
+                Serialize(collectionMapping.InternalMappings, element, state);
+                return;
+            }
+            SerializePrimitive(element, collectionMapping.CollectionType, state);            
         }
 
         protected virtual void SerializeDictionary<T>(DictionaryMapping dictionaryMapping, T data, TSerializeState state)
@@ -146,6 +182,12 @@ namespace Persistity.Serialization
 
         protected virtual void SerializeDictionaryKey(DictionaryMapping dictionaryMapping, object key, TSerializeState state)
         {
+            if (dictionaryMapping.IsKeyDynamicType)
+            {
+                SerializeDynamicTypeData(key, state);
+                return;
+            }
+
             if (dictionaryMapping.KeyMappings.Count > 0)
             { Serialize(dictionaryMapping.KeyMappings, key, state); }
             else
@@ -155,8 +197,18 @@ namespace Persistity.Serialization
         protected virtual void SerializeDictionaryValue(DictionaryMapping dictionaryMapping, object value, TSerializeState state)
         {
             if (value == null)
-            { HandleNullData(state); }
-            else if (dictionaryMapping.ValueMappings.Count > 0)
+            {
+                HandleNullData(state);
+                return;
+            }
+
+            if (dictionaryMapping.IsKeyDynamicType)
+            {
+                SerializeDynamicTypeData(value, state);
+                return;
+            }
+
+            if (dictionaryMapping.ValueMappings.Count > 0)
             { Serialize(dictionaryMapping.ValueMappings, value, state); }
             else
             { SerializePrimitive(value, dictionaryMapping.ValueType, state); }

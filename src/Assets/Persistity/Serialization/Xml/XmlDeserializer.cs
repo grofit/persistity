@@ -155,5 +155,11 @@ namespace Persistity.Serialization.Xml
                 DelegateMappingType(mapping, instance, childElement);
             }
         }
+
+        protected override string GetDynamicTypeNameFromState(XElement state)
+        { return state.Attribute(XmlSerializer.TypeAttributeName).Value; }
+
+        protected override XElement GetDynamicTypeDataFromState(XElement state)
+        { return state; }
     }
 }

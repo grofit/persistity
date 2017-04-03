@@ -3,7 +3,9 @@ using NUnit.Framework;
 using Persistity.Mappings.Mappers;
 using Persistity.Mappings.Types;
 using Persistity.Registries;
+using Persistity.Serialization.Binary;
 using Persistity.Serialization.Json;
+using Persistity.Serialization.Xml;
 using Tests.Editor.Helpers;
 using Tests.Editor.Models;
 
@@ -26,7 +28,6 @@ namespace Tests.Editor.Serialization
         }
         
         [Test]
-        [Ignore]
         public void should_correctly_serialize_dynamic_data_with_json()
         {
             var model = SerializationTestHelper.GenerateDynamicTypesModel();
@@ -37,6 +38,38 @@ namespace Tests.Editor.Serialization
             Console.WriteLine(output.AsString);
 
             var deserializer = new JsonDeserializer(_mappingRegistry, _typeCreator);
+            var result = deserializer.Deserialize<DynamicTypesModel>(output);
+
+            SerializationTestHelper.AssertDynamicTypesData(model, result);
+        }
+
+        [Test]
+        public void should_correctly_serialize_dynamic_data_with_binary()
+        {
+            var model = SerializationTestHelper.GenerateDynamicTypesModel();
+            var serializer = new BinarySerializer(_mappingRegistry);
+
+            var output = serializer.Serialize(model);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output.AsBytes));
+
+            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
+            var result = deserializer.Deserialize<DynamicTypesModel>(output);
+
+            SerializationTestHelper.AssertDynamicTypesData(model, result);
+        }
+
+        [Test]
+        public void should_correctly_serialize_dynamic_data_with_xml()
+        {
+            var model = SerializationTestHelper.GenerateDynamicTypesModel();
+            var serializer = new XmlSerializer(_mappingRegistry);
+
+            var output = serializer.Serialize(model);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
+
+            var deserializer = new XmlDeserializer(_mappingRegistry, _typeCreator);
             var result = deserializer.Deserialize<DynamicTypesModel>(output);
 
             SerializationTestHelper.AssertDynamicTypesData(model, result);

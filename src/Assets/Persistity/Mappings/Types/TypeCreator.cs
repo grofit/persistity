@@ -45,5 +45,8 @@ namespace Persistity.Mappings.Types
             var constructedListType = ListType.MakeGenericType(elementType);
             return (IList)Activator.CreateInstance(constructedListType);
         }
+
+        public object Instantiate(Type type)
+        { return Activator.CreateInstance(type); }
     }
 }
