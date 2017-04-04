@@ -75,18 +75,23 @@
     <Reference Include="UnityEditor">
       <HintPath>Library\UnityAssemblies\UnityEditor.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>Assets\UnityPackages\JsonNet\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Assets\Persistity\Attributes\DynamicTypeAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistAttribute.cs" />
     <Compile Include="Assets\Persistity\Attributes\PersistDataAttribute.cs" />
-    <Compile Include="Assets\Persistity\Endpoints\InMemory\InMemoryEndpoint.cs" />
-    <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
+    <Compile Include="Assets\Persistity\DataObject.cs" />
+    <Compile Include="Assets\Persistity\DefaultEncoding.cs" />
     <Compile Include="Assets\Persistity\Encryption\AesEncryptor.cs" />
     <Compile Include="Assets\Persistity\Encryption\IEncryptor.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\ReadFileEndpoint.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Files\WriteFileEndpoint.cs" />
     <Compile Include="Assets\Persistity\Endpoints\IReceiveDataEndpoint.cs" />
     <Compile Include="Assets\Persistity\Endpoints\ISendDataEndpoint.cs" />
+    <Compile Include="Assets\Persistity\Endpoints\InMemory\InMemoryEndpoint.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Unity\ReadPlayerPrefsEndpoint.cs" />
     <Compile Include="Assets\Persistity\Endpoints\Unity\WritePlayerPrefsEndpoint.cs" />
     <Compile Include="Assets\Persistity\Exceptions\NoKnownTypeException.cs" />
@@ -94,7 +99,6 @@
     <Compile Include="Assets\Persistity\Extensions\IListExtensions.cs" />
     <Compile Include="Assets\Persistity\Extensions\ReflectionExtensions.cs" />
     <Compile Include="Assets\Persistity\Extensions\TypeExtensions.cs" />
-    <Compile Include="Assets\Persistity\Json\JSON.cs" />
     <Compile Include="Assets\Persistity\Mappings\CollectionMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\DictionaryMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\Mappers\DefaultTypeMapper.cs" />
@@ -105,8 +109,12 @@
     <Compile Include="Assets\Persistity\Mappings\Mapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\NestedMapping.cs" />
     <Compile Include="Assets\Persistity\Mappings\PropertyMapping.cs" />
-    <Compile Include="Assets\Persistity\Mappings\TypeMapper.cs" />
     <Compile Include="Assets\Persistity\Mappings\TypeMapping.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\ITypeAnalyzer.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\ITypeCreator.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\MappingConfiguration.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\TypeAnalyzer.cs" />
+    <Compile Include="Assets\Persistity\Mappings\Types\TypeCreator.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\PipelineBuilder.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\ReceivePipelineBuilder.cs" />
     <Compile Include="Assets\Persistity\Pipelines\Builders\SendPipelineBuilder.cs" />
@@ -121,15 +129,14 @@
     <Compile Include="Assets\Persistity\Processors\IProcessor.cs" />
     <Compile Include="Assets\Persistity\Registries\IMappingRegistry.cs" />
     <Compile Include="Assets\Persistity\Registries\MappingRegistry.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinarySerializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\GenericDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\GenericSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinarySerializer.cs" />
-    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryConfiguration.cs" />
-    <Compile Include="Assets\Persistity\DataObject.cs" />
     <Compile Include="Assets\Persistity\Serialization\Debug\DebugSerializer.cs" />
-    <Compile Include="Assets\Persistity\DefaultEncoding.cs" />
-    <Compile Include="Assets\Persistity\Serialization\Exceptions\NoKnownTypeException.cs" />
     <Compile Include="Assets\Persistity\Serialization\IDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ISerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\ITypeHandler.cs" />
@@ -144,6 +151,8 @@
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlSerializer.cs" />
+    <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
+    <Compile Include="Assets\UnityPackages\JsonNetSample\JsonNetSample.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionComponent.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\AssertionException.cs" />
     <Compile Include="Assets\UnityTestTools\Assertions\Assertions.cs" />
@@ -205,7 +214,9 @@
     <None Include="Assets\UnityTestTools\LICENSE.txt" />
     <None Include="Assets\UnityTestTools\changelog.txt" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Assets\Persistity\Json\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="GenerateTargetFrameworkMonikerAttribute" />
 </Project>
