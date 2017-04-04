@@ -123,7 +123,9 @@ It is HIGHLY recommended you use some sort of DI system to setup your high level
 
 ### Dependencies
 
-Currently there are none
+- [JSON.NET (for unity)](https://github.com/SaladLab/Json.Net.Unity3D)
+
+If you do not need to support JSON then you can remove the json serializer files and you will not need the above dependency.
 
 It has been created to have as little dependencies as possible, if unity was a little better at dependency management I would love to use promises and include some http, gzip and other libs to provide more stuff built in, but it would cause headaches for consumers so this may be looked at in some way as it would be great to provide RESTful interactions, GZipping processors and some other common use cases within the lib, but in an opt-in fashion.
 

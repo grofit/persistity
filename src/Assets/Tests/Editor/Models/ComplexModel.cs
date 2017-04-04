@@ -1,11 +1,11 @@
 ﻿using System.Collections.Generic;
+using Assets.Tests.Editor;
 using Persistity.Attributes;
-using Tests.Editor.Models;
 
-namespace Assets.Tests.Editor
+namespace Tests.Editor.Models
 {
     [Persist]
-    public class A
+    public class ComplexModel
     {
         [PersistData]
         public string TestValue { get; set; }
@@ -30,7 +30,7 @@ namespace Assets.Tests.Editor
         [PersistData]
         public IDictionary<E, C> ComplexDictionary { get; set; }
 
-        public A()
+        public ComplexModel()
         {
             Stuff = new List<string>();
             SimpleDictionary = new Dictionary<string, string>();

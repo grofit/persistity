@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using Assets.Tests.Editor;
 using NUnit.Framework;
@@ -9,9 +10,9 @@ namespace Tests.Editor.Helpers
 {
     public static class SerializationTestHelper
     {
-        public static A GeneratePopulatedModel()
+        public static ComplexModel GeneratePopulatedModel()
         {
-            var a = new A();
+            var a = new ComplexModel();
             a.TestValue = "WOW";
             a.NonPersisted = 100;
             a.Stuff.Add("woop");
@@ -66,9 +67,9 @@ namespace Tests.Editor.Helpers
             return a;
         }
 
-        public static A GenerateNulledModel()
+        public static ComplexModel GenerateNulledModel()
         {
-            var a = new A();
+            var a = new ComplexModel();
             a.TestValue = null;
             a.NonPersisted = 0;
             a.Stuff = null;
@@ -88,72 +89,206 @@ namespace Tests.Editor.Helpers
             return a;
         }
 
-        public static void AssertPopulatedData(A expected, A result)
+        public static NullableTypesModel GenerateNulledNullableModel()
         {
-            Assert.That(result.TestValue, Is.EqualTo(expected.TestValue));
-            Assert.That(result.NonPersisted, Is.EqualTo(0));
-            Assert.That(result.NestedValue, Is.Not.Null);
-            Assert.That(result.NestedValue.IntValue, Is.EqualTo(expected.NestedValue.IntValue));
-            Assert.That(result.NestedValue.StringValue, Is.EqualTo(expected.NestedValue.StringValue));
-            Assert.That(result.NestedValue.NestedArray, Is.Not.Null);
-            Assert.That(result.NestedValue.NestedArray.Length, Is.EqualTo(expected.NestedValue.NestedArray.Length));
-            Assert.That(result.NestedValue.NestedArray[0].FloatValue, Is.EqualTo(expected.NestedValue.NestedArray[0].FloatValue));
-            Assert.That(result.NestedArray, Is.Not.Null);
-            Assert.That(result.NestedArray.Length, Is.EqualTo(expected.NestedArray.Length));
-            Assert.That(result.NestedArray[0].IntValue, Is.EqualTo(expected.NestedArray[0].IntValue));
-            Assert.That(result.NestedArray[0].StringValue, Is.EqualTo(expected.NestedArray[0].StringValue));
-            Assert.That(result.NestedArray[0].NestedArray, Is.Not.Null);
-            Assert.That(result.NestedArray[0].NestedArray.Length, Is.EqualTo(expected.NestedArray[0].NestedArray.Length));
-            Assert.That(result.NestedArray[0].NestedArray[0].FloatValue, Is.EqualTo(expected.NestedArray[0].NestedArray[0].FloatValue));
-            Assert.That(result.NestedArray[1].IntValue, Is.EqualTo(expected.NestedArray[1].IntValue));
-            Assert.That(result.NestedArray[1].StringValue, Is.EqualTo(expected.NestedArray[1].StringValue));
-            Assert.That(result.NestedArray[1].NestedArray, Is.Not.Null);
-            Assert.That(result.NestedArray[1].NestedArray.Length, Is.EqualTo(expected.NestedArray[1].NestedArray.Length));
-            Assert.That(result.NestedArray[1].NestedArray[0].FloatValue, Is.EqualTo(expected.NestedArray[1].NestedArray[0].FloatValue));
-            Assert.That(result.NestedArray[1].NestedArray[1].FloatValue, Is.EqualTo(expected.NestedArray[1].NestedArray[1].FloatValue));
-            Assert.That(result.AllTypes, Is.Not.Null);
-            Assert.That(result.AllTypes.ByteValue, Is.EqualTo(expected.AllTypes.ByteValue));
-            Assert.That(result.AllTypes.ShortValue, Is.EqualTo(expected.AllTypes.ShortValue));
-            Assert.That(result.AllTypes.IntValue, Is.EqualTo(expected.AllTypes.IntValue));
-            Assert.That(result.AllTypes.LongValue, Is.EqualTo(expected.AllTypes.LongValue));
-            Assert.That(result.AllTypes.GuidValue, Is.EqualTo(expected.AllTypes.GuidValue));
-            Assert.That(result.AllTypes.DateTimeValue, Is.EqualTo(expected.AllTypes.DateTimeValue));
-            Assert.That(result.AllTypes.Vector2Value, Is.EqualTo(expected.AllTypes.Vector2Value));
-            Assert.That(result.AllTypes.Vector3Value, Is.EqualTo(expected.AllTypes.Vector3Value));
-            Assert.That(result.AllTypes.Vector4Value, Is.EqualTo(expected.AllTypes.Vector4Value));
-            Assert.That(result.AllTypes.QuaternionValue, Is.EqualTo(expected.AllTypes.QuaternionValue));
-            Assert.That(result.AllTypes.SomeType, Is.EqualTo(expected.AllTypes.SomeType));
-            Assert.That(result.SimpleDictionary, Is.Not.Null);
-            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
-            Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
-            Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
-            Assert.That(result.ComplexDictionary, Is.Not.Null);
-            Assert.That(result.ComplexDictionary.Count, Is.EqualTo(expected.ComplexDictionary.Count));
+            var model = new NullableTypesModel();
+            model.NullableFloat = null;
+            model.NullableVector3 = null;
+            model.NullableInt = null;
+            return model;
+        }
 
-            foreach (var keyValuePair in result.ComplexDictionary)
+        public static NullableTypesModel GeneratePopulatedNullableModel()
+        {
+            var model = new NullableTypesModel();
+            model.NullableFloat = 10.0f;
+            model.NullableVector3 = Vector3.one;
+            model.NullableInt = 22;
+            return model;
+        }
+
+        public static DynamicTypesModel GeneratePopulatedDynamicTypesModel()
+        {
+            var model = new DynamicTypesModel();
+            model.DynamicNestedProperty = new E { IntValue = 10 };
+            model.DynamicPrimitiveProperty = 12;
+
+            model.DynamicList = new List<object>();
+            model.DynamicList.Add(new E() { IntValue = 22 });
+            model.DynamicList.Add(new C() { FloatValue = 25 });
+            model.DynamicList.Add(20);
+
+            model.DynamicDictionary = new Dictionary<object, object>();
+            model.DynamicDictionary.Add("key1", 62);
+            model.DynamicDictionary.Add(new E{IntValue = 99}, 54);
+            model.DynamicDictionary.Add(1, new C {FloatValue = 51.0f});
+            return model;
+        }
+
+        public static DynamicTypesModel GenerateNulledDynamicTypesModel()
+        {
+            var model = new DynamicTypesModel();
+            model.DynamicNestedProperty = null;
+            model.DynamicPrimitiveProperty = null;
+
+            model.DynamicList = new List<object>();
+            model.DynamicList.Add(new E() { IntValue = 22 });
+            model.DynamicList.Add(null);
+            model.DynamicList.Add(20);
+
+            model.DynamicDictionary = new Dictionary<object, object>();
+            model.DynamicDictionary.Add("key1", null);
+            model.DynamicDictionary.Add(new E { IntValue = 99 }, null);
+            model.DynamicDictionary.Add(1, null);
+            return model;
+        }
+
+        public static void AssertPopulatedData(ComplexModel expected, ComplexModel actual)
+        {
+            Assert.That(actual.TestValue, Is.EqualTo(expected.TestValue));
+            Assert.That(actual.NonPersisted, Is.EqualTo(0));
+            Assert.That(actual.NestedValue, Is.Not.Null);
+            Assert.That(actual.NestedValue.IntValue, Is.EqualTo(expected.NestedValue.IntValue));
+            Assert.That(actual.NestedValue.StringValue, Is.EqualTo(expected.NestedValue.StringValue));
+            Assert.That(actual.NestedValue.NestedArray, Is.Not.Null);
+            Assert.That(actual.NestedValue.NestedArray.Length, Is.EqualTo(expected.NestedValue.NestedArray.Length));
+            Assert.That(actual.NestedValue.NestedArray[0].FloatValue, Is.EqualTo(expected.NestedValue.NestedArray[0].FloatValue));
+            Assert.That(actual.NestedArray, Is.Not.Null);
+            Assert.That(actual.NestedArray.Length, Is.EqualTo(expected.NestedArray.Length));
+            Assert.That(actual.NestedArray[0].IntValue, Is.EqualTo(expected.NestedArray[0].IntValue));
+            Assert.That(actual.NestedArray[0].StringValue, Is.EqualTo(expected.NestedArray[0].StringValue));
+            Assert.That(actual.NestedArray[0].NestedArray, Is.Not.Null);
+            Assert.That(actual.NestedArray[0].NestedArray.Length, Is.EqualTo(expected.NestedArray[0].NestedArray.Length));
+            Assert.That(actual.NestedArray[0].NestedArray[0].FloatValue, Is.EqualTo(expected.NestedArray[0].NestedArray[0].FloatValue));
+            Assert.That(actual.NestedArray[1].IntValue, Is.EqualTo(expected.NestedArray[1].IntValue));
+            Assert.That(actual.NestedArray[1].StringValue, Is.EqualTo(expected.NestedArray[1].StringValue));
+            Assert.That(actual.NestedArray[1].NestedArray, Is.Not.Null);
+            Assert.That(actual.NestedArray[1].NestedArray.Length, Is.EqualTo(expected.NestedArray[1].NestedArray.Length));
+            Assert.That(actual.NestedArray[1].NestedArray[0].FloatValue, Is.EqualTo(expected.NestedArray[1].NestedArray[0].FloatValue));
+            Assert.That(actual.NestedArray[1].NestedArray[1].FloatValue, Is.EqualTo(expected.NestedArray[1].NestedArray[1].FloatValue));
+            Assert.That(actual.AllTypes, Is.Not.Null);
+            Assert.That(actual.AllTypes.ByteValue, Is.EqualTo(expected.AllTypes.ByteValue));
+            Assert.That(actual.AllTypes.ShortValue, Is.EqualTo(expected.AllTypes.ShortValue));
+            Assert.That(actual.AllTypes.IntValue, Is.EqualTo(expected.AllTypes.IntValue));
+            Assert.That(actual.AllTypes.LongValue, Is.EqualTo(expected.AllTypes.LongValue));
+            Assert.That(actual.AllTypes.GuidValue, Is.EqualTo(expected.AllTypes.GuidValue));
+            Assert.That(actual.AllTypes.DateTimeValue, Is.EqualTo(expected.AllTypes.DateTimeValue));
+            Assert.That(actual.AllTypes.Vector2Value, Is.EqualTo(expected.AllTypes.Vector2Value));
+            Assert.That(actual.AllTypes.Vector3Value, Is.EqualTo(expected.AllTypes.Vector3Value));
+            Assert.That(actual.AllTypes.Vector4Value, Is.EqualTo(expected.AllTypes.Vector4Value));
+            Assert.That(actual.AllTypes.QuaternionValue, Is.EqualTo(expected.AllTypes.QuaternionValue));
+            Assert.That(actual.AllTypes.SomeType, Is.EqualTo(expected.AllTypes.SomeType));
+            Assert.That(actual.SimpleDictionary, Is.Not.Null);
+            Assert.That(actual.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
+            Assert.That(actual.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
+            Assert.That(actual.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
+            Assert.That(actual.ComplexDictionary, Is.Not.Null);
+            Assert.That(actual.ComplexDictionary.Count, Is.EqualTo(expected.ComplexDictionary.Count));
+
+            foreach (var keyValuePair in actual.ComplexDictionary)
             {
                 Assert.That(expected.ComplexDictionary.Keys.Any(x => x.IntValue == keyValuePair.Key.IntValue));
                 Assert.That(expected.ComplexDictionary.Values.Any(x => x.FloatValue == keyValuePair.Value.FloatValue));
             }
         }
 
-        public static void AssertNulledData(A expected, A result)
+        public static void AssertNulledData(ComplexModel expected, ComplexModel actual)
         {
-            Assert.That(result.TestValue, Is.EqualTo(expected.TestValue));
-            Assert.That(result.NonPersisted, Is.EqualTo(0));
-            Assert.That(result.NestedValue, Is.Null);
-            Assert.That(result.NestedArray, Is.Not.Null);
-            Assert.That(result.NestedArray.Length, Is.EqualTo(expected.NestedArray.Length));
-            Assert.That(result.NestedArray[0].IntValue, Is.EqualTo(expected.NestedArray[0].IntValue));
-            Assert.That(result.NestedArray[0].StringValue, Is.EqualTo(expected.NestedArray[0].StringValue));
-            Assert.That(result.NestedArray[0].NestedArray, Is.Null);
-            Assert.That(result.NestedArray[1], Is.Null);
-            Assert.That(result.AllTypes, Is.Null);
-            Assert.That(result.SimpleDictionary, Is.Not.Null);
-            Assert.That(result.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
-            Assert.That(result.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
-            Assert.That(result.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
-            Assert.That(result.ComplexDictionary, Is.Null);
+            Assert.That(actual.TestValue, Is.EqualTo(expected.TestValue));
+            Assert.That(actual.NonPersisted, Is.EqualTo(0));
+            Assert.That(actual.NestedValue, Is.Null);
+            Assert.That(actual.NestedArray, Is.Not.Null);
+            Assert.That(actual.NestedArray.Length, Is.EqualTo(expected.NestedArray.Length));
+            Assert.That(actual.NestedArray[0].IntValue, Is.EqualTo(expected.NestedArray[0].IntValue));
+            Assert.That(actual.NestedArray[0].StringValue, Is.EqualTo(expected.NestedArray[0].StringValue));
+            Assert.That(actual.NestedArray[0].NestedArray, Is.Null);
+            Assert.That(actual.NestedArray[1], Is.Null);
+            Assert.That(actual.AllTypes, Is.Null);
+            Assert.That(actual.SimpleDictionary, Is.Not.Null);
+            Assert.That(actual.SimpleDictionary.Count, Is.EqualTo(expected.SimpleDictionary.Count));
+            Assert.That(actual.SimpleDictionary.Keys, Is.EqualTo(expected.SimpleDictionary.Keys));
+            Assert.That(actual.SimpleDictionary.Values, Is.EqualTo(expected.SimpleDictionary.Values));
+            Assert.That(actual.ComplexDictionary, Is.Null);
+        }
+
+        public static void AssertPopulatedDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
+        {
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.DynamicNestedProperty, Is.TypeOf(expected.DynamicNestedProperty.GetType()));
+
+            var typedNestedProperty = (E)actual.DynamicNestedProperty;
+            Assert.That(typedNestedProperty, Is.Not.Null);
+            Assert.That(typedNestedProperty.IntValue, Is.EqualTo(((E)expected.DynamicNestedProperty).IntValue));
+
+            var typedPrimitiveProperty = (int) actual.DynamicPrimitiveProperty;
+            Assert.That(typedPrimitiveProperty, Is.EqualTo((int) expected.DynamicPrimitiveProperty));
+
+            Assert.That(actual.DynamicList.Count, Is.Not.Null);
+            Assert.That(actual.DynamicList.Count, Is.EqualTo(expected.DynamicList.Count));
+            Assert.That(actual.DynamicList[0], Is.TypeOf(expected.DynamicList[0].GetType()));
+            Assert.That((actual.DynamicList[0] as E).IntValue, Is.EqualTo((expected.DynamicList[0] as E).IntValue));
+            Assert.That(actual.DynamicList[1], Is.TypeOf(expected.DynamicList[1].GetType()));
+            Assert.That((actual.DynamicList[1] as C).FloatValue, Is.EqualTo((expected.DynamicList[1] as C).FloatValue));
+            Assert.That(actual.DynamicList[2], Is.TypeOf(expected.DynamicList[2].GetType()));
+            Assert.That(actual.DynamicList[2], Is.EqualTo(expected.DynamicList[2]));
+
+            Assert.That(actual.DynamicDictionary, Is.Not.Null);
+            Assert.That(actual.DynamicDictionary.Count, Is.EqualTo(expected.DynamicDictionary.Count));
+
+            var expectedFirstKey = expected.DynamicDictionary.Keys.ElementAt(0);
+            var actualFirstKey = actual.DynamicDictionary.Keys.ElementAt(0);
+            Assert.That(actualFirstKey, Is.EqualTo(expectedFirstKey));
+            Assert.That(actual.DynamicDictionary[actualFirstKey], Is.EqualTo(expected.DynamicDictionary[expectedFirstKey]));
+
+            var expectedSecondKey = (E)expected.DynamicDictionary.Keys.ElementAt(1);
+            var actualSecondKey = (E)actual.DynamicDictionary.Keys.ElementAt(1);
+            Assert.That(actualSecondKey.IntValue, Is.EqualTo(expectedSecondKey.IntValue));
+            Assert.That(actual.DynamicDictionary[actualSecondKey], Is.EqualTo(expected.DynamicDictionary[expectedSecondKey]));
+
+            var expectedThirdKey = expected.DynamicDictionary.Keys.ElementAt(2);
+            var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
+            Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
+            Assert.That((actual.DynamicDictionary[actualThirdKey] as C).FloatValue, Is.EqualTo((expected.DynamicDictionary[expectedThirdKey] as C).FloatValue));
+        }
+
+        public static void AsserNulledDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
+        {
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.DynamicNestedProperty, Is.EqualTo(expected.DynamicNestedProperty));
+            Assert.That(actual.DynamicPrimitiveProperty, Is.EqualTo(expected.DynamicPrimitiveProperty));
+
+            Assert.That(actual.DynamicList, Is.Not.Null);
+            Assert.That(actual.DynamicList.Count, Is.EqualTo(expected.DynamicList.Count));
+            Assert.That(actual.DynamicList[0], Is.TypeOf(expected.DynamicList[0].GetType()));
+            Assert.That((actual.DynamicList[0] as E).IntValue, Is.EqualTo((expected.DynamicList[0] as E).IntValue));
+            Assert.That(actual.DynamicList[1], Is.EqualTo(expected.DynamicList[1]));
+            Assert.That(actual.DynamicList[2], Is.EqualTo(expected.DynamicList[2]));
+
+            Assert.That(actual.DynamicDictionary, Is.Not.Null);
+            Assert.That(actual.DynamicDictionary.Count, Is.EqualTo(expected.DynamicDictionary.Count));
+
+            var expectedFirstKey = expected.DynamicDictionary.Keys.ElementAt(0);
+            var actualFirstKey = actual.DynamicDictionary.Keys.ElementAt(0);
+            Assert.That(actualFirstKey, Is.EqualTo(expectedFirstKey));
+            Assert.That(actual.DynamicDictionary[actualFirstKey], Is.EqualTo(expected.DynamicDictionary[expectedFirstKey]));
+
+            var expectedSecondKey = (E)expected.DynamicDictionary.Keys.ElementAt(1);
+            var actualSecondKey = (E)actual.DynamicDictionary.Keys.ElementAt(1);
+            Assert.That(actualSecondKey.IntValue, Is.EqualTo(expectedSecondKey.IntValue));
+            Assert.That(actual.DynamicDictionary[actualSecondKey], Is.EqualTo(expected.DynamicDictionary[expectedSecondKey]));
+
+            var expectedThirdKey = expected.DynamicDictionary.Keys.ElementAt(2);
+            var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
+            Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
+            Assert.That(actual.DynamicDictionary[actualThirdKey], Is.EqualTo(expected.DynamicDictionary[expectedThirdKey]));
+        }
+
+        public static void AssertNullableModelData(NullableTypesModel expected, NullableTypesModel actual)
+        {
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.NullableFloat, Is.EqualTo(expected.NullableFloat));
+            Assert.That(actual.NullableInt, Is.EqualTo(expected.NullableInt));
+            Assert.That(actual.NullableVector3, Is.EqualTo(expected.NullableVector3));
         }
     }
 }

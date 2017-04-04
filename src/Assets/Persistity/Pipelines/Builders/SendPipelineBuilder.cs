@@ -53,7 +53,7 @@ namespace Persistity.Pipelines.Builders
 
         public ISendDataPipeline Build()
         {
-            return new SendDataPipeline(_serializer, _sendDataEndpointStep, _processors);
+            return new SendDataPipeline(_serializer, _sendDataEndpointStep, _processors, _transformers);
         }
     }
 }
