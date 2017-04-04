@@ -2,6 +2,8 @@
 
 A pipeline based data persistance framework for unity (a bit like ETL).
 
+[![Gitter](https://badges.gitter.im/grofit/persistity.svg)](https://gitter.im/grofit/persistity?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+
 ## What is it?
 
 It provides a framework for extracting data from your models into any format you want and doing stuff with it.
