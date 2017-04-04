@@ -2,6 +2,69 @@
 
 So as the serializers within here are interchangable as far as the pipelines go here is an extract from the tests which shows the same object being spat out through 3 different serializers:
 
+## Original C# Object
+
+This object is used within tests to verify behaviour works as expected.
+
+```csharp
+public static ComplexModel GeneratePopulatedModel()
+{
+    var a = new ComplexModel();
+    a.TestValue = "WOW";
+    a.NonPersisted = 100;
+    a.Stuff.Add("woop");
+    a.Stuff.Add("poow");
+
+    a.NestedValue = new B
+    {
+        IntValue = 0,
+        StringValue = "Hello",
+        NestedArray = new[] { new C { FloatValue = 2.43f } }
+    };
+
+    a.NestedArray = new B[2];
+    a.NestedArray[0] = new B
+    {
+        IntValue = 20,
+        StringValue = "There",
+        NestedArray = new[] { new C { FloatValue = 3.5f } }
+    };
+
+    a.NestedArray[1] = new B
+    {
+        IntValue = 30,
+        StringValue = "Sir",
+        NestedArray = new[]
+        {
+             new C { FloatValue = 4.1f },
+             new C { FloatValue = 5.2f }
+        }
+    };
+
+    a.AllTypes = new D
+    {
+        ByteValue = byte.MaxValue,
+        ShortValue = short.MaxValue,
+        IntValue = int.MaxValue,
+        LongValue = long.MaxValue,
+        GuidValue = Guid.NewGuid(),
+        DateTimeValue = DateTime.MaxValue,
+        Vector2Value = Vector2.one,
+        Vector3Value = Vector3.one,
+        Vector4Value = Vector4.one,
+        QuaternionValue = new Quaternion(1.0f, 1.0f, 1.0f, 1.0f),
+        SomeType = SomeTypes.Known
+    };
+
+    a.SimpleDictionary.Add("key1", "some-value");
+    a.SimpleDictionary.Add("key2", "some-other-value");
+
+    a.ComplexDictionary.Add(new E { IntValue = 10 }, new C { FloatValue = 32.2f });
+
+    return a;
+}
+```
+
 ---
 
 ## JSON
