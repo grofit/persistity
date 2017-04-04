@@ -107,7 +107,7 @@ namespace Tests.Editor.Helpers
             return model;
         }
 
-        public static DynamicTypesModel GenerateDynamicTypesModel()
+        public static DynamicTypesModel GeneratePopulatedDynamicTypesModel()
         {
             var model = new DynamicTypesModel();
             model.DynamicNestedProperty = new E { IntValue = 10 };
@@ -122,6 +122,24 @@ namespace Tests.Editor.Helpers
             model.DynamicDictionary.Add("key1", 62);
             model.DynamicDictionary.Add(new E{IntValue = 99}, 54);
             model.DynamicDictionary.Add(1, new C {FloatValue = 51.0f});
+            return model;
+        }
+
+        public static DynamicTypesModel GenerateNulledDynamicTypesModel()
+        {
+            var model = new DynamicTypesModel();
+            model.DynamicNestedProperty = null;
+            model.DynamicPrimitiveProperty = null;
+
+            model.DynamicList = new List<object>();
+            model.DynamicList.Add(new E() { IntValue = 22 });
+            model.DynamicList.Add(null);
+            model.DynamicList.Add(20);
+
+            model.DynamicDictionary = new Dictionary<object, object>();
+            model.DynamicDictionary.Add("key1", null);
+            model.DynamicDictionary.Add(new E { IntValue = 99 }, null);
+            model.DynamicDictionary.Add(1, null);
             return model;
         }
 
@@ -193,7 +211,7 @@ namespace Tests.Editor.Helpers
             Assert.That(actual.ComplexDictionary, Is.Null);
         }
 
-        public static void AssertDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
+        public static void AssertPopulatedDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
         {
             Assert.That(actual, Is.Not.Null);
             Assert.That(actual.DynamicNestedProperty, Is.TypeOf(expected.DynamicNestedProperty.GetType()));
@@ -231,6 +249,38 @@ namespace Tests.Editor.Helpers
             var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
             Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
             Assert.That((actual.DynamicDictionary[actualThirdKey] as C).FloatValue, Is.EqualTo((expected.DynamicDictionary[expectedThirdKey] as C).FloatValue));
+        }
+
+        public static void AsserNulledDynamicTypesData(DynamicTypesModel expected, DynamicTypesModel actual)
+        {
+            Assert.That(actual, Is.Not.Null);
+            Assert.That(actual.DynamicNestedProperty, Is.EqualTo(expected.DynamicNestedProperty));
+            Assert.That(actual.DynamicPrimitiveProperty, Is.EqualTo(expected.DynamicPrimitiveProperty));
+
+            Assert.That(actual.DynamicList, Is.Not.Null);
+            Assert.That(actual.DynamicList.Count, Is.EqualTo(expected.DynamicList.Count));
+            Assert.That(actual.DynamicList[0], Is.TypeOf(expected.DynamicList[0].GetType()));
+            Assert.That((actual.DynamicList[0] as E).IntValue, Is.EqualTo((expected.DynamicList[0] as E).IntValue));
+            Assert.That(actual.DynamicList[1], Is.EqualTo(expected.DynamicList[1]));
+            Assert.That(actual.DynamicList[2], Is.EqualTo(expected.DynamicList[2]));
+
+            Assert.That(actual.DynamicDictionary, Is.Not.Null);
+            Assert.That(actual.DynamicDictionary.Count, Is.EqualTo(expected.DynamicDictionary.Count));
+
+            var expectedFirstKey = expected.DynamicDictionary.Keys.ElementAt(0);
+            var actualFirstKey = actual.DynamicDictionary.Keys.ElementAt(0);
+            Assert.That(actualFirstKey, Is.EqualTo(expectedFirstKey));
+            Assert.That(actual.DynamicDictionary[actualFirstKey], Is.EqualTo(expected.DynamicDictionary[expectedFirstKey]));
+
+            var expectedSecondKey = (E)expected.DynamicDictionary.Keys.ElementAt(1);
+            var actualSecondKey = (E)actual.DynamicDictionary.Keys.ElementAt(1);
+            Assert.That(actualSecondKey.IntValue, Is.EqualTo(expectedSecondKey.IntValue));
+            Assert.That(actual.DynamicDictionary[actualSecondKey], Is.EqualTo(expected.DynamicDictionary[expectedSecondKey]));
+
+            var expectedThirdKey = expected.DynamicDictionary.Keys.ElementAt(2);
+            var actualThirdKey = actual.DynamicDictionary.Keys.ElementAt(2);
+            Assert.That(actualThirdKey, Is.EqualTo(expectedThirdKey));
+            Assert.That(actual.DynamicDictionary[actualThirdKey], Is.EqualTo(expected.DynamicDictionary[expectedThirdKey]));
         }
 
         public static void AssertNullableModelData(NullableTypesModel expected, NullableTypesModel actual)
