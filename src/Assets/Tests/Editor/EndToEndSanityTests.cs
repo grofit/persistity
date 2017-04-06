@@ -72,7 +72,7 @@ namespace Tests.Editor
                 .Build();
 
             var dummyData = SerializationTestHelper.GeneratePopulatedModel();
-            saveToBinaryFilePipeline.Execute(dummyData, HandleSuccess, HandleError);
+            saveToBinaryFilePipeline.Execute(dummyData, null, HandleSuccess, HandleError);
         }
 
         [Test]
