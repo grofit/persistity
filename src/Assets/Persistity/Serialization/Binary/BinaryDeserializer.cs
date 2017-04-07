@@ -5,7 +5,7 @@ using Persistity.Registries;
 
 namespace Persistity.Serialization.Binary
 {
-    public class BinaryDeserializer : GenericDeserializer<BinaryWriter, BinaryReader>
+    public class BinaryDeserializer : GenericDeserializer<BinaryWriter, BinaryReader>, IBinaryDeserializer
     {
         protected BinaryPrimitiveDeserializer BinaryPrimitiveDeserializer { get; private set; }
 
