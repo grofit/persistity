@@ -53,7 +53,24 @@ namespace Tests.Editor.Serialization
 
             SerializationTestHelper.AssertNullableModelData(model, result);
         }
-        
+
+        [Test]
+        public void should_correctly_serialize_populated_nullable_data_into_existing_object_with_json()
+        {
+            var model = SerializationTestHelper.GeneratePopulatedNullableModel();
+            var serializer = new JsonSerializer(_mappingRegistry);
+
+            var output = serializer.Serialize(model);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
+
+            var deserializer = new JsonDeserializer(_mappingRegistry, _typeCreator);
+            var result = new NullableTypesModel();
+            deserializer.DeserializeInto(output, result);
+
+            SerializationTestHelper.AssertNullableModelData(model, result);
+        }
+
         [Test]
         public void should_correctly_serialize_populated_nullable_data_with_binary()
         {
@@ -69,7 +86,24 @@ namespace Tests.Editor.Serialization
 
             SerializationTestHelper.AssertNullableModelData(model, result);
         }
-        
+
+        [Test]
+        public void should_correctly_serialize_populated_nullable_data_into_existing_object_with_binary()
+        {
+            var model = SerializationTestHelper.GeneratePopulatedNullableModel();
+
+            var serializer = new BinarySerializer(_mappingRegistry);
+            var output = serializer.Serialize(model);
+            Console.WriteLine("FileSize: " + output.AsBytes.Length + " bytes");
+            Console.WriteLine(BitConverter.ToString(output.AsBytes));
+
+            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
+            var result = new NullableTypesModel();
+            deserializer.DeserializeInto(output, result);
+
+            SerializationTestHelper.AssertNullableModelData(model, result);
+        }
+
         [Test]
         public void should_correctly_serialize_populated_nullable_data_with_xml()
         {
@@ -82,6 +116,23 @@ namespace Tests.Editor.Serialization
 
             var deserializer = new XmlDeserializer(_mappingRegistry, _typeCreator);
             var result = deserializer.Deserialize<NullableTypesModel>(output);
+
+            SerializationTestHelper.AssertNullableModelData(model, result);
+        }
+
+        [Test]
+        public void should_correctly_serialize_populated_nullable_data_into_existing_object_with_xml()
+        {
+            var model = SerializationTestHelper.GeneratePopulatedNullableModel();
+
+            var serializer = new XmlSerializer(_mappingRegistry);
+            var output = serializer.Serialize(model);
+            Console.WriteLine("FileSize: " + output.AsString.Length + " bytes");
+            Console.WriteLine(output.AsString);
+
+            var deserializer = new XmlDeserializer(_mappingRegistry, _typeCreator);
+            var result = new NullableTypesModel();
+            deserializer.DeserializeInto(output, result);
 
             SerializationTestHelper.AssertNullableModelData(model, result);
         }

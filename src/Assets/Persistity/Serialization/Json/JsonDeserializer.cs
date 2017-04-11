@@ -6,16 +6,18 @@ using Newtonsoft.Json.Linq;
 using Persistity.Mappings;
 using Persistity.Mappings.Types;
 using Persistity.Registries;
-using UnityEngine;
 
 namespace Persistity.Serialization.Json
 {
     public class JsonDeserializer : GenericDeserializer<JToken, JToken>, IJsonDeserializer
     {
+        protected JsonPrimitiveDeserializer JsonPrimitiveDeserializer { get; private set; }
+
         public JsonDeserializer(IMappingRegistry mappingRegistry, ITypeCreator typeCreator, JsonConfiguration configuration = null)
             : base(mappingRegistry, typeCreator)
         {
             Configuration = configuration ?? JsonConfiguration.Default;
+            JsonPrimitiveDeserializer = new JsonPrimitiveDeserializer();
         }
 
         protected override bool IsDataNull(JToken state)
@@ -37,28 +39,8 @@ namespace Persistity.Serialization.Json
         { return state[JsonSerializer.DataField]; }
 
         protected override object DeserializeDefaultPrimitive(Type type, JToken state)
-        {
-            if (type == typeof(DateTime))
-            {
-                var binaryDate = state.ToObject<long>();
-                return DateTime.FromBinary(binaryDate);
-            }
-            if (type.IsEnum) { return Enum.Parse(type, state.ToString()); }
-            if (type == typeof(Vector2))
-            { return new Vector2(state["x"].ToObject<float>(), state["y"].ToObject<float>()); }
-            if (type == typeof(Vector3))
-            { return new Vector3(state["x"].ToObject<float>(), state["y"].ToObject<float>(), state["z"].ToObject<float>()); }
-            if (type == typeof(Vector4))
-            { return new Vector4(state["x"].ToObject<float>(), state["y"].ToObject<float>(), state["z"].ToObject<float>(), state["w"].ToObject<float>()); }
-            if (type == typeof(Quaternion))
-            { return new Quaternion(state["x"].ToObject<float>(), state["y"].ToObject<float>(), state["z"].ToObject<float>(), state["w"].ToObject<float>()); }
-
-            return state.ToObject(type);
-        }
+        { return JsonPrimitiveDeserializer.DeserializeDefaultPrimitive(type, state); }
         
-        public override T Deserialize<T>(DataObject data)
-        { return (T)Deserialize(data); }
-
         public override object Deserialize(DataObject data)
         {
             var jsonData = JObject.Parse(data.AsString);
@@ -69,6 +51,16 @@ namespace Persistity.Serialization.Json
             
             Deserialize(typeMapping.InternalMappings, instance, jsonData);
             return instance;
+        }
+
+        public override void DeserializeInto(DataObject data, object existingInstance)
+        {
+            var jsonData = JObject.Parse(data.AsString);
+            var typeName = jsonData[JsonSerializer.TypeField].ToString();
+            var type = TypeCreator.LoadType(typeName);
+            var typeMapping = MappingRegistry.GetMappingFor(type);
+            
+            Deserialize(typeMapping.InternalMappings, existingInstance, jsonData);
         }
 
         protected override int GetCountFromState(JToken state)

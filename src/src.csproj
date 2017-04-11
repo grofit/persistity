@@ -13,11 +13,13 @@
     <TargetFrameworkIdentifier>.NETFramework</TargetFrameworkIdentifier>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <TargetFrameworkProfile>Unity Subset v3.5</TargetFrameworkProfile>
-    <CompilerResponseFile></CompilerResponseFile>
+    <CompilerResponseFile>
+    </CompilerResponseFile>
     <UnityProjectType>Game:1</UnityProjectType>
     <UnityBuildTarget>StandaloneWindows:5</UnityBuildTarget>
     <UnityVersion>5.5.1f1</UnityVersion>
-    <RootNamespace></RootNamespace>
+    <RootNamespace>
+    </RootNamespace>
     <LangVersion Condition=" '$(VisualStudioVersion)' != '10.0' ">4</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
@@ -129,6 +131,8 @@
     <Compile Include="Assets\Persistity\Registries\MappingRegistry.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinaryConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinaryDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryPrimitiveDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Binary\BinaryPrimitiveSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\BinarySerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinaryDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Binary\IBinarySerializer.cs" />
@@ -142,12 +146,16 @@
     <Compile Include="Assets\Persistity\Serialization\Json\IJsonSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\JsonConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\JsonDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\JsonPrimitiveDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Json\JsonPrimitiveSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Json\JsonSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\SerializationConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\IXmlDeserializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\IXmlSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlConfiguration.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\XmlPrimitiveDeserializer.cs" />
+    <Compile Include="Assets\Persistity\Serialization\Xml\XmlPrimitiveSerializer.cs" />
     <Compile Include="Assets\Persistity\Serialization\Xml\XmlSerializer.cs" />
     <Compile Include="Assets\Persistity\Transformers\ITransformer.cs" />
     <Compile Include="Assets\UnityPackages\JsonNetSample\JsonNetSample.cs" />

@@ -2,6 +2,6 @@
 {
     public class PersonList
     {
-        public Person[] People { get; set; }
+        public Person[] Models { get; set; }
     }
 }
