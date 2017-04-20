@@ -19,7 +19,7 @@ Also there is only support for basic types, so if you end up having complex stru
 
 ## GameObjects and MonoBehaviours
 
-These and other complex unity scene objects are not supported and cannot be serialized, it is generally bad practice to try and serialize something like this as you ideally want to be persisting raw data which can be used to repopulate the scene or whatever else you are using the data for, much like with 3rd party classes if you need data from a game object or MB it is recommended you extract it into another class and use that class as your persistance target.
+These and other complex unity scene objects are not supported and cannot be serialized, it is generally bad practice to try and serialize something like this as you ideally want to be persisting raw data which can be used to repopulate the scene or whatever else you are using the data for, much like with 3rd party classes if you need data from a game object or MB it is recommended you extract it into another class and use that class as your persistence target.
 
 ## Public Properties
 

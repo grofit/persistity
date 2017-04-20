@@ -16,4 +16,4 @@ This basically shoves your data into a player pref string based upon a key provi
 
 To create an endpoint just implement `ISendDataEndpoint` or `IReceiveDataEndpoint` for your scenario, such as a `HttpPutRequestEndpoint` and `HttpDeleteRequestEndpoint` etc. 
 
-There is only a single method per interface which handles the persistance or retrieval of data. For sending data you may want to consume a response object too, so in the case of HTTP you may want to consume the returned Id from inserting a user via an API endpoint, and the `onSuccess` argument allows an object to be passed back which can be used for these scenarios.
+There is only a single method per interface which handles the persistence or retrieval of data. For sending data you may want to consume a response object too, so in the case of HTTP you may want to consume the returned Id from inserting a user via an API endpoint, and the `onSuccess` argument allows an object to be passed back which can be used for these scenarios.

@@ -1,6 +1,6 @@
 # Persistity
 
-A pipeline based data persistance framework for unity (a bit like ETL).
+A pipeline based data persistence framework for unity (a bit like ETL).
 
 [![Gitter](https://badges.gitter.im/grofit/persistity.svg)](https://gitter.im/grofit/persistity?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
 
@@ -21,7 +21,7 @@ These are basically steps in a workflow or pipeline, so you can chain together s
 
 Here are a few examples covering incoming and outgoing data pipelines.
 
-### Setting Up Models For Persistance
+### Setting Up Models For persistence
 ```csharp
 [Persist]
 public class SomeClass
