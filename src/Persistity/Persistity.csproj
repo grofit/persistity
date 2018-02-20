@@ -1,0 +1,12 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netstandard2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="lazydata" Version="0.1.0" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Attributes" />
+    <Folder Include="Exceptions" />
+  </ItemGroup>
+</Project>
