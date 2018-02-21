@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Threading.Tasks;
 using LazyData;
 
 namespace Persistity.Endpoints.InMemory
@@ -7,13 +7,13 @@ namespace Persistity.Endpoints.InMemory
     {
         private DataObject _inMemoryStore;
 
-        public void Execute(Action<DataObject> onSuccess, Action<Exception> onError)
-        { onSuccess(_inMemoryStore); }
+        public Task<DataObject> Receive()
+        { return Task.FromResult(_inMemoryStore); }
 
-        public void Execute(DataObject data, Action<object> onSuccess, Action<Exception> onError)
+        public Task<object> Send(DataObject data)
         {
             _inMemoryStore = data;
-            onSuccess(null);
+            return Task.FromResult<object>(null);
         }
     }
 }

@@ -1,9 +1,10 @@
 using System;
+using System.Threading.Tasks;
 
 namespace Persistity.Pipelines
 {
     public interface IReceiveDataPipeline
     {
-        void Execute<T>(object state, Action < T> onSuccess, Action<Exception> onError);
+        Task<T> Execute<T>(object state);
     }
 }

@@ -1,4 +1,5 @@
-﻿using LazyData;
+﻿using System.Threading.Tasks;
+using LazyData;
 using Persistity.Encryption;
 
 namespace Persistity.Processors.Encryption
@@ -10,10 +11,10 @@ namespace Persistity.Processors.Encryption
         public DecryptDataProcessor(IEncryptor encryptor)
         { Encryptor = encryptor; }
 
-        public DataObject Process(DataObject data)
+        public Task<DataObject> Process(DataObject data)
         {
             var decryptedData = Encryptor.Decrypt(data.AsBytes);
-            return new DataObject(decryptedData);
+            return Task.FromResult(new DataObject(decryptedData));
         }
     }
 }

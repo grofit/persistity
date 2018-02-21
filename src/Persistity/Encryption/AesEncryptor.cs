@@ -1,5 +1,4 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using System.Linq;
 using System.Security.Cryptography;
 
@@ -28,26 +27,19 @@ namespace Persistity.Encryption
             var ivStringBytes = GetRandomData(128);
             var password = new Rfc2898DeriveBytes(Password, saltStringBytes, Iterations);
             var keyBytes = password.GetBytes(KeySize / 8);
+            
             using (var symmetricKey = new RijndaelManaged())
+            using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
+            using (var memoryStream = new MemoryStream())
+            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
             {
-                symmetricKey.Mode = CipherMode.CBC;
-                symmetricKey.Padding = PaddingMode.ISO10126;
-                using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
-                {
-                    using (var memoryStream = new MemoryStream())
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-                        {
-                            cryptoStream.Write(data, 0, data.Length);
-                            cryptoStream.FlushFinalBlock();
+                cryptoStream.Write(data, 0, data.Length);
+                cryptoStream.FlushFinalBlock();
 
-                            var cipherTextBytes = saltStringBytes;
-                            cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
-                            cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                            return cipherTextBytes;
-                        }
-                    }
-                }
+                var cipherTextBytes = saltStringBytes;
+                cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
+                cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
+                return cipherTextBytes;
             }
         }
 
@@ -59,23 +51,15 @@ namespace Persistity.Encryption
 
             var password = new Rfc2898DeriveBytes(Password, saltStringBytes, Iterations);
             var keyBytes = password.GetBytes(KeySize / 8);
+            
             using (var symmetricKey = new RijndaelManaged())
+            using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
+            using (var memoryStream = new MemoryStream(cipherTextBytes))
+            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
             {
-                symmetricKey.BlockSize = 128;
-                symmetricKey.Mode = CipherMode.CBC;
-                symmetricKey.Padding = PaddingMode.ISO10126;
-                using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
-                {
-                    using (var memoryStream = new MemoryStream(cipherTextBytes))
-                    {
-                        using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
-                        {
-                            var plainTextBytes = new byte[cipherTextBytes.Length];
-                            var readCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                            return plainTextBytes.Take(readCount).ToArray();
-                        }
-                    }
-                }
+                var plainTextBytes = new byte[cipherTextBytes.Length];
+                var readCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
+                return plainTextBytes.Take(readCount).ToArray();
             }
         }
        

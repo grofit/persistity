@@ -1,9 +1,10 @@
 ﻿using System;
+using System.Threading.Tasks;
 
 namespace Persistity.Pipelines
 {
     public interface ISendDataPipeline
     {
-        void Execute<T>(T data, object state, Action<object> onSuccess, Action<Exception> onError);
+        Task<object> Execute<T>(T data, object state);
     }
 }

@@ -1,14 +1,15 @@
 ﻿using System.Net;
+using System.Threading.Tasks;
 using LazyData;
 
 namespace Persistity.Processors.Encoding
 {
     public class UrlEncodeProcessor : IProcessor
     {
-        public DataObject Process(DataObject data)
+        public Task<DataObject> Process(DataObject data)
         {
             var escapedData = WebUtility.UrlEncode(data.AsString);
-            return new DataObject(escapedData);
+            return Task.FromResult(new DataObject(escapedData));
         }
     }
 }

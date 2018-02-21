@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 using LazyData;
 using LazyData.Serialization;
 using Persistity.Endpoints;
@@ -11,10 +12,10 @@ namespace Persistity.Pipelines
 {
     public class ReceiveDataPipeline : IReceiveDataPipeline
     {
-        public IDeserializer Deserializer { get; private set; }
-        public IEnumerable<ITransformer> Transformers { get; private set; }
-        public IEnumerable<IProcessor> Processors { get; private set; }
-        public IReceiveDataEndpoint ReceiveFromEndpoint { get; private set; }
+        public IDeserializer Deserializer { get; }
+        public IEnumerable<ITransformer> Transformers { get; }
+        public IEnumerable<IProcessor> Processors { get; }
+        public IReceiveDataEndpoint ReceiveFromEndpoint { get; }
 
         public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> transformers = null)
         {
@@ -27,16 +28,12 @@ namespace Persistity.Pipelines
         public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, params IProcessor[] processors) : this(deserializer, receiveFromEndpoint, processors, null)
         {}
 
-        public virtual void Execute<T>(object state, Action<T> onSuccess, Action<Exception> onError)
+        public virtual async Task<T> Execute<T>(object state)
         {
-            ReceiveFromEndpoint.Execute(x =>
-            {
-                var output = RunProcessors(x);
-                var model = Deserializer.Deserialize(output);
-                var transformedModel = RunTransformers(model);
-
-                onSuccess((T)transformedModel);
-            }, onError);
+            var data = await ReceiveFromEndpoint.Receive();
+            var output = await RunProcessors(data);
+            var model = Deserializer.Deserialize(output);
+            return (T)RunTransformers(model);
         }
 
         protected object RunTransformers(object data)
@@ -49,13 +46,13 @@ namespace Persistity.Pipelines
             return data;
         }
 
-        protected DataObject RunProcessors(DataObject data)
+        protected async Task<DataObject> RunProcessors(DataObject data)
         {
-            if (Processors != null && Processors.Any())
-            {
-                foreach (var processor in Processors)
-                { data = processor.Process(data); }
-            }
+            if (Processors == null || !Processors.Any()) 
+            { return data; }
+            
+            foreach (var processor in Processors)
+            { data = await processor.Process(data); }
             return data;
         }
     }

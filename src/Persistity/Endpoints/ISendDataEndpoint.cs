@@ -1,10 +1,11 @@
 ﻿using System;
+using System.Threading.Tasks;
 using LazyData;
 
 namespace Persistity.Endpoints
 {
     public interface ISendDataEndpoint
     {
-        void Execute(DataObject data, Action<object> onSuccess, Action<Exception> onError);
+        Task<object> Send(DataObject data);
     }
 }

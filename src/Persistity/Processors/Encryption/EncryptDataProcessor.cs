@@ -1,19 +1,20 @@
-﻿using LazyData;
+﻿using System.Threading.Tasks;
+using LazyData;
 using Persistity.Encryption;
 
 namespace Persistity.Processors.Encryption
 {
     public class EncryptDataProcessor : IProcessor
     {
-        public IEncryptor Encryptor { get; private set; }
+        public IEncryptor Encryptor { get; }
 
         public EncryptDataProcessor(IEncryptor encryptor)
         { Encryptor = encryptor; }
 
-        public DataObject Process(DataObject data)
+        public Task<DataObject> Process(DataObject data)
         {
             var encryptedData = Encryptor.Encrypt(data.AsBytes);
-            return new DataObject(encryptedData);
+            return Task.FromResult(new DataObject(encryptedData));
         }
     }
 }

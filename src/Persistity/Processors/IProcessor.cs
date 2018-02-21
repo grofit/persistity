@@ -1,9 +1,10 @@
-﻿using LazyData;
+﻿using System.Threading.Tasks;
+using LazyData;
 
 namespace Persistity.Processors
 {
     public interface IProcessor
     {
-        DataObject Process(DataObject data);
+        Task<DataObject> Process(DataObject data);
     }
 }
