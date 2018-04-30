@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using LazyData;
 
-namespace Persistity.Endpoints.HttpEndpoint
+namespace Persistity.Endpoints.Http
 {
     public class HttpSendEndpoint : ISendDataEndpoint, IDisposable
     {
@@ -15,7 +15,7 @@ namespace Persistity.Endpoints.HttpEndpoint
         public string Url { get; }
         public string MimeType { get; }
             
-        private HttpClient _httpClient = new HttpClient();
+        private readonly HttpClient _httpClient = new HttpClient();
 
         public HttpSendEndpoint(string url, HttpMethod method = null, string mimeType = "application/json", 
             IDictionary<string, IEnumerable<string>> headers = null)

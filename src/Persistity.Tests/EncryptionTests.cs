@@ -3,7 +3,7 @@ using System.Text;
 using Persistity.Encryption;
 using Xunit;
 
-namespace Tests.Editor
+namespace Persistity.Tests
 {
     public class EncryptionTests
     {

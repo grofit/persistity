@@ -3,7 +3,7 @@ using System.Net.Http;
 using System.Text;
 using LazyData;
 using Persistity.Endpoints.Files;
-using Persistity.Endpoints.HttpEndpoint;
+using Persistity.Endpoints.Http;
 using Persistity.Tests.Models;
 using Xunit;
 

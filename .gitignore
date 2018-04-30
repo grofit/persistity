@@ -8,3 +8,5 @@ Temp
 /src/src.userprefs
 /*.unitypackage
 /src/.idea
+
+\.vs/
