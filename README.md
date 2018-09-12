@@ -2,11 +2,13 @@
 
 A pipeline based data persistence framework for unity (a bit like ETL).
 
-[![Gitter](https://badges.gitter.im/grofit/persistity.svg)](https://gitter.im/grofit/persistity?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge)
+[![Build Status][build-status-image]][build-status-url]
+[![Nuget Version][nuget-image]][nuget-url]
+[![Join Discord Chat][discord-image]][discord-url]
 
 ## What is it?
 
-It provides a framework for extracting data from your models into any format you want and doing stuff with it.
+Its an async pipeline for handling complex extract/transform/load interactions for your models in any format (xml/json/binary out the box).
 
 At its heart it has:
 
@@ -50,7 +52,7 @@ var saveToBinaryFilePipeline = new PipelineBuilder()
     .Build();
 
 // Execute the pipeline with your game data
-saveToBinaryFilePipeline.Execute(myGameData, SuccessCallback, ErrorCallback);
+await saveToBinaryFilePipeline.Execute(myGameData);
 ```
 
 Now lets imagine we decide we wanted to encrypt our game data before we spat it out, we would make changes like so:
@@ -69,7 +71,7 @@ var saveToBinaryFilePipeline = new PipelineBuilder()
     .Build();
 
 // Execute the pipeline with your game data
-saveToBinaryFilePipeline.Execute(myGameData, SuccessCallback, ErrorCallback);
+await saveToBinaryFilePipeline.Execute(myGameData);
 ```
 
 This then will encrypt your data after it has been transformed and will pass it over to be persisted in a file. You could easily decide to change from using a file to using `PlayerPrefs` by just changing the `FileWriter` to `PlayerPrefWriter` and using that `.SendTo(playerPrefsEndpoint)` which would send your data to player prefs rather than a flat file.
@@ -94,7 +96,7 @@ var loadBinaryFilePipeline = new PipelineBuilder()
     .Build();
 
 // Execute the pipeline to get your game data
-loadBinaryFilePipeline.Execute<MyGameData>(myGameData => { ... }, ErrorCallback);
+var myGameData = await loadBinaryFilePipeline.Execute<MyGameData>();
 ```
 
 This will decrypt and convert your lovely binary data back into a statically typed object for you to do as you wish with.
@@ -117,17 +119,28 @@ There are basic `SendDataPipeline` and `ReceiveDataPipeline` classes which will 
 
 All you need to do is download the stable release and install the unity package.
 
+### Docs
+
+There are a load of documents covering the various classes and how to use them within the docs folder.
+
 ### Advised Setup
 
-It is HIGHLY recommended you use some sort of DI system to setup your high level pipelines and just inject them in via IoC to your objects. This will make your setup and configuration far more sane, something like [Zenject](https://github.com/modesttree/Zenject) works wonders here.
+It is HIGHLY recommended you use some sort of DI system to setup your high level pipelines and just inject them in via IoC to your objects. This will make your setup and configuration far more sane.
+
+For those using unity something like [Zenject](https://github.com/modesttree/Zenject) works wonders here.
 
 ### Dependencies
 
-- [JSON.NET (for unity)](https://github.com/SaladLab/Json.Net.Unity3D)
+- LazyData (Which in turn depends on JSON.NET)
 
-If you do not need to support JSON then you can remove the json serializer files and you will not need the above dependency.
+Historically **LazyData** used to be part of this project, but realistically it could be consumed outside of here without any problem, so it made sense to make it into its own library.
 
-It has been created to have as little dependencies as possible, if unity was a little better at dependency management I would love to use promises and include some http, gzip and other libs to provide more stuff built in, but it would cause headaches for consumers so this may be looked at in some way as it would be great to provide RESTful interactions, GZipping processors and some other common use cases within the lib, but in an opt-in fashion.
+#### HELP I USE UNITY!
+
+If you are using Unity you can use either of these libraries instead which should work as drop in replacements:
+
+- [JSON.NET (Free from Asset Store)](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347)
+- [JSON.NET (Another one on github)](https://github.com/SaladLab/Json.Net.Unity3D)
 
 ## Docs
 
@@ -142,3 +155,10 @@ You can just use pieces of this as well if you want, like if you just want to us
 It was originally started as a branch in the [EcsRx](https://github.com/grofit/ecsrx) repository but as it was not tied to that was brought out into its own repo. 
 
 The overall goal is to attempt to build simple building blocks for consumers to create larger workflows of data, such as scenarios like extracting data as JSON and posting to a web service, or extracting data as binary and putting into a flat file.
+
+[build-status-image]: https://ci.appveyor.com/api/projects/status/wuthq2w1oavx24tf/branch/master?svg=true
+[build-status-url]: https://ci.appveyor.com/project/grofit/persistity/branch/master
+[nuget-image]: https://img.shields.io/nuget/v/persistity.svg
+[nuget-url]: https://www.nuget.org/packages/persistity/
+[discord-image]: https://img.shields.io/discord/488609938399297536.svg
+[discord-url]: https://discord.gg/bS2rnGz
