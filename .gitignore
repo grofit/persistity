@@ -10,3 +10,5 @@ Temp
 /src/.idea
 
 \.vs/
+
+_dist/
