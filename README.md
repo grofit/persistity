@@ -131,7 +131,8 @@ For those using unity something like [Zenject](https://github.com/modesttree/Zen
 
 ### Dependencies
 
-- LazyData (Which in turn depends on JSON.NET)
+- `LazyData` (Which in turn depends on JSON.NET)
+- `System.Net.Http`
 
 Historically **LazyData** used to be part of this project, but realistically it could be consumed outside of here without any problem, so it made sense to make it into its own library.
 
