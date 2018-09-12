@@ -16,4 +16,4 @@ This allows you to url encode the data for web requests. Until you have a http e
 
 ## Creating Processors
 
-To create a processor just implement `IProcessor` for your scenario, such as a `GzipDeflateProcessor` and `GzipInflateProcessor` etc. There is only a single method which takes the `DataObject` representing the underlying data, and then returns back a new `DataObject` containing the processed data.
+To create a processor just implement `IProcessor` for your scenario, such as a `GzipDeflateProcessor` and `GzipInflateProcessor` etc. There is only a single method which takes the `DataObject` representing the underlying data, and then returns back a new `DataObject` task containing the processed data.

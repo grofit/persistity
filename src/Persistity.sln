@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistity", "Persistity\Persistity.csproj", "{06AA0F65-2193-4FB1-AB7C-B5503292D056}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Persistity.Tests", "Persistity.Tests\Persistity.Tests.csproj", "{73B728F5-F919-4B06-B90B-65DB732F2128}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{06AA0F65-2193-4FB1-AB7C-B5503292D056}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{06AA0F65-2193-4FB1-AB7C-B5503292D056}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{06AA0F65-2193-4FB1-AB7C-B5503292D056}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{06AA0F65-2193-4FB1-AB7C-B5503292D056}.Release|Any CPU.Build.0 = Release|Any CPU
+		{73B728F5-F919-4B06-B90B-65DB732F2128}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{73B728F5-F919-4B06-B90B-65DB732F2128}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{73B728F5-F919-4B06-B90B-65DB732F2128}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{73B728F5-F919-4B06-B90B-65DB732F2128}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal

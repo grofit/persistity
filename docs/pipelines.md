@@ -11,7 +11,7 @@ var saveToBinaryFilePipeline = new PipelineBuilder()
     .Build();
     
 // Execute the pipeline with your game data
-saveToBinaryFilePipeline.Execute(myGameData, SuccessCallback, ErrorCallback);
+await saveToBinaryFilePipeline.Execute(myGameData);
 ```
 
 In an ideal world you would have DI and be adhering to IoC throughout your code base, so you should be able to setup all your pipelines when setting up your app, then just injecting them in to your objects like so:
