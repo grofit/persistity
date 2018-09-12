@@ -1,6 +1,6 @@
 # Persistity
 
-A pipeline based data persistence framework for unity (a bit like ETL).
+A pipeline based data persistence framework (a bit like ETL) for game developers for use with Unity, Monogame or other .net based engines/frameworks.
 
 [![Build Status][build-status-image]][build-status-url]
 [![Nuget Version][nuget-image]][nuget-url]
