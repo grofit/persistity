@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
+        <Title>Persistity.Endpoints.Http</Title>
+        <Authors>Grofit (LP)</Authors>
+        <Version>0.0.0</Version>
+        <PackageLicenseUrl>https://github.com/grofit/persistity/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/grofit/persistity</PackageProjectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <Description>Simple HTTP Endpoints allowing you to send/get data from urls</Description>
+        <PackageTags>serialization game-development json xml binary http</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+        <PackageReference Include="System.Net.Http" Version="4.3.3" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Persistity\Persistity.csproj" />
+    </ItemGroup>
+
+</Project>

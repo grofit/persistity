@@ -1,0 +1,33 @@
+version: 0.7.{build}
+branches:
+  only:
+  - master
+  - build-test
+image: Visual Studio 2019
+configuration: Release
+dotnet_csproj:
+  patch: true
+  file: '**\*.csproj'
+  version: '{version}'
+  package_version: '{version}'
+  assembly_version: '{version}'
+  file_version: '{version}'
+  informational_version: '{version}'
+before_build:
+- cmd: nuget restore src/Persistity.sln
+build:
+  project: src/Persistity.sln
+  publish_nuget: true
+  verbosity: minimal
+artifacts:
+  - path: '**\*.nupkg'
+deploy:
+  provider: NuGet
+  on:
+    APPVEYOR_REPO_TAG: true
+  server:
+  api_key:
+    secure: 8NpJv7SDaFNwupS9mBlHFbWVkS014actHVygsayoB9/t0ejM+44QhS8r7El8EgAa
+  skip_symbols: true
+  symbol_server:
+  artifact: /.*\.nupkg/

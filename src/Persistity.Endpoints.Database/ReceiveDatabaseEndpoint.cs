@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using LazyData;
+using Persistity.Endpoints.Database.Extensions;
 using Persistity.Extensions;
 
 namespace Persistity.Endpoints.Database

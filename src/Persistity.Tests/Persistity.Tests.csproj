@@ -4,12 +4,16 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
+    <PackageReference Include="LazyData.Binary" Version="2.0.11" />
+    <PackageReference Include="LazyData.Json" Version="2.0.11" />
+    <PackageReference Include="LazyData.Xml" Version="2.0.11" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />
     <DotNetCliToolReference Include="dotnet-xunit" Version="2.3.1" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Persistity.Endpoints.Http\Persistity.Endpoints.Http.csproj" />
     <ProjectReference Include="..\Persistity\Persistity.csproj">
       <Project>{06AA0F65-2193-4FB1-AB7C-B5503292D056}</Project>
       <Name>Persistity</Name>

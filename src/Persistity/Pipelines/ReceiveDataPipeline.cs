@@ -32,7 +32,7 @@ namespace Persistity.Pipelines
         {
             var data = await ReceiveFromEndpoint.Receive();
             var output = await RunProcessors(data);
-            var model = Deserializer.Deserialize(output);
+            var model = Deserializer.Deserialize(typeof(T), output);
             return (T)RunTransformers(model);
         }
 
