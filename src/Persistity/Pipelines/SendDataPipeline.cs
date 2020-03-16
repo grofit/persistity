@@ -30,7 +30,7 @@ namespace Persistity.Pipelines
             var transformedData = RunTransformers(data);
             var output = Serializer.Serialize(transformedData);
             var processedData = await RunProcessors(output);
-            return SendToEndpoint.Send(processedData);
+            return await SendToEndpoint.Send(processedData);
         }
 
         protected virtual object RunTransformers(object data)
