@@ -25,7 +25,4 @@
     <None Remove="Attributes\**" />
     <None Remove="Exceptions\**" />
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Endpoints\Database" />
-  </ItemGroup>
 </Project>
