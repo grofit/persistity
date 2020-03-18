@@ -17,6 +17,9 @@ namespace Persistity.Pipelines
         public IEnumerable<IProcessor> Processors { get; }
         public IReceiveDataEndpoint ReceiveFromEndpoint { get; }
 
+        public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, params IProcessor[] processors) : this(deserializer, receiveFromEndpoint, processors, null)
+        {}
+        
         public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> transformers = null)
         {
             Deserializer = deserializer;
@@ -25,14 +28,11 @@ namespace Persistity.Pipelines
             ReceiveFromEndpoint = receiveFromEndpoint;
         }
 
-        public ReceiveDataPipeline(IDeserializer deserializer, IReceiveDataEndpoint receiveFromEndpoint, params IProcessor[] processors) : this(deserializer, receiveFromEndpoint, processors, null)
-        {}
-
         public virtual async Task<T> Execute<T>(object state)
         {
             var data = await ReceiveFromEndpoint.Receive();
             var output = await RunProcessors(data);
-            var model = Deserializer.Deserialize(typeof(T), output);
+            var model = Deserializer.Deserialize(output);
             return (T)RunTransformers(model);
         }
 
@@ -40,8 +40,8 @@ namespace Persistity.Pipelines
         {
             if (Transformers != null)
             {
-                foreach (var convertor in Transformers)
-                { data = convertor.TransformFrom(data); }
+                foreach (var transformer in Transformers)
+                { data = transformer.TransformFrom(data); }
             }
             return data;
         }

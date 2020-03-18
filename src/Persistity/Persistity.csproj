@@ -11,7 +11,7 @@
     <PackageTags>serialization game-development json xml binary</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LazyData" Version="2.0.11" />
+    <PackageReference Include="LazyData" Version="3.0.17" />
   </ItemGroup>
   <ItemGroup>
     <Compile Remove="Attributes\**" />

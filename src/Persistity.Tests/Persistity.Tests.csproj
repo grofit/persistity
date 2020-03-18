@@ -4,9 +4,9 @@
     <IsPackable>false</IsPackable>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LazyData.Binary" Version="2.0.11" />
-    <PackageReference Include="LazyData.Json" Version="2.0.11" />
-    <PackageReference Include="LazyData.Xml" Version="2.0.11" />
+    <PackageReference Include="LazyData.Binary" Version="3.0.17" />
+    <PackageReference Include="LazyData.Json" Version="3.0.17" />
+    <PackageReference Include="LazyData.Xml" Version="3.0.17" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="15.5.0" />
     <PackageReference Include="xunit" Version="2.3.1" />
     <PackageReference Include="xunit.runner.visualstudio" Version="2.3.1" />

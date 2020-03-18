@@ -28,7 +28,7 @@ namespace Persistity.Pipelines
         public virtual async Task<object> Execute<T>(T data, object state = null)
         {
             var transformedData = RunTransformers(data);
-            var output = Serializer.Serialize(transformedData);
+            var output = Serializer.Serialize(transformedData, true);
             var processedData = await RunProcessors(output);
             return await SendToEndpoint.Send(processedData);
         }
@@ -37,8 +37,8 @@ namespace Persistity.Pipelines
         {
             if (Transformers == null) { return data; }
             
-            foreach (var convertor in Transformers)
-            { data = convertor.TransformTo(data); }
+            foreach (var transformer in Transformers)
+            { data = transformer.TransformTo(data); }
             
             return data;
         }
