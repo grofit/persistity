@@ -16,19 +16,21 @@ namespace Persistity.Pipelines
         public IEnumerable<ITransformer> Transformers { get; }
         public IEnumerable<IProcessor> Processors { get; }
         public ISendDataEndpoint SendToEndpoint { get; }
+        public SendConfiguration SendConfiguration { get; }
 
-        public SendDataPipeline(ISerializer serializer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> transformers = null)
+        public SendDataPipeline(ISerializer serializer, ISendDataEndpoint sendToEndpoint, IEnumerable<IProcessor> processors = null, IEnumerable<ITransformer> transformers = null, SendConfiguration sendConfiguration = null)
         {
             Serializer = serializer;
             Processors = processors;
             Transformers = transformers;
             SendToEndpoint = sendToEndpoint;
+            SendConfiguration = sendConfiguration;
         }
 
         public virtual async Task<object> Execute<T>(T data, object state = null)
         {
             var transformedData = RunTransformers(data);
-            var output = Serializer.Serialize(transformedData, true);
+            var output = Serializer.Serialize(transformedData, SendConfiguration?.IncludeType ?? true);
             var processedData = await RunProcessors(output);
             return await SendToEndpoint.Send(processedData);
         }

@@ -69,4 +69,10 @@ public class SomeConsumerOfPipeline
 }
 ```
 
-This makes your code a bit more explanitory as you can see what type of pipeline you are have rather than it just being a high level send/recieve one its got more context, which helps with DI concerns and maintenance.
+This makes your code a bit more explanatory as you can see what type of pipeline you are have rather than it just being a high level send/recieve one its got more context, which helps with DI concerns and maintenance.
+
+## State
+
+So as pipelines are meant to be created once and re-used there is the notion of state that is an optional argument on executing pipelines, this is not used by the default implementations, but if you make custom pipeline implementations you can make use of the state to allow each call to provide extra contextual information for each call.
+
+For example if you wanted to have a single pipeline which could actually go to multiple files you may want to make a custom implementation where you provide some state that provides information on where the file should go, or even a token to tie it to some other bit of information, like the id of something. 

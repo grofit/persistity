@@ -5,6 +5,6 @@ namespace Persistity.Pipelines
 {
     public interface IReceiveDataPipeline
     {
-        Task<T> Execute<T>(object state);
+        Task<T> Execute<T>(object state = null);
     }
 }
