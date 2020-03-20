@@ -13,13 +13,14 @@ namespace Persistity.Pipelines.Builders
         private readonly IList<IProcessor> _processors;
         private readonly IList<ITransformer> _transformers;
         private ISendDataEndpoint _sendDataEndpointStep;
+        private SendConfiguration _sendConfiguration;
 
         public SendPipelineBuilder(ISerializer serializer)
         {
             _serializer = serializer;
             _processors = new List<IProcessor>();
             _transformers = new List<ITransformer>();
-    }
+        }
 
         public SendPipelineBuilder ProcessWith(IProcessor processor)
         {
@@ -50,10 +51,16 @@ namespace Persistity.Pipelines.Builders
             _sendDataEndpointStep = sendDataEndpoint;
             return this;
         }
+        
+        public SendPipelineBuilder WithConfiguration(SendConfiguration configuration)
+        {
+            _sendConfiguration = configuration;
+            return this;
+        }
 
         public ISendDataPipeline Build()
         {
-            return new SendDataPipeline(_serializer, _sendDataEndpointStep, _processors, _transformers);
+            return new SendDataPipeline(_serializer, _sendDataEndpointStep, _processors, _transformers, _sendConfiguration);
         }
     }
 }
