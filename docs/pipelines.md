@@ -1,13 +1,21 @@
 # Pipelines
 
-Pipleines can be thought of as steps in a bigger workflow that is expressed as a single object. So for example if you wanted to take a model and convert it to xml, encrypt it, then store it in a file normally this would be quite a few calls to extract, serializer, encrypt then finally store. So the pipelines give you a simple way to express these steps as a single useable object like so:
+Pipelines are built up of lots of small steps that all form a continual flow, they are very much like streams and link from one step to another.
+
+In most cases you will split these out into:
+
+- **Incoming Pipelines** (i.e read data from a file and do stuff with it)
+- **Outgoing Pipelines** (i.e take data do something with it then put it in a file)
+
+To keep things simple you can implement your own Pipelines however you want but there is a builder available to let you build your own pipeline from smaller steps like the example below.
 
 ```csharp
 // Create the pipeline which wraps the underlying steps
 var saveToBinaryFilePipeline = new PipelineBuilder()
+    .StartFromInput()
     .SerializeWith(binarySerializer)
     .ProcessWith(encryptionProcessor)
-    .SendTo(writeFileEndpoint)
+    .ThenSendTo(writeFileEndpoint)
     .Build();
     
 // Execute the pipeline with your game data
@@ -32,22 +40,22 @@ public class SomeClass
 
 You can also transform objects within the pipeline, this allows you to pass in an object, but have it converted to another object before serialization. This is handy for when you have a quite complex game object but want it transformed into a simpler intermediary object to be serialized. Then the deserialized data can transformed back into the original object, but you have to tell it how to do so by implementing your own custom `ITransformer` objects, then passing them into the pipeline, like so:
 
-```
+```csharp
 // Create the pipeline which transforms an object and saves
 var saveToBinaryFilePipeline = new PipelineBuilder()
+    .StartFromInput()
     .SerializeWith(binarySerializer)
     .TransformWith(someTransformer)
-    .SendTo(writeFileEndpoint)
+    .ThenSendTo(writeFileEndpoint)
     .Build();
 ```
 
 ## Creating Pipelines
 
-You can create pipelines 3 ways:
+You can create pipelines 2 ways:
 
  - Using the `PipelineBuilder`
- - Implementing your own `ISendDataPipeline` or extending `SendDataPipeline` (same for receive)
- - Manually instantiating `SendDataPipeline` and passing steps into constructor (same for receive)
+ - Implementing your own `IPipeline`
 
 You would probably want to look at making your own pipelines and exposing them as interfaces to make your IoC contracts more explicit, like:
 

@@ -2,7 +2,6 @@
 {
     public interface ITransformer
     {
-        object TransformTo(object original);
-        object TransformFrom(object converted);
+        object Transform(object original);
     }
 }
