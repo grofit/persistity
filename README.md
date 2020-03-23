@@ -43,12 +43,13 @@ So for example lets cover a quick use case for saving your game state data to a 
 // This would normally be setup once in your app or via DI etc
 var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
 var binarySerializer = new BinarySerializer(mappingRegistry);
-var writeFileEndpoint = new WriteFileEndpoint("savegame.sav");
+var fileEndpoint = new FileEndpoint("savegame.sav");
 
 // Create the pipeline which wraps the underlying steps
 var saveToBinaryFilePipeline = new PipelineBuilder()
+    .StartWithInput()
     .SerializeWith(binarySerializer)
-    .SendTo(writeFileEndpoint)
+    .ThenSendTo(fileEndpoint)
     .Build();
 
 // Execute the pipeline with your game data
@@ -65,9 +66,10 @@ var encryptionProcessor = new EncryptDataProcessor(encryptor);
 
 // Same as before but we now add the processor into the mix
 var saveToBinaryFilePipeline = new PipelineBuilder()
+    .StartWithInput()
     .SerializeWith(binarySerializer)
     .ProcessWith(encryptionProcessor)
-    .SendTo(writeFileEndpoint)
+    .ThenSendTo(fileEndpoint)
     .Build();
 
 // Execute the pipeline with your game data
@@ -86,11 +88,11 @@ var mappingRegistry = new MappingRegistry(new DefaultTypeMapper());
 var binaryDeserializer = new BinaryDeserializer(mappingRegistry);
 var encryptor = new AesEncryptor("some-pass-phrase");
 var decryptionProcessor = new DecryptDataProcessor(encryptor);
-var readFileEndpoint = new ReadFileEndpoint("savegame.sav");
+var fileEndpoint = new FileEndpoint("savegame.sav");
 
 // Create the pipeline which wraps the underlying steps
 var loadBinaryFilePipeline = new PipelineBuilder()
-    .RecieveFrom(readFileEndpoint)
+    .StartFrom(fileEndpoint)
     .ProcessWith(decryptionProcessor)
     .DeserializeWith(binaryDeserializer)
     .Build();
@@ -106,14 +108,42 @@ This will decrypt and convert your lovely binary data back into a statically typ
 So the builder offers a simple and flexible way to create pipelines wherever you want, however in most complex situations you may just want to create your own pipeline implementation and pass that around, which can be done for the above like so:
 
 ```csharp
-public class SaveEncryptedBinaryFilePipeline : SendDataPipeline
+public class ABespokePipeline : IPipeline
 {
-   public SaveEncryptedBinaryFilePipeline(IBinarySerializer serializer, EncryptDataProcessor processor, WriteFileEndpoint endpoint) : base(serializer, sendToEndpoint, processor, null)
-   {}
+    private ISerializer _serializer;
+    private ITransformer _dataTransformer;
+    private ISendDataEndpoint _endpoint;
+
+    public SaveEncryptedBinaryFilePipeline(ISerializer serializer, IToEntityDatabaseDataTransformer dataTransformer, ISendDataEndpoint endpoint)
+    {
+        _serializer = serializer;
+        _dataTransformer = dataTransformer;
+        _endpoint = endpoint;
+    }
+
+    public Task<object> Execute(object input = null, object state = null)
+    {
+        var transformedData = _dataTransformer.Transform(input);
+        var output = _serializer.Serialize(transformedData, true);
+        return _endpoint.Send(output);
+    }
 }
 ```
 
-There are basic `SendDataPipeline` and `ReceiveDataPipeline` classes which will basically wrap up the basic handling for you, however if you want to have more control you can implement your own class from the ground up with `ISendDataPipeline` and `IReceiveDataPipeline` interfaces.
+### Creating Strongly Typed Pipeline via Builder
+
+```csharp
+public class MyStronglyTypedPipeline : BuiltPipeline
+{
+    protected override IEnumerable<IPipelineStep> BuildSteps()
+    {
+        return new PipelineBuilder()
+            .StartFromInput()                
+            // Build the pipeline
+            .BuildSteps();
+    }
+}
+```
 
 ## Using The Framework
 
@@ -131,17 +161,9 @@ For those using unity something like [Zenject](https://github.com/modesttree/Zen
 
 ### Dependencies
 
-- `LazyData` (Which in turn depends on JSON.NET)
-- `System.Net.Http`
+- `LazyData` (There are specific LazyData libs for each serialization format)
 
 Historically **LazyData** used to be part of this project, but realistically it could be consumed outside of here without any problem, so it made sense to make it into its own library.
-
-#### HELP I USE UNITY!
-
-If you are using Unity you can use either of these libraries instead which should work as drop in replacements:
-
-- [JSON.NET (Free from Asset Store)](https://assetstore.unity.com/packages/tools/input-management/json-net-for-unity-11347)
-- [JSON.NET (Another one on github)](https://github.com/SaladLab/Json.Net.Unity3D)
 
 ## Docs
 
