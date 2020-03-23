@@ -1,6 +1,6 @@
 # Endpoints
 
-Endpoints provide a way to send or recieve data to somewhere.
+Endpoints provide a way to send or receive data to somewhere.
 
 ## Provided Endpoints
 

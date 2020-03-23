@@ -14,6 +14,10 @@ There are processors provided for encryption and decryption of data, this by def
 
 This allows you to url encode the data for web requests. Until you have a http endpoint it is not really that useful but adding functionality which would require external libs is out of the scope of the first release.
 
+### Base64 Encode/Decode Processors
+
+This allows you to base64 encode the data for storing binary streams as strings. 
+
 ## Creating Processors
 
 To create a processor just implement `IProcessor` for your scenario, such as a `GzipDeflateProcessor` and `GzipInflateProcessor` etc. There is only a single method which takes the `DataObject` representing the underlying data, and then returns back a new `DataObject` task containing the processed data.

@@ -7,6 +7,7 @@ using LazyData.Registries;
 using LazyData.Xml;
 using Persistity.Encryption;
 using Persistity.Endpoints.Files;
+using Persistity.Endpoints.InMemory;
 using Persistity.Pipelines.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Tests.Models;
@@ -46,25 +47,32 @@ namespace Persistity.Tests
         }
 
         [Fact]
-        public async void should_correctly_transform_encrypt_and_save_to_file_with_builder()
+        public async void should_correctly_do_a_full_send_then_receive_in_single_pipeline()
         {
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
             
             var serializer = new BinarySerializer(_mappingRegistry);
-            var writeFileEndpoint = new FileEndpoint(filename);
+            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
+            var memoryEndpoint = new InMemoryEndpoint();
             var encryptor = new AesEncryptor("some-password");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
+            var decryptionProcessor = new DecryptDataProcessor(encryptor);
 
             var saveToBinaryFilePipeline = new PipelineBuilder()
+                .StartFromInput()
                 .SerializeWith(serializer)
                 .ProcessWith(encryptionProcessor)
-                .SendTo(writeFileEndpoint)
+                .ThenSendTo(memoryEndpoint)
+                .ThenReceiveFrom(memoryEndpoint)
+                .ProcessWith(decryptionProcessor)
+                .DeserializeWith(deserializer)
                 .Build();
 
             var dummyData = GameData.CreateRandom();
-            await saveToBinaryFilePipeline.Execute(dummyData, null);
-            Console.WriteLine("File Written");
+            var outputModel = await saveToBinaryFilePipeline.Execute(dummyData);
+            
+            Assert.AreEqual(dummyData, outputModel);
         }
 
         [Fact]
