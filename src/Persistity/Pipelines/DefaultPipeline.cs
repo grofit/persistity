@@ -6,27 +6,27 @@ using Persistity.Pipelines.Steps.Types;
 
 namespace Persistity.Pipelines
 {
-    public class DefaultPipeline : IPipeline
+    public class DefaultPipeline : IPipeline, IFlowPipeline
     {
-        private readonly IEnumerable<IPipelineStep> _steps;
+        public IEnumerable<IPipelineStep> Steps { get; }
 
         public DefaultPipeline(IEnumerable<IPipelineStep> steps)
-        { _steps = steps; }
+        { Steps = steps; }
         
         public DefaultPipeline(params IPipelineStep[] steps)
-        { _steps = steps; }
+        { Steps = steps; }
 
         public async Task<object> Execute(object input = null, object state = null)
         {
-            if (!_steps.Any()) { return input; }
+            if (!Steps.Any()) { return input; }
 
-            var firstStep = _steps.First();
+            var firstStep = Steps.First();
             if(firstStep is IExpectsObject && input == null)
             { throw new ArgumentNullException(nameof(input), "First step is expecting an object input, none has been provided"); }
             
             var currentData = input;
             
-            foreach (var step in _steps)
+            foreach (var step in Steps)
             { currentData = await step.Execute(currentData, state); }
 
             return currentData;

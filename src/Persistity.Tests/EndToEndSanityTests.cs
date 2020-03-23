@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Threading.Tasks;
+using LazyData;
 using LazyData.Binary;
 using LazyData.Json;
 using LazyData.Mappings.Mappers;
@@ -73,6 +75,50 @@ namespace Persistity.Tests
             var outputModel = await saveToBinaryFilePipeline.Execute(dummyData);
             
             Assert.AreEqual(dummyData, outputModel);
+        }
+
+        [Fact]
+        public async void should_correctly_fork_stream_for_object_with_builder()
+        {
+            var expectedString = "hello there some new pipeline";
+            var data = "hello";
+            var dummyPipeline = new PipelineBuilder()
+                .StartFromInput()
+                .ThenInvoke(x => Task.FromResult((object) (x + " there")))
+                .ThenInvoke(x => Task.FromResult((object) (x + " some")))
+                .ThenInvoke(x => Task.FromResult((object) (x + " old")))
+                .ThenInvoke(x => Task.FromResult((object) (x + " pipeline")))
+                .Build();
+
+            var forkedPipeline = new PipelineBuilder()
+                .ForkObjectFrom(dummyPipeline, 2)
+                .ThenInvoke(x => Task.FromResult((object) (x + " new")))
+                .ThenInvoke(x => Task.FromResult((object) (x + " pipeline")))
+                .Build();
+
+            var actualOutput = await forkedPipeline.Execute(data);
+            Assert.Equal(expectedString, actualOutput);
+        }
+        
+        [Fact]
+        public async void should_correctly_error_if_trying_to_make_data_fork_from_object()
+        {
+            var dummyPipeline = new PipelineBuilder()
+                .StartFromInput()
+                .ThenInvoke(x => Task.FromResult((object)"hello"))
+                .Build();
+            
+            Assert.Throws<ArgumentException>(() => new PipelineBuilder().ForkDataFrom(dummyPipeline));
+        }
+        
+        [Fact]
+        public async void should_correctly_error_if_trying_to_make_object_fork_from_data()
+        {
+            var dummyPipeline = new PipelineBuilder()
+                .StartFrom(new InMemoryEndpoint())
+                .Build();
+            
+            Assert.Throws<ArgumentException>(() => new PipelineBuilder().ForkObjectFrom(dummyPipeline));
         }
 
         [Fact]

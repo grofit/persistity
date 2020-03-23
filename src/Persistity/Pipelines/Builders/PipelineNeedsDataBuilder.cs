@@ -32,7 +32,7 @@ namespace Persistity.Pipelines.Builders
             return new PipelineNeedsObjectBuilder(_steps);
         }
         
-        public IPipeline Build()
+        public IFlowPipeline Build()
         { return new DefaultPipeline(_steps); }
     }
 }
