@@ -58,6 +58,9 @@ namespace Persistity.Pipelines.Builders
             return new PipelineNeedsObjectBuilder(_steps);
         }
         
+        public IEnumerable<IPipelineStep> BuildSteps()
+        { return _steps;  }
+        
         public IFlowPipeline Build()
         { return new DefaultPipeline(_steps); }
     }

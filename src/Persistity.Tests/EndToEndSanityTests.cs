@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using LazyData;
 using LazyData.Binary;
@@ -13,6 +14,7 @@ using Persistity.Endpoints.InMemory;
 using Persistity.Pipelines.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Tests.Models;
+using Persistity.Tests.Pipelines;
 using Xunit;
 using Assert = Persistity.Tests.Extensions.AssertExtensions;
 
@@ -109,6 +111,13 @@ namespace Persistity.Tests
                 .Build();
             
             Assert.Throws<ArgumentException>(() => new PipelineBuilder().ForkDataFrom(dummyPipeline));
+        }
+        
+        [Fact]
+        public async void should_correctly_build_new_pipeline_class()
+        {
+            var dummyPipeline = new DummyBuiltPipeline();
+            Assert.Equal(3, dummyPipeline.Steps.Count());
         }
         
         [Fact]

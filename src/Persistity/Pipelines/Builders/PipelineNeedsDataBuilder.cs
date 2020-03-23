@@ -31,6 +31,9 @@ namespace Persistity.Pipelines.Builders
             _steps.Add(new SendEndpointStep(endpoint));
             return new PipelineNeedsObjectBuilder(_steps);
         }
+
+        public IEnumerable<IPipelineStep> BuildSteps()
+        { return _steps;  }
         
         public IFlowPipeline Build()
         { return new DefaultPipeline(_steps); }
