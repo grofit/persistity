@@ -4,7 +4,7 @@ using Persistity.Pipelines.Steps.Types;
 
 namespace Persistity.Pipelines.Steps
 {
-    public class SerializeStep : IPipelineStep, IReturnsObject
+    public class SerializeStep : IPipelineStep, IReturnsData
     {
         private readonly bool _persistTypes;
         private readonly ISerializer _serializer;
