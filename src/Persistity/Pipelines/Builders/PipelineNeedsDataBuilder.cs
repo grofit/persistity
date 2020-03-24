@@ -1,4 +1,7 @@
+using System;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using LazyData;
 using LazyData.Serialization;
 using Persistity.Endpoints;
 using Persistity.Pipelines.Steps;
@@ -23,6 +26,30 @@ namespace Persistity.Pipelines.Builders
         public PipelineNeedsDataBuilder ProcessWith(IProcessor processor)
         {
             _steps.Add(new ProcessStep(processor));
+            return this;
+        }
+        
+        public PipelineNeedsObjectBuilder ThenInvoke(Func<DataObject, object, Task<object>> method)
+        {
+            _steps.Add(new SendDataToObjectMethodStep(method));
+            return new PipelineNeedsObjectBuilder(_steps);
+        }
+        
+        public PipelineNeedsObjectBuilder ThenInvoke(Func<DataObject, Task<object>> method)
+        {
+            _steps.Add(new SendDataToObjectMethodStep(method));
+            return new PipelineNeedsObjectBuilder(_steps);
+        }
+        
+        public PipelineNeedsDataBuilder ThenInvoke(Func<DataObject, object, Task<DataObject>> method)
+        {
+            _steps.Add(new SendDataToDataMethodStep(method));
+            return this;
+        }
+        
+        public PipelineNeedsDataBuilder ThenInvoke(Func<DataObject, Task<DataObject>> method)
+        {
+            _steps.Add(new SendDataToDataMethodStep(method));
             return this;
         }
         
