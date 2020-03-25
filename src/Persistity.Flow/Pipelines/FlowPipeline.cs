@@ -2,9 +2,9 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 
-namespace Persistity.Pipelines
+namespace Persistity.Flow.Pipelines
 {
     public abstract class FlowPipeline : IFlowPipeline
     {

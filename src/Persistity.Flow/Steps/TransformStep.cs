@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 using Persistity.Transformers;
 
-namespace Persistity.Pipelines.Steps
+namespace Persistity.Flow.Steps
 {
     public class TransformStep : IPipelineStep, IExpectsObject
     {

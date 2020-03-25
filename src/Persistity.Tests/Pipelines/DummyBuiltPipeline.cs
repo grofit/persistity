@@ -1,8 +1,9 @@
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Persistity.Flow.Builders;
+using Persistity.Flow.Pipelines;
+using Persistity.Flow.Steps.Types;
 using Persistity.Pipelines;
-using Persistity.Pipelines.Builders;
-using Persistity.Pipelines.Steps.Types;
 
 namespace Persistity.Tests.Pipelines
 {

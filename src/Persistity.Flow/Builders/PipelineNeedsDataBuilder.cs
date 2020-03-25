@@ -4,11 +4,12 @@ using System.Threading.Tasks;
 using LazyData;
 using LazyData.Serialization;
 using Persistity.Endpoints;
-using Persistity.Pipelines.Steps;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Pipelines;
+using Persistity.Flow.Steps;
+using Persistity.Flow.Steps.Types;
 using Persistity.Processors;
 
-namespace Persistity.Pipelines.Builders
+namespace Persistity.Flow.Builders
 {
     public class PipelineNeedsDataBuilder
     {

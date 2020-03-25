@@ -1,8 +1,8 @@
 using System.Threading.Tasks;
 using Persistity.Endpoints;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 
-namespace Persistity.Pipelines.Steps
+namespace Persistity.Flow.Steps
 {
     public class ReceiveEndpointStep : IPipelineStep, IReturnsData
     {

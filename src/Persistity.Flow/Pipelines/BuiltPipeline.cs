@@ -1,7 +1,7 @@
 using System.Collections.Generic;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 
-namespace Persistity.Pipelines
+namespace Persistity.Flow.Pipelines
 {
     public abstract class BuiltPipeline : FlowPipeline
     {

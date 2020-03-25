@@ -1,7 +1,8 @@
 using System.Collections.Generic;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
+using Persistity.Pipelines;
 
-namespace Persistity.Pipelines
+namespace Persistity.Flow.Pipelines
 {
     public interface IFlowPipeline : IPipeline
     {

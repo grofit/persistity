@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using LazyData;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 using Persistity.Processors;
 
-namespace Persistity.Pipelines.Steps
+namespace Persistity.Flow.Steps
 {
     public class ProcessStep : IPipelineStep, IExpectsData, IReturnsData
     {

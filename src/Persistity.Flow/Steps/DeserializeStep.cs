@@ -1,9 +1,9 @@
 using System.Threading.Tasks;
 using LazyData;
 using LazyData.Serialization;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Steps.Types;
 
-namespace Persistity.Pipelines.Steps
+namespace Persistity.Flow.Steps
 {
     public class DeserializeStep : IPipelineStep, IExpectsData, IReturnsObject
     {

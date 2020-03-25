@@ -3,10 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Persistity.Endpoints;
-using Persistity.Pipelines.Steps;
-using Persistity.Pipelines.Steps.Types;
+using Persistity.Flow.Pipelines;
+using Persistity.Flow.Steps;
+using Persistity.Flow.Steps.Types;
 
-namespace Persistity.Pipelines.Builders
+namespace Persistity.Flow.Builders
 {
     public class PipelineBuilder
     {

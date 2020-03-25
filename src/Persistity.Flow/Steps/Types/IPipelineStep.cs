@@ -1,6 +1,6 @@
 using System.Threading.Tasks;
 
-namespace Persistity.Pipelines.Steps.Types
+namespace Persistity.Flow.Steps.Types
 {
     /// <summary>
     /// This represents a step in a larger pipeline that takes an input and does something and then returns the step result
