@@ -43,7 +43,7 @@ namespace Persistity.Tests.Endpoints
         }
 
         [Fact]
-        public async void should_correctly_overrite_different_file_lengths()
+        public async void should_correctly_overwrite_different_file_lengths()
         {
             var filename = "dummy-binary-file-different-lengths.bin";
 
