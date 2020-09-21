@@ -24,7 +24,7 @@ namespace Persistity.Endpoints.Files
         
         public async Task<object> Send(DataObject data)
         {
-            using (var writer = File.OpenWrite(FilePath))
+            using (var writer = File.Open(FilePath, FileMode.Create, FileAccess.Write, FileShare.None))
             {
                 var bytes = data.AsBytes;
                 await writer.WriteAsync(bytes, 0, bytes.Length);
