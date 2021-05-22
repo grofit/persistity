@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <TargetFrameworks>net46;netstandard2.0</TargetFrameworks>
+        <Title>Persistity.Serializers.Json</Title>
+        <Authors>Grofit (LP)</Authors>
+        <Version>0.0.0</Version>
+        <PackageLicenseUrl>https://github.com/grofit/persistity/blob/master/LICENSE</PackageLicenseUrl>
+        <PackageProjectUrl>https://github.com/grofit/persistity</PackageProjectUrl>
+        <requireLicenseAcceptance>false</requireLicenseAcceptance>
+        <Description>JSON Serializer and Deserializer for Persistity using Newtonsoft.Json</Description>
+        <PackageTags>serialization game-development json</PackageTags>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\Persistity.Core\Persistity.Core.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="Newtonsoft.Json" Version="9.0.1" />
+    </ItemGroup>
+
+</Project>

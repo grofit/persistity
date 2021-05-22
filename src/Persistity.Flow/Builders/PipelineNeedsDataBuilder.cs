@@ -1,8 +1,8 @@
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using LazyData;
-using LazyData.Serialization;
+using Persistity.Core;
+using Persistity.Core.Serialization;
 using Persistity.Endpoints;
 using Persistity.Flow.Pipelines;
 using Persistity.Flow.Steps;
@@ -18,11 +18,14 @@ namespace Persistity.Flow.Builders
         public PipelineNeedsDataBuilder(List<IPipelineStep> steps)
         { _steps = steps; }
         
-        public PipelineNeedsObjectBuilder DeserializeWith(IDeserializer deserializer)
+        public PipelineNeedsObjectBuilder DeserializeWith(IDeserializer deserializer, Type type)
         {
-            _steps.Add(new DeserializeStep(deserializer));
+            _steps.Add(new DeserializeStep(deserializer, type));
             return new PipelineNeedsObjectBuilder(_steps);
         }
+        
+        public PipelineNeedsObjectBuilder DeserializeWith<T>(IDeserializer deserializer)
+        { return DeserializeWith(deserializer, typeof(T)); }
         
         public PipelineNeedsDataBuilder ProcessWith(IProcessor processor)
         {

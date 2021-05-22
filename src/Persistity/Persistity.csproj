@@ -11,9 +11,6 @@
     <PackageTags>serialization game-development json xml binary</PackageTags>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="LazyData" Version="3.0.17" />
-  </ItemGroup>
-  <ItemGroup>
     <Compile Remove="Attributes\**" />
     <Compile Remove="Exceptions\**" />
   </ItemGroup>
@@ -24,5 +21,8 @@
   <ItemGroup>
     <None Remove="Attributes\**" />
     <None Remove="Exceptions\**" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Persistity.Core\Persistity.Core.csproj" />
   </ItemGroup>
 </Project>

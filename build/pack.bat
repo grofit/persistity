@@ -1,2 +1,11 @@
 set version=0.6.0
 dotnet pack ../src/Persistity -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Core -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Endpoints.Database -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Endpoints.Http -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Flow -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Serializers.Json -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Serializers.LazyData.Binary -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Serializers.LazyData.Json -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Serializers.LazyData.Xml -c Release -o ../../_dist /p:version=%version%
+dotnet pack ../src/Persistity.Wiretap -c Release -o ../../_dist /p:version=%version%

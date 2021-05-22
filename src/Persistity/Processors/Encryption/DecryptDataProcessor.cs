@@ -1,5 +1,5 @@
 ﻿using System.Threading.Tasks;
-using LazyData;
+using Persistity.Core;
 using Persistity.Encryption;
 
 namespace Persistity.Processors.Encryption

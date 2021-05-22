@@ -1,21 +1,21 @@
 using System.Threading.Tasks;
-using LazyData.Serialization;
+using Persistity.Core.Serialization;
 using Persistity.Flow.Steps.Types;
 
 namespace Persistity.Flow.Steps
 {
     public class SerializeStep : IPipelineStep, IReturnsData
     {
-        private readonly bool _persistTypes;
+        private readonly object _args;
         private readonly ISerializer _serializer;
 
-        public SerializeStep(ISerializer serializer, bool persistTypes = true)
+        public SerializeStep(ISerializer serializer, object args = null)
         {
-            _persistTypes = persistTypes;
+            _args = args;
             _serializer = serializer;
         }
 
         public Task<object> Execute(object data, object state = null)
-        { return Task.FromResult((object)_serializer.Serialize(data, _persistTypes)); }
+        { return Task.FromResult((object)_serializer.Serialize(data, _args)); }
     }
 }

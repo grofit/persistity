@@ -1,4 +1,4 @@
-version: 1.1.{build}
+version: 2.0.{build}
 branches:
   only:
   - master
@@ -27,7 +27,7 @@ deploy:
     APPVEYOR_REPO_TAG: true
   server:
   api_key:
-    secure: 8NpJv7SDaFNwupS9mBlHFbWVkS014actHVygsayoB9/t0ejM+44QhS8r7El8EgAa
+    secure: qDc4eX66rR2i0q46Owd+Jk6JdfkXsvtpJtLAdDjygiL81EWCXJ37UiGlEU/gLT+K
   skip_symbols: true
   symbol_server:
   artifact: /.*\.nupkg/

@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
-using LazyData;
+using Persistity.Core;
+
 
 namespace Persistity.Endpoints.Database
 {

@@ -3,7 +3,8 @@ using System.Collections.Generic;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
-using LazyData;
+using Persistity.Core;
+
 
 namespace Persistity.Endpoints.Http
 {

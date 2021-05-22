@@ -1,44 +1,37 @@
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using LazyData.Binary;
-using LazyData.Mappings.Mappers;
-using LazyData.Mappings.Types;
-using LazyData.Registries;
 using Persistity.Encryption;
 using Persistity.Endpoints.InMemory;
 using Persistity.Flow.Builders;
 using Persistity.Processors.Encryption;
+using Persistity.Serializers.Json;
 using Persistity.Tests.Models;
 using Persistity.Tests.Pipelines;
 using Persistity.Wiretap.Extensions;
 using Xunit;
+using Xunit.Abstractions;
 using Assert = Persistity.Tests.Extensions.AssertExtensions;
 
 namespace Persistity.Tests
 {
     public class PipelineTests
     {
-        private IMappingRegistry _mappingRegistry;
-        private ITypeCreator _typeCreator;
+        private readonly ITestOutputHelper _testOutputHelper;
 
-        public PipelineTests()
+        public PipelineTests(ITestOutputHelper testOutputHelper)
         {
-            _typeCreator = new TypeCreator();
-
-            var typeAnalyzer = new TypeAnalyzer();
-            var typeMapper = new DefaultTypeMapper(typeAnalyzer);
-            _mappingRegistry = new MappingRegistry(typeMapper);
+            _testOutputHelper = testOutputHelper;
         }
         
         [Fact]
         public async void should_correctly_do_a_full_send_then_receive_in_single_pipeline()
         {
-            var filename = "example_save.bin";
-            Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
+            var filename = "example_save.json";
+            _testOutputHelper.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
             
-            var serializer = new BinarySerializer(_mappingRegistry);
-            var deserializer = new BinaryDeserializer(_mappingRegistry, _typeCreator);
+            var serializer = new JsonSerializer();
+            var deserializer = new JsonDeserializer();
             var memoryEndpoint = new InMemoryEndpoint();
             var encryptor = new AesEncryptor("some-password");
             var encryptionProcessor = new EncryptDataProcessor(encryptor);
@@ -51,7 +44,7 @@ namespace Persistity.Tests
                 .ThenSendTo(memoryEndpoint)
                 .ThenReceiveFrom(memoryEndpoint)
                 .ProcessWith(decryptionProcessor)
-                .DeserializeWith(deserializer)
+                .DeserializeWith<GameData>(deserializer)
                 .Build();
 
             var dummyData = GameData.CreateRandom();

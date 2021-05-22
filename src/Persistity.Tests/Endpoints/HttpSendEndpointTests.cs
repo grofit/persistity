@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Net.Http;
 using System.Text;
-using LazyData;
+using Persistity.Core;
 using Persistity.Endpoints.Files;
 using Persistity.Endpoints.Http;
 using Persistity.Tests.Models;
