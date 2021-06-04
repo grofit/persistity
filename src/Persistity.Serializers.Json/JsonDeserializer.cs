@@ -9,8 +9,10 @@ namespace Persistity.Serializers.Json
     {
         public object Deserialize(DataObject data, Type type, object args = null)
         {
-            var settings = args == null ? new JsonSerializerSettings() : (JsonSerializerSettings)args;
-            return JsonConvert.DeserializeObject(data.AsString, type, settings);
+            if (args != null && args is JsonSerializerSettings settings)
+            { return JsonConvert.DeserializeObject(data.AsString, type, settings); }
+
+            return JsonConvert.DeserializeObject(data.AsString, type);
         }
     }
 }
