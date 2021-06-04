@@ -18,14 +18,14 @@ namespace Persistity.Flow.Builders
         public PipelineNeedsDataBuilder(List<IPipelineStep> steps)
         { _steps = steps; }
         
-        public PipelineNeedsObjectBuilder DeserializeWith(IDeserializer deserializer, Type type)
+        public PipelineNeedsObjectBuilder DeserializeWith(IDeserializer deserializer, Type type, object args = null)
         {
-            _steps.Add(new DeserializeStep(deserializer, type));
+            _steps.Add(new DeserializeStep(deserializer, type, args));
             return new PipelineNeedsObjectBuilder(_steps);
         }
         
-        public PipelineNeedsObjectBuilder DeserializeWith<T>(IDeserializer deserializer)
-        { return DeserializeWith(deserializer, typeof(T)); }
+        public PipelineNeedsObjectBuilder DeserializeWith<T>(IDeserializer deserializer, object args = null)
+        { return DeserializeWith(deserializer, typeof(T), args); }
         
         public PipelineNeedsDataBuilder ProcessWith(IProcessor processor)
         {

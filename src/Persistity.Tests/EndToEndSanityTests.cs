@@ -2,6 +2,7 @@
 using Persistity.Encryption;
 using Persistity.Endpoints.Files;
 using Persistity.Extensions;
+using Persistity.Flow.Builders;
 using Persistity.Processors.Encryption;
 using Persistity.Serializers.Json;
 using Persistity.Tests.Models;
@@ -17,21 +18,25 @@ namespace Persistity.Tests
         }
 
         [Fact]
-        public async void should_correctly_save_to_file()
+        public async void should_correctly_save_and_load_file()
         {
             var filename = "example_save.bin";
             Console.WriteLine("{0}/{1}", Environment.CurrentDirectory, filename);
             
-            var writeFileEndpoint = new FileEndpoint(filename);
+            var fileEndpoint = new FileEndpoint(filename);
             var serializer = new JsonSerializer();
+            var deserializer = new JsonDeserializer();
             
             var dummyData = GameData.CreateRandom();
             var output = serializer.Serialize(dummyData);
             
-            await writeFileEndpoint.Send(output);
-            Console.WriteLine("File Written");         
+            await fileEndpoint.Send(output);
+            var content = await fileEndpoint.Receive();
+            var deserializedDummyData = deserializer.Deserialize<GameData>(content);
+            
+            Assert.Equal(dummyData, deserializedDummyData);
         }
-
+        
         [Fact]
         public async void should_correctly_encrypt_save_then_reload()
         {
