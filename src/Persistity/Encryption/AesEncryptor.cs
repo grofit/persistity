@@ -23,51 +23,64 @@ namespace Persistity.Encryption
 
         public byte[] Encrypt(byte[] data)
         {
-            var saltStringBytes = GetRandomData(128);
-            var ivStringBytes = GetRandomData(128);
+            var saltStringBytes = GetRandomBytes(KeySize);
+            var ivStringBytes = GetRandomBytes(KeySize);
             var password = new Rfc2898DeriveBytes(Password, saltStringBytes, Iterations);
             var keyBytes = password.GetBytes(KeySize / 8);
-            
-            using (var symmetricKey = new RijndaelManaged())
-            using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
-            using (var memoryStream = new MemoryStream())
-            using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
-            {
-                cryptoStream.Write(data, 0, data.Length);
-                cryptoStream.FlushFinalBlock();
 
-                var cipherTextBytes = saltStringBytes;
-                cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
-                cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
-                return cipherTextBytes;
+            using (var symmetricKey = new RijndaelManaged())
+            {
+                symmetricKey.BlockSize = KeySize;
+                symmetricKey.Mode = CipherMode.CBC;
+                symmetricKey.Padding = PaddingMode.PKCS7;
+                
+                using (var encryptor = symmetricKey.CreateEncryptor(keyBytes, ivStringBytes))
+                using (var memoryStream = new MemoryStream())
+                using (var cryptoStream = new CryptoStream(memoryStream, encryptor, CryptoStreamMode.Write))
+                {
+                    cryptoStream.Write(data, 0, data.Length);
+                    cryptoStream.FlushFinalBlock();
+
+                    var cipherTextBytes = saltStringBytes;
+                    cipherTextBytes = cipherTextBytes.Concat(ivStringBytes).ToArray();
+                    cipherTextBytes = cipherTextBytes.Concat(memoryStream.ToArray()).ToArray();
+                    return cipherTextBytes;
+                }
             }
         }
 
         public byte[] Decrypt(byte[] data)
         {
-            var saltStringBytes = data.Take(KeySize / 8).ToArray();
-            var ivStringBytes = data.Skip(KeySize / 8).Take(KeySize / 8).ToArray();
-            var cipherTextBytes = data.Skip((KeySize / 8) * 2).Take(data.Length - ((KeySize / 8) * 2)).ToArray();
+            var derivedKeySize = KeySize / 8;
+            var saltStringBytes = data.Take(derivedKeySize).ToArray();
+            var ivStringBytes = data.Skip(derivedKeySize).Take(KeySize / 8).ToArray();
+            var cipherTextBytes = data.Skip((derivedKeySize) * 2).Take(data.Length - ((derivedKeySize) * 2)).ToArray();
 
             var password = new Rfc2898DeriveBytes(Password, saltStringBytes, Iterations);
-            var keyBytes = password.GetBytes(KeySize / 8);
-            
+            var keyBytes = password.GetBytes(derivedKeySize);
+
             using (var symmetricKey = new RijndaelManaged())
-            using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
-            using (var memoryStream = new MemoryStream(cipherTextBytes))
-            using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
             {
-                var plainTextBytes = new byte[cipherTextBytes.Length];
-                var readCount = cryptoStream.Read(plainTextBytes, 0, plainTextBytes.Length);
-                return plainTextBytes.Take(readCount).ToArray();
+                symmetricKey.BlockSize = KeySize;
+                symmetricKey.Mode = CipherMode.CBC;
+                symmetricKey.Padding = PaddingMode.PKCS7;
+                
+                using (var decryptor = symmetricKey.CreateDecryptor(keyBytes, ivStringBytes))
+                using (var memoryStream = new MemoryStream(cipherTextBytes))
+                using (var cryptoStream = new CryptoStream(memoryStream, decryptor, CryptoStreamMode.Read))
+                using (var plainTextStream = new MemoryStream())
+                {
+                    cryptoStream.CopyTo(plainTextStream);
+                    return plainTextStream.ToArray();
+                }
             }
         }
        
-        private byte[] GetRandomData(int bits)
+        private byte[] GetRandomBytes(int keySize)
         {
-            var result = new byte[bits / 8];
-            _random.GetBytes(result);
-            return result;
+            var actualBytes = new byte[keySize / 8];
+            _random.GetBytes(actualBytes);
+            return actualBytes;
         }
     }
 }
