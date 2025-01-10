@@ -1,5 +1,6 @@
 ﻿using System.Threading.Tasks;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Encryption;
 
 namespace Persistity.Processors.Encryption

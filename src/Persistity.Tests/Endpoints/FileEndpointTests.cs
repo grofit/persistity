@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Text;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Endpoints.Files;
 using Xunit;
 

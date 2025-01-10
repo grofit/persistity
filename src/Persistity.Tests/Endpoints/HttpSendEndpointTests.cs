@@ -2,6 +2,7 @@
 using System.Net.Http;
 using System.Text;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Endpoints.Files;
 using Persistity.Endpoints.Http;
 using Persistity.Tests.Models;

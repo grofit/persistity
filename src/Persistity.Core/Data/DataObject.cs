@@ -1,4 +1,4 @@
-namespace Persistity.Core
+namespace Persistity.Core.Data
 {
     public struct DataObject
     {

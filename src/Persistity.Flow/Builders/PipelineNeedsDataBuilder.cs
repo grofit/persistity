@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Core.Serialization;
 using Persistity.Endpoints;
 using Persistity.Flow.Pipelines;

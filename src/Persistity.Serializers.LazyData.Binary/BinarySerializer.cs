@@ -1,4 +1,5 @@
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Core.Serialization;
 using LazyDataSerializer = LazyData.Binary.BinarySerializer;
 

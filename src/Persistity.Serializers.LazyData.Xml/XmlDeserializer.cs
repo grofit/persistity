@@ -1,5 +1,6 @@
 using System;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Core.Serialization;
 using LazyDataDeserializer = LazyData.Xml.XmlDeserializer;
 using LazyDataObject = LazyData.DataObject;

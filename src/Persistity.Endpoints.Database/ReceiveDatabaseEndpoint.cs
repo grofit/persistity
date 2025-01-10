@@ -1,6 +1,7 @@
 ﻿using System.Data;
 using System.Threading.Tasks;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Endpoints.Database.Extensions;
 using Persistity.Extensions;
 

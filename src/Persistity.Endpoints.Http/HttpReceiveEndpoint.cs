@@ -4,6 +4,7 @@ using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using Persistity.Core;
+using Persistity.Core.Data;
 
 
 namespace Persistity.Endpoints.Http

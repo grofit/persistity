@@ -1,3 +1,5 @@
+using Persistity.Core.Data;
+
 namespace Persistity.Core.Serialization
 {
     public interface ISerializer

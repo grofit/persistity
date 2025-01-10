@@ -1,6 +1,7 @@
 using System;
 using Newtonsoft.Json;
 using Persistity.Core;
+using Persistity.Core.Data;
 using Persistity.Core.Serialization;
 
 namespace Persistity.Serializers.Json
